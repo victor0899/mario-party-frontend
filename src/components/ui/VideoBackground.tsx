@@ -1,11 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { cn } from '../../utils/cn';
-
-interface VideoBackgroundProps {
-  className?: string;
-  overlay?: boolean;
-  overlayOpacity?: number;
-}
+// VideoBackground component for fullscreen video backgrounds
 
 export const VideoBackground = () => {
   return (
