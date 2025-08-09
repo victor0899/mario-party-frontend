@@ -31,8 +31,8 @@ export default function Register() {
 
   return (
     <div className="fixed inset-0 w-screen h-screen flex flex-col lg:flex-row m-0 p-0 overflow-hidden">
-      {/* Image Section - 60% */}
-      <div className="lg:w-3/5 w-full h-64 lg:h-screen relative overflow-hidden">
+      {/* Image Section - 40% */}
+      <div className="lg:w-2/5 w-full h-64 lg:h-screen relative overflow-hidden">
         {/* Image Carousel */}
         <div className="absolute inset-0">
           <div className="mario-carousel">
@@ -64,8 +64,8 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Form Section - 40% */}
-      <div className="lg:w-2/5 w-full flex items-center justify-center min-h-screen lg:min-h-full p-4 lg:p-8 bg-white">
+      {/* Form Section - 60% */}
+      <div className="lg:w-3/5 w-full flex items-center justify-center min-h-screen lg:min-h-full p-4 lg:p-8 bg-white">
         <div className="w-full max-w-md">
           {/* Contenido dinámico con transición */}
           <div className={`transition-all duration-500 ease-in-out ${showEmailForm ? 'opacity-100 transform translate-x-0' : 'opacity-100 transform translate-x-0'}`}>
