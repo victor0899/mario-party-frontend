@@ -83,3 +83,125 @@ html, body {
   100% { opacity: 0; }
 }
 
+/* Mario Party Dice Style for OTP */
+.mario-dice-container {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(145deg, #3b82f6 0%, #2563eb 100%);
+  border: 3px solid #1d4ed8;
+  border-radius: 12px;
+  box-shadow: 
+    0 6px 12px rgba(59, 130, 246, 0.3),
+    0 2px 4px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 rgba(147, 197, 253, 0.5),
+    inset 0 -1px 0 rgba(29, 78, 216, 0.3);
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mario-dice-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(59, 130, 246, 0.4),
+    0 4px 8px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(147, 197, 253, 0.6),
+    inset 0 -1px 0 rgba(29, 78, 216, 0.4);
+}
+
+.mario-dice-container:focus-within {
+  border-color: #1e40af;
+  box-shadow: 
+    0 0 0 3px rgba(147, 197, 253, 0.5),
+    0 6px 12px rgba(59, 130, 246, 0.3),
+    0 2px 4px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 rgba(147, 197, 253, 0.5),
+    inset 0 -1px 0 rgba(29, 78, 216, 0.3);
+}
+
+.mario-dice-container:active {
+  transform: translateY(1px);
+  box-shadow: 
+    0 3px 6px rgba(59, 130, 246, 0.4),
+    0 1px 2px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(147, 197, 253, 0.3),
+    inset 0 -1px 0 rgba(29, 78, 216, 0.5);
+}
+
+/* Hexágono dentro del dado */
+.mario-dice-container::before {
+  content: '';
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+  clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+  z-index: 1;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Responsive adjustments for small screens */
+@media (max-width: 640px) {
+  .mario-dice-container::before {
+    width: 65%;
+    height: 65%;
+  }
+}
+
+@media (max-width: 480px) {
+  .mario-dice-container::before {
+    width: 60%;
+    height: 60%;
+  }
+}
+
+@media (max-width: 320px) {
+  .mario-dice-container::before {
+    width: 55%;
+    height: 55%;
+  }
+}
+
+.mario-dice-container:hover::before {
+  background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+  transform: scale(1.05);
+}
+
+/* Input dentro del hexágono */
+.mario-dice-input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-size: 2rem;
+  font-family: 'Mario Party Hudson', 'Fredoka One', cursive;
+  color: #374151;
+  z-index: 2;
+  font-weight: normal;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive text size */
+@media (max-width: 640px) {
+  .mario-dice-input {
+    font-size: 1.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mario-dice-input {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .mario-dice-input {
+    font-size: 1.625rem;
+  }
+}
+

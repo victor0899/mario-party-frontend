@@ -4,7 +4,9 @@ import { Button, Input } from '../components';
 
 export default function Register() {
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [showVerificationForm, setShowVerificationForm] = useState(false);
   const [email, setEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState(['', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleContinueWithEmail = () => {
@@ -17,10 +19,51 @@ export default function Register() {
 
     setIsLoading(true);
     try {
-      // TODO: Implement email registration logic
-      console.log('Creating account with email:', email);
+      // TODO: Send verification code to email
+      console.log('Sending verification code to:', email);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Navigate to verification screen
+      setShowVerificationForm(true);
     } catch (error) {
-      console.error('Error creating account:', error);
+      console.error('Error sending verification code:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const codeString = verificationCode.join('');
+    if (codeString.length !== 5) return;
+
+    setIsLoading(true);
+    try {
+      // TODO: Verify code with backend
+      console.log('Verifying code:', codeString, 'for email:', email);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // TODO: Navigate to dashboard or complete registration
+      console.log('Account verified successfully!');
+    } catch (error) {
+      console.error('Error verifying code:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setIsLoading(true);
+    try {
+      // TODO: Resend verification code
+      console.log('Resending code to:', email);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error('Error resending code:', error);
     } finally {
       setIsLoading(false);
     }
@@ -28,6 +71,31 @@ export default function Register() {
 
   // Validar si el email es válido para habilitar el botón
   const isEmailValid = email.trim().length > 0 && email.includes('@');
+  const isCodeValid = verificationCode.every(digit => digit !== '') && verificationCode.join('').length === 5;
+
+  // Función para manejar el cambio en los inputs OTP
+  const handleOTPChange = (index: number, value: string) => {
+    if (value.length > 1) return; // Solo permite un dígito
+    if (value !== '' && !/^\d$/.test(value)) return; // Solo números
+
+    const newCode = [...verificationCode];
+    newCode[index] = value;
+    setVerificationCode(newCode);
+
+    // Auto-focus al siguiente input
+    if (value !== '' && index < 4) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      nextInput?.focus();
+    }
+  };
+
+  // Función para manejar teclas especiales
+  const handleOTPKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && verificationCode[index] === '' && index > 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      prevInput?.focus();
+    }
+  };
 
   return (
     <div className="fixed inset-0 w-screen h-screen flex flex-col lg:flex-row m-0 p-0 overflow-hidden">
@@ -68,9 +136,9 @@ export default function Register() {
       <div className="lg:w-3/5 w-full flex items-center justify-center min-h-screen lg:min-h-full p-4 lg:p-8 bg-white">
         <div className="w-full max-w-md">
           {/* Contenido dinámico con transición */}
-          <div className={`transition-all duration-500 ease-in-out ${showEmailForm ? 'opacity-100 transform translate-x-0' : 'opacity-100 transform translate-x-0'}`}>
+          <div className={`transition-all duration-500 ease-in-out opacity-100 transform translate-x-0`}>
             
-            {!showEmailForm ? (
+            {!showEmailForm && !showVerificationForm ? (
               // Vista inicial - Botones sociales
               <>
                 <div className="text-center mb-8">
@@ -146,7 +214,7 @@ export default function Register() {
                   </Link>
                 </div>
               </>
-            ) : (
+            ) : showEmailForm && !showVerificationForm ? (
               // Vista del formulario de email
               <>
                 <div className="text-center mb-8">
@@ -186,6 +254,80 @@ export default function Register() {
                     className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
                   >
                     ← Back to options
+                  </button>
+                </div>
+              </>
+            ) : (
+              // Vista de verificación de email
+              <>
+                <div className="text-center mb-8">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-mario text-gray-800 mb-2">
+                    Verify your email
+                  </h1>
+                  <p className="text-sm sm:text-base md:text-lg text-gray-600">
+                    We just sent a 5-digit code to{' '}
+                    <span className="font-medium text-gray-800">{email}</span>, enter it below:
+                  </p>
+                </div>
+
+                <form onSubmit={handleVerifyCode} className="space-y-6">
+                  <div className="text-center">
+                    <label className="block text-sm font-medium text-gray-700 mb-4">
+                      Verification Code
+                    </label>
+                    <div className="flex justify-center gap-3">
+                      {verificationCode.map((digit, index) => (
+                        <div key={index} className="mario-dice-container">
+                          <input
+                            id={`otp-${index}`}
+                            type="text"
+                            value={digit}
+                            onChange={(e) => handleOTPChange(index, e.target.value)}
+                            onKeyDown={(e) => handleOTPKeyDown(index, e)}
+                            className="mario-dice-input"
+                            maxLength={1}
+                            inputMode="numeric"
+                            pattern="[0-9]"
+                            autoComplete="one-time-code"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    isLoading={isLoading}
+                    disabled={!isCodeValid || isLoading}
+                    className="w-full text-base sm:text-lg"
+                  >
+                    {isLoading ? 'Verifying...' : 'Verify Code'}
+                  </Button>
+                </form>
+
+                {/* Resend code */}
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={handleResendCode}
+                    disabled={isLoading}
+                    className="text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50 transition-colors"
+                  >
+                    Didn't receive the code? Resend
+                  </button>
+                </div>
+
+                {/* Botón para volver */}
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => {
+                      setShowVerificationForm(false);
+                      setVerificationCode(['', '', '', '', '']);
+                    }}
+                    className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    ← Back to email
                   </button>
                 </div>
               </>
