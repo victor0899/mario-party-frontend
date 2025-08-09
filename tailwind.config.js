@@ -46,6 +46,12 @@ export default {
         warning: '#f59e0b',
         error: '#ef4444',
         info: '#06b6d4',
+        border: {
+          light: '#C7C5CC',
+        },
+        text: {
+          dark: '#3a383f',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
