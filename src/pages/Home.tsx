@@ -1,40 +1,7 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { userApi } from '../api/users';
-import { useAuthStore } from '../store/useAuthStore';
-import { Button, Input, Container, VideoBackground } from '../components';
+import { Link } from 'react-router-dom';
+import { Container, VideoBackground, Button } from '../components';
 
 export default function Home() {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { setUser } = useAuthStore();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email.trim()) return;
-
-    setIsLoading(true);
-    try {
-      const users = await userApi.getAll();
-      const user = users.find(u => u.email === email);
-      
-      if (user) {
-        setUser(user);
-        navigate('/dashboard');
-      } else {
-        alert('Usuario no encontrado. ¿Quieres registrarte?');
-        navigate('/register', { state: { email } });
-      }
-    } catch (error) {
-      console.error('Error al iniciar sesión:', error);
-      alert('Error al conectar con el servidor');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="relative min-h-screen flex items-center justify-center">
       {/* Video Background */}
@@ -42,43 +9,30 @@ export default function Home() {
       
       {/* Content */}
       <Container maxWidth="sm" className="relative z-10 w-full">
-        <div className="w-full max-w-md mx-auto p-8">
+        <div className="w-full max-w-md mx-auto p-8 flex flex-col items-center">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-mario text-white mb-2">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-mario text-white mb-2">
               Mario Party Tracker
             </h1>
-            <p className="text-gray-200">Ingresa tu email para continuar</p>
+            <p className="text-lg text-gray-200">Keep score, track your epic wins, and relive the chaos of every game night with friends.</p>
           </div>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <Input
-                type="email"
-                label="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@email.com"
-                required
-                size="lg"
-              />
 
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                isLoading={isLoading}
-                className="w-full"
-              >
-                {isLoading ? 'Ingresando...' : 'Ingresar'}
+          <div className="mt-8">
+            <Link to="/register">
+              <Button variant="primary" size="lg">
+                Create an account
               </Button>
-            </form>
+            </Link>
+          </div>
 
-            <div className="mt-6 text-center">
-              <p className="text-gray-200">
-                ¿No tienes cuenta?{' '}
-                <Link to="/register" className="text-blue-300 hover:text-blue-200 font-medium transition-colors">
-                  Regístrate aquí
-                </Link>
-              </p>
-            </div>
+          <div className="mt-6 text-center">
+            <p className="text-gray-200">
+              Already have an account?{' '}
+              <Link to="/login" className="text-blue-300 hover:text-blue-200 font-medium transition-colors">
+                Log in
+              </Link>
+            </p>
+          </div>
         </div>
       </Container>
     </div>
