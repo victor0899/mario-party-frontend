@@ -40,7 +40,7 @@ export default function Login() {
       <Container maxWidth="sm" className="w-full">
         <Card size="lg" elevation="high" className="w-full max-w-md mx-auto">
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-bold text-gray-800 mb-2">
+            <CardTitle className="text-3xl font-mario text-gray-800 mb-2">
               🎮 Mario Party Tracker
             </CardTitle>
             <p className="text-gray-600">Ingresa tu email para continuar</p>

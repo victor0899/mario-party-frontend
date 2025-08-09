@@ -50,6 +50,7 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['Fredoka One', 'cursive'], // Fun gaming font
+        mario: ['Mario Party Hudson', 'Fredoka One', 'cursive'], // Mario Party font
         mono: ['JetBrains Mono', 'monospace'],
       },
       fontSize: {

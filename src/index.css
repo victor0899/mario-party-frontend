@@ -1,3 +1,14 @@
+@import url('https://db.onlinewebfonts.com/c/0979ee09d855740aadc7c27491cce670?family=Mario+Party+Hudson');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Mario Party font utilities */
+.font-mario-test {
+  font-family: 'Mario Party Hudson', 'Fredoka One', cursive !important;
+}
+
+.font-mario {
+  font-family: 'Mario Party Hudson', 'Fredoka One', cursive !important;
+}
