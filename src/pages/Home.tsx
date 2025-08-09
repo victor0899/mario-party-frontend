@@ -11,10 +11,11 @@ export default function Home() {
       <Container maxWidth="sm" className="relative z-10 w-full">
         <div className="w-full max-w-md mx-auto p-8 flex flex-col items-center">
           <div className="text-center mb-8">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-mario text-white mb-2">
+            <h1 className="text-6xl font-mario text-white mb-2">
               Mario Party Tracker
             </h1>
-            <p className="text-lg text-gray-200">Keep score, track your epic wins, and relive the chaos of every game night with friends.</p>
+            <p className="text-lg text-gray-200">Keep score, track your epic wins, and relive the chaos of every game night with friends!
+            </p>
           </div>
 
           <div className="mt-8">
