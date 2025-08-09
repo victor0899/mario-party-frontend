@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { userApi } from '../api/users';
 import { useAuthStore } from '../store/useAuthStore';
-import { Button, Input, Card, CardHeader, CardTitle, CardContent, Container } from '../components';
+import { Button, Input, Container, VideoBackground } from '../components';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -36,17 +36,19 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-      <Container maxWidth="sm" className="w-full">
-        <Card size="lg" elevation="high" className="w-full max-w-md mx-auto">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl font-mario text-gray-800 mb-2">
+    <div className="relative min-h-screen flex items-center justify-center" style={{ margin: 0, padding: 0, width: '100%', height: '100vh' }}>
+      {/* Video Background */}
+      <VideoBackground />
+      
+      {/* Content */}
+      <Container maxWidth="sm" className="relative z-10 w-full">
+        <div className="w-full max-w-md mx-auto p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-mario text-white mb-2">
               🎮 Mario Party Tracker
-            </CardTitle>
-            <p className="text-gray-600">Ingresa tu email para continuar</p>
-          </CardHeader>
-
-          <CardContent>
+            </h1>
+            <p className="text-gray-200">Ingresa tu email para continuar</p>
+          </div>
             <form onSubmit={handleSubmit} className="space-y-6">
               <Input
                 type="email"
@@ -70,22 +72,21 @@ export default function Login() {
             </form>
 
             <div className="mt-6 space-y-4 text-center">
-              <p className="text-gray-600">
+              <p className="text-gray-200">
                 ¿No tienes cuenta?{' '}
-                <Link to="/register" className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
+                <Link to="/register" className="text-blue-300 hover:text-blue-200 font-medium transition-colors">
                   Regístrate aquí
                 </Link>
               </p>
 
               <Link 
                 to="/" 
-                className="inline-flex items-center text-gray-500 hover:text-gray-700 transition-colors text-sm"
+                className="inline-flex items-center text-gray-300 hover:text-gray-200 transition-colors text-sm"
               >
                 ← Volver al inicio
               </Link>
             </div>
-          </CardContent>
-        </Card>
+        </div>
       </Container>
     </div>
   );
