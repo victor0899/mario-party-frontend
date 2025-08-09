@@ -8,13 +8,13 @@ export default function Home() {
       <VideoBackground />
       
       {/* Content */}
-      <Container maxWidth="sm" className="relative z-10 w-full">
-        <div className="w-full max-w-md mx-auto p-8 flex flex-col items-center">
+      <Container className="relative z-10 w-full">
+        <div className="w-full mx-auto p-8 flex flex-col items-center">
           <div className="text-center mb-8">
-            <h1 className="text-6xl font-mario text-white mb-2">
+            <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-10xl font-mario text-white mb-2">
               Mario Party Tracker
             </h1>
-            <p className="text-lg text-gray-200">Keep score, track your epic wins, and relive the chaos of every game night with friends!
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-gray-200">Keep score, track your epic wins, and relive the chaos of every game night with friends!
             </p>
           </div>
 
