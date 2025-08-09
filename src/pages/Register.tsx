@@ -6,6 +6,7 @@ export default function Register() {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [showVerificationForm, setShowVerificationForm] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showSuccessForm, setShowSuccessForm] = useState(false);
   const [email, setEmail] = useState('');
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '']);
   const [password, setPassword] = useState('');
@@ -84,7 +85,8 @@ export default function Register() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // TODO: Navigate to dashboard or login
+      // Navigate to success screen
+      setShowSuccessForm(true);
       console.log('Account created successfully!');
     } catch (error) {
       console.error('Error creating account:', error);
@@ -182,7 +184,7 @@ export default function Register() {
           {/* Contenido dinámico con transición */}
           <div className={`transition-all duration-500 ease-in-out opacity-100 transform translate-x-0`}>
             
-            {!showEmailForm && !showVerificationForm && !showPasswordForm ? (
+            {!showEmailForm && !showVerificationForm && !showPasswordForm && !showSuccessForm ? (
               // Vista inicial - Botones sociales
               <>
                 <div className="text-center mb-8">
@@ -258,7 +260,7 @@ export default function Register() {
                   </Link>
                 </div>
               </>
-            ) : showEmailForm && !showVerificationForm && !showPasswordForm ? (
+            ) : showEmailForm && !showVerificationForm && !showPasswordForm && !showSuccessForm ? (
               // Vista del formulario de email
               <>
                 <div className="text-center mb-8">
@@ -301,7 +303,7 @@ export default function Register() {
                   </button>
                 </div>
               </>
-            ) : showVerificationForm && !showPasswordForm ? (
+            ) : showVerificationForm && !showPasswordForm && !showSuccessForm ? (
               // Vista de verificación de email
               <>
                 <div className="text-center mb-8">
@@ -375,7 +377,7 @@ export default function Register() {
                   </button>
                 </div>
               </>
-            ) : (
+            ) : showPasswordForm && !showSuccessForm ? (
               // Vista de creación de contraseña
               <>
                 <div className="text-center mb-8">
@@ -458,7 +460,7 @@ export default function Register() {
                     disabled={!isPasswordValid || isLoading}
                     className="w-full text-base sm:text-lg"
                   >
-                    {isLoading ? 'Creating account...' : 'Create Account'}
+                    {isLoading ? 'Creating account...' : 'Continue'}
                   </Button>
                 </form>
 
@@ -473,6 +475,38 @@ export default function Register() {
                   >
                     ← Back to verification
                   </button>
+                </div>
+              </>
+            ) : (
+              // Vista de cuenta creada exitosamente
+              <>
+                <div className="text-center mb-8">
+                  <div className="mb-6">
+                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-12 h-12 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-mario text-gray-800 mb-2">
+                      Account Created!
+                    </h1>
+                    <p className="text-sm sm:text-base md:text-lg text-gray-600">
+                      Your account was successfully created.<br />
+                      Welcome to Mario Party Tracker!
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <Link to="/login">
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="w-full text-base sm:text-lg"
+                    >
+                      Log in
+                    </Button>
+                  </Link>
                 </div>
               </>
             )}
