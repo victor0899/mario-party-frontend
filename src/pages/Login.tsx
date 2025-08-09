@@ -36,7 +36,7 @@ export default function Login() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center" style={{ margin: 0, padding: 0, width: '100%', height: '100vh' }}>
+    <div className="relative min-h-screen flex items-center justify-center">
       {/* Video Background */}
       <VideoBackground />
       
@@ -71,20 +71,13 @@ export default function Login() {
               </Button>
             </form>
 
-            <div className="mt-6 space-y-4 text-center">
+            <div className="mt-6 text-center">
               <p className="text-gray-200">
                 ¿No tienes cuenta?{' '}
                 <Link to="/register" className="text-blue-300 hover:text-blue-200 font-medium transition-colors">
                   Regístrate aquí
                 </Link>
               </p>
-
-              <Link 
-                to="/" 
-                className="inline-flex items-center text-gray-300 hover:text-gray-200 transition-colors text-sm"
-              >
-                ← Volver al inicio
-              </Link>
             </div>
         </div>
       </Container>

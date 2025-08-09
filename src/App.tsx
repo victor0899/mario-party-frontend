@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/useAuthStore';
+import AppLayout from './components/layout/AppLayout'; // Import layout
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -18,7 +19,15 @@ function App() {
       <Routes>
         <Route 
           path="/" 
-          element={isAuthenticated ? <Home /> : <Navigate to="/login" />} 
+          element={
+            isAuthenticated ? (
+              <AppLayout>
+                <Home />
+              </AppLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
         />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -26,7 +35,9 @@ function App() {
           path="/dashboard" 
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <AppLayout>
+                <Dashboard />
+              </AppLayout>
             </ProtectedRoute>
           } 
         />
