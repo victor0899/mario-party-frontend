@@ -4,7 +4,7 @@ import { userApi } from '../api/users';
 import { useAuthStore } from '../store/useAuthStore';
 import { Button, Input, Container, VideoBackground } from '../components';
 
-export default function Home() {
+export default function SignIn() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
