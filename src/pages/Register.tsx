@@ -5,8 +5,10 @@ import { Button, Input } from '../components';
 export default function Register() {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [showVerificationForm, setShowVerificationForm] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [email, setEmail] = useState('');
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '']);
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleContinueWithEmail = () => {
@@ -47,8 +49,9 @@ export default function Register() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // TODO: Navigate to dashboard or complete registration
-      console.log('Account verified successfully!');
+      // Navigate to password creation screen
+      setShowPasswordForm(true);
+      console.log('Email verified successfully!');
     } catch (error) {
       console.error('Error verifying code:', error);
     } finally {
@@ -69,9 +72,50 @@ export default function Register() {
     }
   };
 
-  // Validar si el email es válido para habilitar el botón
+  const handleCreatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password.trim()) return;
+
+    setIsLoading(true);
+    try {
+      // TODO: Create account with backend
+      console.log('Creating account:', { email, password });
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // TODO: Navigate to dashboard or login
+      console.log('Account created successfully!');
+    } catch (error) {
+      console.error('Error creating account:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Función para validar contraseña
+  const validatePassword = (pwd: string) => {
+    const requirements = {
+      minLength: pwd.length >= 8,
+      hasUpperCase: /[A-Z]/.test(pwd),
+      hasLowerCase: /[a-z]/.test(pwd),
+      hasNumber: /[0-9]/.test(pwd),
+      hasSpecialChar: /[!@#$%&*]/.test(pwd)
+    };
+    
+    const isValid = requirements.minLength && 
+                   requirements.hasUpperCase && 
+                   requirements.hasLowerCase && 
+                   requirements.hasNumber;
+    
+    return { requirements, isValid };
+  };
+
+  // Validaciones
   const isEmailValid = email.trim().length > 0 && email.includes('@');
   const isCodeValid = verificationCode.every(digit => digit !== '') && verificationCode.join('').length === 5;
+  const passwordValidation = validatePassword(password);
+  const isPasswordValid = passwordValidation.isValid;
 
   // Función para manejar el cambio en los inputs OTP
   const handleOTPChange = (index: number, value: string) => {
@@ -138,7 +182,7 @@ export default function Register() {
           {/* Contenido dinámico con transición */}
           <div className={`transition-all duration-500 ease-in-out opacity-100 transform translate-x-0`}>
             
-            {!showEmailForm && !showVerificationForm ? (
+            {!showEmailForm && !showVerificationForm && !showPasswordForm ? (
               // Vista inicial - Botones sociales
               <>
                 <div className="text-center mb-8">
@@ -214,7 +258,7 @@ export default function Register() {
                   </Link>
                 </div>
               </>
-            ) : showEmailForm && !showVerificationForm ? (
+            ) : showEmailForm && !showVerificationForm && !showPasswordForm ? (
               // Vista del formulario de email
               <>
                 <div className="text-center mb-8">
@@ -257,7 +301,7 @@ export default function Register() {
                   </button>
                 </div>
               </>
-            ) : (
+            ) : showVerificationForm && !showPasswordForm ? (
               // Vista de verificación de email
               <>
                 <div className="text-center mb-8">
@@ -328,6 +372,106 @@ export default function Register() {
                     className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
                   >
                     ← Back to email
+                  </button>
+                </div>
+              </>
+            ) : (
+              // Vista de creación de contraseña
+              <>
+                <div className="text-center mb-8">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-mario text-gray-800 mb-2">
+                    Create your password
+                  </h1>
+                </div>
+
+                <form onSubmit={handleCreatePassword} className="space-y-6">
+                  <div className="text-left">
+                    <Input
+                      type="password"
+                      label="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      size="lg"
+                    />
+                    
+                    {/* Password Requirements */}
+                    {password && (
+                      <div className="mt-3 space-y-3">
+                        <p className="text-sm text-gray-600 font-medium">Password requirements:</p>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${passwordValidation.requirements.minLength ? 'bg-green-500' : 'bg-gray-300'}`}>
+                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className={`text-sm ${passwordValidation.requirements.minLength ? 'text-green-600' : 'text-gray-600'}`}>
+                              At least 8 characters
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${passwordValidation.requirements.hasUpperCase ? 'bg-green-500' : 'bg-gray-300'}`}>
+                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className={`text-sm ${passwordValidation.requirements.hasUpperCase ? 'text-green-600' : 'text-gray-600'}`}>
+                              One uppercase letter (A-Z)
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${passwordValidation.requirements.hasLowerCase ? 'bg-green-500' : 'bg-gray-300'}`}>
+                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className={`text-sm ${passwordValidation.requirements.hasLowerCase ? 'text-green-600' : 'text-gray-600'}`}>
+                              One lowercase letter (a-z)
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${passwordValidation.requirements.hasNumber ? 'bg-green-500' : 'bg-gray-300'}`}>
+                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                            <span className={`text-sm ${passwordValidation.requirements.hasNumber ? 'text-green-600' : 'text-gray-600'}`}>
+                              One number (0-9)
+                            </span>
+                          </div>
+                          
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    isLoading={isLoading}
+                    disabled={!isPasswordValid || isLoading}
+                    className="w-full text-base sm:text-lg"
+                  >
+                    {isLoading ? 'Creating account...' : 'Create Account'}
+                  </Button>
+                </form>
+
+                {/* Botón para volver */}
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => {
+                      setShowPasswordForm(false);
+                      setPassword('');
+                    }}
+                    className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    ← Back to verification
                   </button>
                 </div>
               </>
