@@ -19,6 +19,7 @@ export const buttonVariants = {
     ghost: 'text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500',
     destructive: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
     success: 'bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500',
+    social: 'bg-white border border-border-light text-text-dark hover:bg-gray-50 focus-visible:ring-blue-500',
   },
 } as const;
 

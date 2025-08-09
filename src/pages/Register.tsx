@@ -171,9 +171,9 @@ export default function Register() {
                   {/* Social Login Buttons */}
                   <div className="space-y-3">
                     <Button
-                      variant="secondary"
+                      variant="social"
                       size="lg"
-                      className="w-full text-base sm:text-lg flex items-center justify-center gap-3 bg-white border border-border-light text-text-dark hover:bg-gray-50"
+                      className="w-full text-base sm:text-lg flex items-center justify-center gap-3"
                       onClick={() => {/* TODO: Google OAuth */}}
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -186,9 +186,9 @@ export default function Register() {
                     </Button>
 
                     <Button
-                      variant="secondary"
+                      variant="social"
                       size="lg"
-                      className="w-full text-base sm:text-lg flex items-center justify-center gap-3 bg-white border border-border-light text-text-dark hover:bg-gray-50"
+                      className="w-full text-base sm:text-lg flex items-center justify-center gap-3"
                       onClick={() => {/* TODO: Apple OAuth */}}
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
