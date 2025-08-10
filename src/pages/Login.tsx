@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { userApi } from '../api/users';
 import { useAuthStore } from '../store/useAuthStore';
+import { Button, Input, Container, VideoBackground } from '../components';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -35,53 +36,51 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center px-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Iniciar Sesión</h1>
-          <p className="text-gray-600">Ingresa tu email para continuar</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="tu@email.com"
-              required
-            />
+    <div className="relative min-h-screen flex items-center justify-center">
+      {/* Video Background */}
+      <VideoBackground />
+      
+      {/* Content */}
+      <Container maxWidth="sm" className="relative z-10 w-full">
+        <div className="w-full max-w-md mx-auto p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-mario text-white mb-2">
+              Mario Party Tracker
+            </h1>
+            <p className="text-gray-200">Ingresa tu email para continuar</p>
           </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <Input
+                type="email"
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@email.com"
+                required
+                size="lg"
+              />
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? 'Ingresando...' : 'Ingresar'}
-          </button>
-        </form>
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                isLoading={isLoading}
+                className="w-full"
+              >
+                {isLoading ? 'Ingresando...' : 'Ingresar'}
+              </Button>
+            </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            ¿No tienes cuenta?{' '}
-            <Link to="/register" className="text-blue-600 hover:text-blue-700 font-medium">
-              Regístrate aquí
-            </Link>
-          </p>
+            <div className="mt-6 text-center">
+              <p className="text-gray-200">
+                ¿No tienes cuenta?{' '}
+                <Link to="/register" className="text-blue-300 hover:text-blue-200 font-medium transition-colors">
+                  Regístrate aquí
+                </Link>
+              </p>
+            </div>
         </div>
-
-        <div className="mt-4 text-center">
-          <Link to="/" className="text-gray-500 hover:text-gray-700">
-            ← Volver al inicio
-          </Link>
-        </div>
-      </div>
+      </Container>
     </div>
   );
 }
