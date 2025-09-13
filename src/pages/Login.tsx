@@ -1,35 +1,27 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { userApi } from '../api/users';
 import { useAuthStore } from '../store/useAuthStore';
 import { Button, Input, Container, VideoBackground } from '../components';
 
 export default function Login() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUser } = useAuthStore();
+  const { signIn } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email.trim()) return;
+
+    if (!email.trim() || !password.trim()) return;
 
     setIsLoading(true);
     try {
-      const users = await userApi.getAll();
-      const user = users.find(u => u.email === email);
-      
-      if (user) {
-        setUser(user);
-        navigate('/dashboard');
-      } else {
-        alert('Usuario no encontrado. ¿Quieres registrarte?');
-        navigate('/register', { state: { email } });
-      }
-    } catch (error) {
+      await signIn(email, password);
+      navigate('/dashboard');
+    } catch (error: any) {
       console.error('Error al iniciar sesión:', error);
-      alert('Error al conectar con el servidor');
+      alert(error.message || 'Error al iniciar sesión');
     } finally {
       setIsLoading(false);
     }
@@ -56,6 +48,16 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
+                required
+                size="lg"
+              />
+
+              <Input
+                type="password"
+                label="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Tu contraseña"
                 required
                 size="lg"
               />

@@ -1,0 +1,292 @@
+import { supabase } from '../lib/supabase';
+import type {
+  Group,
+  GroupMember,
+  Game,
+  GameResult,
+  GameApproval,
+  Map,
+  LeaderboardEntry,
+  CreateGroupRequest,
+  JoinGroupRequest,
+  AddCPUMemberRequest,
+  CreateGameRequest,
+  VoteGameRequest,
+} from '../types/api';
+
+export class SupabaseAPI {
+  // Groups
+  async createGroup(data: CreateGroupRequest): Promise<Group> {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    // Create the group
+    const { data: group, error } = await supabase
+      .from('groups')
+      .insert({
+        name: data.name,
+        description: data.description,
+        is_public: data.is_public ?? false,
+        max_members: data.max_members ?? 4,
+        creator_id: user.id,
+      })
+      .select('*')
+      .single();
+
+    if (error) throw error;
+
+    // Add creator as first member
+    const { error: memberError } = await supabase
+      .from('group_members')
+      .insert({
+        group_id: group.id,
+        user_id: user.id,
+        is_cpu: false,
+        status: 'active',
+      });
+
+    if (memberError) {
+      console.warn('Warning: Could not add creator as member:', memberError);
+    }
+
+    return group;
+  }
+
+  async deleteGroup(groupId: string): Promise<void> {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    // Only group creators can delete their groups
+    const { error } = await supabase
+      .from('groups')
+      .delete()
+      .eq('id', groupId)
+      .eq('creator_id', user.id);
+
+    if (error) throw error;
+  }
+
+  async getGroup(id: string): Promise<Group> {
+    const { data: group, error } = await supabase
+      .from('groups')
+      .select(`
+        *,
+        members:group_members(*),
+        games(
+          id,
+          status,
+          played_at,
+          map_id
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return group;
+  }
+
+  async joinGroup(data: JoinGroupRequest): Promise<GroupMember> {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    // First, find the group by invite code
+    const { data: group, error: groupError } = await supabase
+      .from('groups')
+      .select('id')
+      .eq('invite_code', data.invite_code)
+      .single();
+
+    if (groupError) throw groupError;
+
+    // Join the group
+    const { data: member, error } = await supabase
+      .from('group_members')
+      .insert({
+        group_id: group.id,
+        user_id: user.id,
+        is_cpu: false,
+        status: 'active',
+      })
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return member;
+  }
+
+  async addCPUMember(data: AddCPUMemberRequest): Promise<GroupMember> {
+    const { data: member, error } = await supabase
+      .from('group_members')
+      .insert({
+        group_id: data.group_id,
+        is_cpu: true,
+        cpu_name: data.cpu_name,
+        cpu_avatar: data.cpu_avatar,
+        status: 'active',
+      })
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return member;
+  }
+
+  async getUserGroups(): Promise<Group[]> {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    // Get groups where user is the creator - simplified query
+    const { data: groups, error } = await supabase
+      .from('groups')
+      .select(`
+        *,
+        members:group_members(*),
+        games(id, status, played_at)
+      `)
+      .eq('creator_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return groups || [];
+  }
+
+  // Maps
+  async getMaps(): Promise<Map[]> {
+    const { data: maps, error } = await supabase
+      .from('maps')
+      .select('*')
+      .eq('is_active', true)
+      .order('name');
+
+    if (error) throw error;
+    return maps;
+  }
+
+  // Games
+  async createGame(data: CreateGameRequest): Promise<Game> {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    // Create the game
+    const { data: game, error: gameError } = await supabase
+      .from('games')
+      .insert({
+        group_id: data.group_id,
+        map_id: data.map_id,
+        played_at: data.played_at,
+        status: 'pending',
+        submitted_by: user.id,
+      })
+      .select('*')
+      .single();
+
+    if (gameError) throw gameError;
+
+    // Create the game results
+    const gameResults = data.results.map(result => ({
+      ...result,
+      game_id: game.id,
+    }));
+
+    const { error: resultsError } = await supabase
+      .from('game_results')
+      .insert(gameResults);
+
+    if (resultsError) throw resultsError;
+
+    return game;
+  }
+
+  async voteOnGame(data: VoteGameRequest): Promise<GameApproval> {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('Not authenticated');
+
+    // Get the user's group member record for this game
+    const { data: game, error: gameError } = await supabase
+      .from('games')
+      .select('group_id')
+      .eq('id', data.game_id)
+      .single();
+
+    if (gameError) throw gameError;
+
+    const { data: member, error: memberError } = await supabase
+      .from('group_members')
+      .select('id')
+      .eq('group_id', game.group_id)
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single();
+
+    if (memberError) throw memberError;
+
+    // Cast the vote
+    const { data: approval, error } = await supabase
+      .from('game_approvals')
+      .upsert({
+        game_id: data.game_id,
+        voter_id: member.id,
+        vote: data.vote,
+      })
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return approval;
+  }
+
+  async getGroupGames(groupId: string, status?: 'pending' | 'approved' | 'rejected'): Promise<Game[]> {
+    let query = supabase
+      .from('games')
+      .select(`
+        *,
+        map:map_id(*),
+        results:game_results(
+          *,
+          player:player_id(*)
+        ),
+        approvals:game_approvals(
+          *,
+          voter:voter_id(*)
+        )
+      `)
+      .eq('group_id', groupId)
+      .order('played_at', { ascending: false });
+
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data: games, error } = await query;
+
+    if (error) throw error;
+    return games;
+  }
+
+  // Leaderboard
+  async getGroupLeaderboard(groupId: string): Promise<LeaderboardEntry[]> {
+    // This is a complex query that aggregates data from multiple tables
+    // We'll use a database function for this
+    const { data: leaderboard, error } = await supabase
+      .rpc('get_group_leaderboard', { group_id: groupId });
+
+    if (error) throw error;
+    return leaderboard;
+  }
+
+  // Search groups
+  async searchGroups(query: string): Promise<Group[]> {
+    const { data: groups, error } = await supabase
+      .from('groups')
+      .select('*')
+      .eq('is_public', true)
+      .ilike('name', `%${query}%`)
+      .limit(10);
+
+    if (error) throw error;
+    return groups;
+  }
+}
+
+export const supabaseAPI = new SupabaseAPI();

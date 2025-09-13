@@ -14,7 +14,7 @@ export const buttonVariants = {
   // Color variants
   variant: {
     primary: 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500',
-    secondary: 'bg-purple-600 text-white hover:bg-purple-700 focus-visible:ring-purple-500',
+    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus-visible:ring-gray-500',
     outline: 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500',
     ghost: 'text-blue-600 hover:bg-blue-50 focus-visible:ring-blue-500',
     destructive: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',

@@ -1,40 +1,99 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/useAuthStore';
 import AppLayout from './components/layout/AppLayout';
 import Home from './pages/Home';
-import SignIn from './pages/SignIn'; // Import the new SignIn component
+import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import CreateGroup from './pages/CreateGroup';
+import Groups from './pages/Groups';
+import GroupDetail from './pages/GroupDetail';
+import JoinGroup from './pages/JoinGroup';
 
-// ProtectedRoute now redirects to '/'
+// ProtectedRoute now redirects to '/login'
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/" />;
+  const { isAuthenticated, loading } = useAuthStore();
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="text-white">Cargando...</div>
+    </div>;
+  }
+
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 }
 
 function App() {
+  const { initialize } = useAuthStore();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
   return (
     <Router>
       <Routes>
-        {/* The root path is now public and points to the new Home page */}
         <Route path="/" element={<Home />} />
-
-        {/* The /login path now points to the new SignIn page */}
-        <Route path="/login" element={<SignIn />} />
-        
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        
-        <Route 
-          path="/dashboard" 
+
+        <Route
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <AppLayout>
                 <Dashboard />
               </AppLayout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
+
+        <Route
+          path="/groups"
+          element={
+            <ProtectedRoute>
+              <Groups />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/groups/new"
+          element={
+            <ProtectedRoute>
+              <CreateGroup />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/groups/:id"
+          element={
+            <ProtectedRoute>
+              <GroupDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/groups/join"
+          element={
+            <ProtectedRoute>
+              <JoinGroup />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/groups/join/:inviteCode"
+          element={
+            <ProtectedRoute>
+              <JoinGroup />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
