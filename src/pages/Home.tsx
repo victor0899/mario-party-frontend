@@ -19,19 +19,16 @@ export default function Home() {
           </div>
 
           <div className="mt-8">
-            <Link to="/register">
+            <Link to="/auth">
               <Button variant="primary" size="lg" className="text-base sm:text-lg md:text-xl lg:text-2xl px-6 sm:px-8 md:px-10 lg:px-12 py-3 sm:py-4 md:py-5 lg:py-6">
-                Create an account
+                Get Started
               </Button>
             </Link>
           </div>
 
           <div className="mt-6 text-center">
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-200">
-              Already have an account?{' '}
-              <Link to="/login" className="text-blue-300 hover:text-blue-200 font-medium transition-colors">
-                Log in
-              </Link>
+              Join the Mario Party League today!
             </p>
           </div>
         </div>

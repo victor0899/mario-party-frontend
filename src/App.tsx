@@ -4,8 +4,7 @@ import { useAuthStore } from './store/useAuthStore';
 import AppLayout from './components/layout/AppLayout';
 import { ProfileGuard } from './components';
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import CreateGroup from './pages/CreateGroup';
 import Groups from './pages/Groups';
@@ -26,7 +25,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/auth" />;
   }
 
   return (
@@ -47,8 +46,11 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/auth" element={<Auth />} />
+
+        {/* Redirect old routes to new auth page */}
+        <Route path="/login" element={<Navigate to="/auth" replace />} />
+        <Route path="/register" element={<Navigate to="/auth" replace />} />
 
         <Route
           path="/complete-profile"

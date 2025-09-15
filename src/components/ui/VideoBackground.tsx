@@ -37,15 +37,18 @@ export const VideoBackground = () => {
         <source src="/videos/hero-background.webm" type="video/webm" />
       </video>
       
-      {/* Subtle overlay for better text readability */}
-      <div 
+      {/* Enhanced overlay with gradient for better text readability */}
+      <div
         style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(0, 0, 0, 0.4)',
+          background: `
+            radial-gradient(ellipse at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.5) 100%),
+            linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.4) 100%)
+          `,
           zIndex: 2
         }}
       />
