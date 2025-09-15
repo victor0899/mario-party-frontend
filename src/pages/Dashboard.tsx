@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 
 export default function Dashboard() {
-  const { user, signOut } = useAuthStore();
+  const { user, profile, signOut } = useAuthStore();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -26,7 +26,7 @@ export default function Dashboard() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-800">Mario Party Tracker</h1>
           <div className="flex items-center space-x-4">
-            <span className="text-gray-600">Hola, {user.name}</span>
+            <span className="text-gray-600">Hola, {profile?.nickname || user?.email}</span>
             <button
               onClick={handleLogout}
               className="text-red-600 hover:text-red-700"

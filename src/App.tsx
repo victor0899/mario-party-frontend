@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/useAuthStore';
 import AppLayout from './components/layout/AppLayout';
+import { ProfileGuard } from './components';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -12,8 +13,9 @@ import GroupDetail from './pages/GroupDetail';
 import JoinGroup from './pages/JoinGroup';
 import CreateGame from './pages/CreateGame';
 import Leaderboard from './pages/Leaderboard';
+import CompleteProfile from './pages/CompleteProfile';
 
-// ProtectedRoute now redirects to '/login'
+// ProtectedRoute now redirects to '/login' and checks profile completion
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuthStore();
 
@@ -23,7 +25,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     </div>;
   }
 
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  return (
+    <ProfileGuard>
+      {children}
+    </ProfileGuard>
+  );
 }
 
 function App() {
@@ -39,6 +49,15 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        <Route
+          path="/complete-profile"
+          element={
+            <ProtectedRoute>
+              <CompleteProfile />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/dashboard"

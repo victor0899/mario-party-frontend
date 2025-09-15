@@ -3,7 +3,6 @@ import type {
   Group,
   GroupMember,
   Game,
-  GameResult,
   GameApproval,
   Map,
   LeaderboardEntry,

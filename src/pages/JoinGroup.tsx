@@ -16,7 +16,6 @@ export default function JoinGroup() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  const codeToUse = inviteCode || manualCode;
 
   useEffect(() => {
     if (inviteCode) {

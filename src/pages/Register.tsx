@@ -19,7 +19,7 @@ export default function Register() {
     setIsLoading(true);
     try {
       await signUp(email, password, name);
-      alert('Registro exitoso! Revisa tu email para confirmar tu cuenta.');
+      alert('Registro exitoso! Revisa tu email para confirmar tu cuenta y luego podrás completar tu perfil.');
       navigate('/login');
     } catch (error: any) {
       console.error('Error al registrarse:', error);

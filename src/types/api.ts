@@ -4,6 +4,15 @@ export interface User {
   name: string;
   createdAt: string;
   updatedAt: string;
+
+  // Profile fields
+  nickname?: string;
+  profilePicture?: string;
+  birthDate?: string;
+  nationality?: string;
+  favoriteMinigame?: string;
+  bio?: string;
+  profileCompleted?: boolean;
 }
 
 // Mario Party League specific types

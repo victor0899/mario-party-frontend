@@ -3,14 +3,31 @@ import { persist } from 'zustand/middleware';
 import type { User as AuthUser } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
+interface Profile {
+  id: string;
+  nickname: string;
+  profile_picture: string;
+  birth_date: string;
+  nationality: string;
+  favorite_minigame: string;
+  bio: string;
+  profile_completed: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 interface AuthState {
   user: AuthUser | null;
+  profile: Profile | null;
   isAuthenticated: boolean;
   loading: boolean;
   setUser: (user: AuthUser | null) => void;
+  setProfile: (profile: Profile | null) => void;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updateProfile: (profileData: Partial<Profile>) => Promise<void>;
+  fetchProfile: () => Promise<void>;
   initialize: () => Promise<void>;
 }
 
@@ -18,6 +35,7 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
+      profile: null,
       isAuthenticated: false,
       loading: true,
 
@@ -26,6 +44,8 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: !!user,
         loading: false
       }),
+
+      setProfile: (profile) => set({ profile }),
 
       signUp: async (email: string, password: string, name: string) => {
         const { data, error } = await supabase.auth.signUp({
@@ -55,6 +75,7 @@ export const useAuthStore = create<AuthState>()(
 
         if (data.user) {
           get().setUser(data.user);
+          await get().fetchProfile();
         }
       },
 
@@ -63,6 +84,45 @@ export const useAuthStore = create<AuthState>()(
         if (error) throw error;
 
         get().setUser(null);
+        get().setProfile(null);
+      },
+
+      updateProfile: async (profileData: Partial<Profile>) => {
+        const { user } = get();
+        if (!user) throw new Error('No authenticated user');
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            ...profileData,
+            profile_completed: true,
+            updated_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        get().setProfile(data);
+      },
+
+      fetchProfile: async () => {
+        const { user } = get();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching profile:', error);
+          return;
+        }
+
+        get().setProfile(data);
       },
 
       initialize: async () => {
@@ -72,16 +132,19 @@ export const useAuthStore = create<AuthState>()(
 
         if (session?.user) {
           get().setUser(session.user);
+          await get().fetchProfile();
         } else {
           set({ loading: false, isAuthenticated: false });
         }
 
         // Listen for auth changes
-        supabase.auth.onAuthStateChange((_event, session) => {
+        supabase.auth.onAuthStateChange(async (_event, session) => {
           if (session?.user) {
             get().setUser(session.user);
+            await get().fetchProfile();
           } else {
             get().setUser(null);
+            get().setProfile(null);
           }
         });
       },
@@ -90,6 +153,7 @@ export const useAuthStore = create<AuthState>()(
       name: 'mario-party-auth',
       partialize: (state) => ({
         user: state.user,
+        profile: state.profile,
         isAuthenticated: state.isAuthenticated
       }),
     }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Input, Container } from '../components';
+import { Button, Input } from '../components';
 import { supabaseAPI } from '../api/supabase';
 import { useAuthStore } from '../store/useAuthStore';
 
