@@ -20,6 +20,7 @@ export default function CreateGame() {
   const [group, setGroup] = useState<Group | null>(null);
   const [maps, setMaps] = useState<Map[]>([]);
   const [selectedMapId, setSelectedMapId] = useState('');
+  const [selectedMapIndex, setSelectedMapIndex] = useState(0);
   const [playedAt, setPlayedAt] = useState(new Date().toISOString().split('T')[0]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,6 +38,26 @@ export default function CreateGame() {
     }
   }, [group]);
 
+  // Keyboard navigation for map carousel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) {
+        return; // Don't interfere with form inputs
+      }
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        navigateMap('prev');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        navigateMap('next');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedMapIndex, maps.length]);
+
   const loadInitialData = async () => {
     if (!groupId) {
       alert('ID de grupo requerido');
@@ -52,9 +73,34 @@ export default function CreateGame() {
       ]);
 
       setGroup(groupData);
-      setMaps(mapsData);
-      if (mapsData.length > 0) {
-        setSelectedMapId(mapsData[0].id);
+
+      // Sort maps in the specified order
+      const mapOrder = [
+        'Mega Wiggler\'s Tree Party',
+        'Roll \'em Raceway',
+        'Rainbow Galleria',
+        'Goomba Lagoon',
+        'Western Land',
+        'Mario\'s Rainbow Castle',
+        'King Bowser\'s Keep'
+      ];
+
+      const sortedMaps = [...mapsData].sort((a, b) => {
+        const indexA = mapOrder.indexOf(a.name);
+        const indexB = mapOrder.indexOf(b.name);
+
+        // If map is not in the order list, put it at the end
+        if (indexA === -1 && indexB === -1) return 0;
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+
+        return indexA - indexB;
+      });
+
+      setMaps(sortedMaps);
+      if (sortedMaps.length > 0) {
+        setSelectedMapId(sortedMaps[0].id);
+        setSelectedMapIndex(0);
       }
     } catch (error: any) {
       console.error('Error al cargar datos:', error);
@@ -62,6 +108,75 @@ export default function CreateGame() {
       navigate('/groups');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Helper function to get map image URL
+  const getMapImageUrl = (mapName: string) => {
+    // List of available image files (you can update this as you add more maps)
+    const availableImages: { [key: string]: string } = {
+      'Goomba Lagoon': 'GoombaLagoon.webp',
+      'King Bowser\'s Keep': 'SMPJ_King_Bowser\'s_Keep.webp',
+      'Mario\'s Rainbow Castle': 'SMPJ_Mario\'s_Rainbow_Castle.webp',
+      'Mega Wiggler\'s Tree Party': 'SMPJ_Mega_Wiggler\'s_Tree_Party.webp',
+      'Rainbow Galleria': 'SMPJ_Rainbow_Galleria.webp',
+      'Roll \'em Raceway': 'SMPJ_Roll_\'em_Raceway.webp',
+      'Western Land': 'SMPJ_Western_Land.webp'
+    };
+
+    const filename = availableImages[mapName];
+    return filename ? `/images/maps/${filename}` : null;
+  };
+
+  // Check if map image exists (with fallback)
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
+
+  const handleImageError = (mapId: string) => {
+    setImageErrors(prev => new Set(prev).add(mapId));
+    setImageLoading(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(mapId);
+      return newSet;
+    });
+  };
+
+  const handleImageLoad = (mapId: string) => {
+    setImageErrors(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(mapId);
+      return newSet;
+    });
+    setImageLoading(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(mapId);
+      return newSet;
+    });
+  };
+
+  const handleImageLoadStart = (mapId: string) => {
+    setImageLoading(prev => new Set(prev).add(mapId));
+  };
+
+  // Map carousel navigation functions
+  const navigateMap = (direction: 'prev' | 'next') => {
+    if (maps.length === 0) return;
+
+    let newIndex = selectedMapIndex;
+    if (direction === 'next') {
+      newIndex = (selectedMapIndex + 1) % maps.length;
+    } else {
+      newIndex = selectedMapIndex === 0 ? maps.length - 1 : selectedMapIndex - 1;
+    }
+
+    setSelectedMapIndex(newIndex);
+    setSelectedMapId(maps[newIndex].id);
+  };
+
+  const selectMapByIndex = (index: number) => {
+    if (index >= 0 && index < maps.length) {
+      setSelectedMapIndex(index);
+      setSelectedMapId(maps[index].id);
     }
   };
 
@@ -265,23 +380,158 @@ export default function CreateGame() {
             <h2 className="text-xl font-semibold text-gray-800 mb-6">Información de la Partida</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Map Carousel Selector */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-4">
                   Mapa Jugado
                 </label>
-                <select
-                  value={selectedMapId}
-                  onChange={(e) => setSelectedMapId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Selecciona un mapa</option>
-                  {maps.map((map) => (
-                    <option key={map.id} value={map.id}>
-                      {map.name}
-                    </option>
-                  ))}
-                </select>
+
+                {maps.length > 0 ? (
+                  <div className="relative">
+                    {/* Main Map Display */}
+                    <div className="relative rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 bg-gray-100">
+                      {/* Map Image */}
+                      {(() => {
+                        const currentMap = maps[selectedMapIndex];
+                        const imageUrl = getMapImageUrl(currentMap?.name);
+                        const hasImageError = imageErrors.has(currentMap?.id);
+                        const isLoading = imageLoading.has(currentMap?.id);
+
+                        if (imageUrl && !hasImageError) {
+                          return (
+                            <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600">
+                              {isLoading && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-gray-200 z-10">
+                                  <div className="animate-spin text-2xl">⭐</div>
+                                </div>
+                              )}
+                              <img
+                                src={imageUrl}
+                                alt={currentMap?.name}
+                                className="w-full h-48 object-cover object-center transition-opacity duration-300"
+                                loading="lazy"
+                                onLoadStart={() => handleImageLoadStart(currentMap?.id)}
+                                onError={() => handleImageError(currentMap?.id)}
+                                onLoad={() => handleImageLoad(currentMap?.id)}
+                                style={{ opacity: isLoading ? 0 : 1 }}
+                              />
+                              {/* Dark overlay for text readability */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                            </div>
+                          );
+                        } else {
+                          // Fallback gradient when no image or image fails to load
+                          return (
+                            <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative">
+                              <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="text-6xl opacity-40">🗺️</div>
+                              </div>
+                              {/* Small indicator that no image is available */}
+                              <div className="absolute bottom-2 left-2 text-xs bg-black bg-opacity-50 text-white px-2 py-1 rounded">
+                                Sin imagen
+                              </div>
+                            </div>
+                          );
+                        }
+                      })()}
+
+                      {/* Map Info Overlay */}
+                      <div className="absolute inset-0 flex items-end p-4">
+                        <div className="text-white w-full">
+                          <div className="text-xl font-bold mb-1 transition-all duration-300 drop-shadow-lg">
+                            {maps[selectedMapIndex]?.name}
+                          </div>
+                          <div className="text-sm opacity-90 mb-2 drop-shadow">
+                            {maps[selectedMapIndex]?.game_version}
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <div className="text-xs bg-white bg-opacity-25 backdrop-blur-sm px-2 py-1 rounded">
+                              {selectedMapIndex + 1} de {maps.length}
+                            </div>
+                            <div className="text-lg">🎮</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Corner decoration */}
+                      <div className="absolute top-2 right-2 text-yellow-300 drop-shadow-lg">⭐</div>
+                    </div>
+
+                    {/* Navigation Controls */}
+                    <div className="flex justify-between items-center mt-4">
+                      <button
+                        type="button"
+                        onClick={() => navigateMap('prev')}
+                        className="flex items-center justify-center w-12 h-12 bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-300 rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
+                        disabled={maps.length <= 1}
+                        title="Mapa anterior (← tecla izquierda)"
+                      >
+                        <span className="text-blue-600 text-lg font-bold">‹</span>
+                      </button>
+
+                      {/* Map indicators */}
+                      <div className="flex space-x-2">
+                        {maps.map((_, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => selectMapByIndex(index)}
+                            className={`w-4 h-4 rounded-full transition-all duration-200 ${
+                              index === selectedMapIndex
+                                ? 'bg-blue-500 shadow-md transform scale-110'
+                                : 'bg-gray-300 hover:bg-gray-400 hover:transform hover:scale-105'
+                            }`}
+                            title={`${maps[index]?.name}`}
+                          />
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => navigateMap('next')}
+                        className="flex items-center justify-center w-12 h-12 bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-300 rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
+                        disabled={maps.length <= 1}
+                        title="Siguiente mapa (→ tecla derecha)"
+                      >
+                        <span className="text-blue-600 text-lg font-bold">›</span>
+                      </button>
+                    </div>
+
+                    {/* Keyboard hint */}
+                    <div className="mt-3 text-center">
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                        💡 Usa ← → para navegar
+                      </span>
+                    </div>
+
+                    {/* Quick Map List (Optional - for accessibility) */}
+                    <div className="mt-3">
+                      <select
+                        value={selectedMapId}
+                        onChange={(e) => {
+                          const newMapId = e.target.value;
+                          const newIndex = maps.findIndex(map => map.id === newMapId);
+                          if (newIndex !== -1) {
+                            selectMapByIndex(newIndex);
+                          }
+                        }}
+                        className="w-full text-sm px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-50"
+                      >
+                        {maps.map((map) => (
+                          <option key={map.id} value={map.id}>
+                            {map.name} ({map.game_version})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <div className="text-2xl mb-2">🗺️</div>
+                    <div>No hay mapas disponibles</div>
+                  </div>
+                )}
               </div>
 
               <div>
