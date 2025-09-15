@@ -24,6 +24,7 @@ export default function CreateGame() {
   const [playedAt, setPlayedAt] = useState(new Date().toISOString().split('T')[0]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mapSelected, setMapSelected] = useState(false);
 
   // Initialize player results with all members
   const [playerResults, setPlayerResults] = useState<PlayerResult[]>([]);
@@ -45,6 +46,10 @@ export default function CreateGame() {
         return; // Don't interfere with form inputs
       }
 
+      if (mapSelected) {
+        return; // Don't allow navigation when map is selected
+      }
+
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
         navigateMap('prev');
@@ -56,7 +61,7 @@ export default function CreateGame() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedMapIndex, maps.length]);
+  }, [selectedMapIndex, maps.length, mapSelected]);
 
   const loadInitialData = async () => {
     if (!groupId) {
@@ -171,13 +176,19 @@ export default function CreateGame() {
 
     setSelectedMapIndex(newIndex);
     setSelectedMapId(maps[newIndex].id);
+    setMapSelected(false); // Reset selection state when navigating
   };
 
   const selectMapByIndex = (index: number) => {
     if (index >= 0 && index < maps.length) {
       setSelectedMapIndex(index);
       setSelectedMapId(maps[index].id);
+      setMapSelected(false); // Reset selection state when changing map
     }
+  };
+
+  const handleMapSelection = () => {
+    setMapSelected(!mapSelected);
   };
 
   const calculatePositions = (results: PlayerResult[]): PlayerResult[] => {
@@ -260,8 +271,8 @@ export default function CreateGame() {
   };
 
   const validateForm = (): boolean => {
-    if (!selectedMapId) {
-      alert('Selecciona un mapa');
+    if (!selectedMapId || !mapSelected) {
+      alert('Por favor selecciona un mapa usando el botón "Seleccionar este Mapa"');
       return false;
     }
 
@@ -379,7 +390,20 @@ export default function CreateGame() {
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-6">Información de la Partida</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Date Input - Full width at top */}
+            <div className="mb-6">
+              <Input
+                type="date"
+                label="Fecha de la Partida"
+                value={playedAt}
+                onChange={(e) => setPlayedAt(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+                required
+              />
+            </div>
+
+            {/* Map Selector - Full width below date */}
+            <div>
               {/* Map Carousel Selector */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-4">
@@ -408,22 +432,38 @@ export default function CreateGame() {
                               <img
                                 src={imageUrl}
                                 alt={currentMap?.name}
-                                className="w-full h-48 object-cover object-center transition-opacity duration-300"
+                                className={`w-full h-48 object-cover object-center transition-all duration-500 ${
+                                  mapSelected ? 'blur-[1px] brightness-110 contrast-75 saturate-50' : ''
+                                }`}
                                 loading="lazy"
                                 onLoadStart={() => handleImageLoadStart(currentMap?.id)}
                                 onError={() => handleImageError(currentMap?.id)}
                                 onLoad={() => handleImageLoad(currentMap?.id)}
                                 style={{ opacity: isLoading ? 0 : 1 }}
                               />
-                              {/* Dark overlay for text readability */}
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                              {/* Overlay for text readability */}
+                              <div className={`absolute inset-0 transition-all duration-500 ${
+                                mapSelected
+                                  ? 'bg-gradient-to-t from-black/80 via-black/30 to-transparent'
+                                  : 'bg-gradient-to-t from-black/60 via-black/20 to-transparent'
+                              }`}></div>
+
+                              {/* Selected overlay effect */}
+                              {mapSelected && (
+                                <div className="absolute inset-0 bg-white bg-opacity-10 backdrop-blur-[0.5px]"></div>
+                              )}
+
                             </div>
                           );
                         } else {
                           // Fallback gradient when no image or image fails to load
                           return (
-                            <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative">
-                              <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                            <div className={`h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative transition-all duration-500 ${
+                              mapSelected ? 'blur-[1px] brightness-110 contrast-75 saturate-50' : ''
+                            }`}>
+                              <div className={`absolute inset-0 transition-all duration-500 ${
+                                mapSelected ? 'bg-black bg-opacity-40' : 'bg-black bg-opacity-20'
+                              }`}></div>
                               <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="text-6xl opacity-40">🗺️</div>
                               </div>
@@ -431,6 +471,11 @@ export default function CreateGame() {
                               <div className="absolute bottom-2 left-2 text-xs bg-black bg-opacity-50 text-white px-2 py-1 rounded">
                                 Sin imagen
                               </div>
+
+                              {/* Selected overlay effect for fallback */}
+                              {mapSelected && (
+                                <div className="absolute inset-0 bg-white bg-opacity-10 backdrop-blur-[0.5px]"></div>
+                              )}
                             </div>
                           );
                         }
@@ -449,13 +494,17 @@ export default function CreateGame() {
                             <div className="text-xs bg-white bg-opacity-25 backdrop-blur-sm px-2 py-1 rounded">
                               {selectedMapIndex + 1} de {maps.length}
                             </div>
-                            <div className="text-lg">🎮</div>
+                            <div className="flex items-center space-x-2">
+                              {mapSelected && (
+                                <div className="text-xs bg-gray-800 bg-opacity-90 text-white px-3 py-1 rounded font-bold shadow-lg border border-gray-600 backdrop-blur-sm">
+                                  ✓ SELECCIONADO
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Corner decoration */}
-                      <div className="absolute top-2 right-2 text-yellow-300 drop-shadow-lg">⭐</div>
                     </div>
 
                     {/* Navigation Controls */}
@@ -463,11 +512,15 @@ export default function CreateGame() {
                       <button
                         type="button"
                         onClick={() => navigateMap('prev')}
-                        className="flex items-center justify-center w-12 h-12 bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-300 rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
-                        disabled={maps.length <= 1}
-                        title="Mapa anterior (← tecla izquierda)"
+                        className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200 shadow-md ${
+                          mapSelected || maps.length <= 1
+                            ? 'bg-gray-200 border-2 border-gray-300 cursor-not-allowed'
+                            : 'bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-300 hover:shadow-lg'
+                        }`}
+                        disabled={mapSelected || maps.length <= 1}
+                        title={mapSelected ? "Deselecciona el mapa para navegar" : "Mapa anterior (← tecla izquierda)"}
                       >
-                        <span className="text-blue-600 text-lg font-bold">‹</span>
+                        <span className={`text-lg font-bold ${mapSelected ? 'text-gray-400' : 'text-blue-600'}`}>‹</span>
                       </button>
 
                       {/* Map indicators */}
@@ -477,12 +530,15 @@ export default function CreateGame() {
                             key={index}
                             type="button"
                             onClick={() => selectMapByIndex(index)}
+                            disabled={mapSelected}
                             className={`w-4 h-4 rounded-full transition-all duration-200 ${
-                              index === selectedMapIndex
+                              mapSelected
+                                ? 'bg-gray-300 cursor-not-allowed'
+                                : index === selectedMapIndex
                                 ? 'bg-blue-500 shadow-md transform scale-110'
                                 : 'bg-gray-300 hover:bg-gray-400 hover:transform hover:scale-105'
                             }`}
-                            title={`${maps[index]?.name}`}
+                            title={mapSelected ? "Deselecciona el mapa para navegar" : `${maps[index]?.name}`}
                           />
                         ))}
                       </div>
@@ -490,40 +546,31 @@ export default function CreateGame() {
                       <button
                         type="button"
                         onClick={() => navigateMap('next')}
-                        className="flex items-center justify-center w-12 h-12 bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-300 rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
-                        disabled={maps.length <= 1}
-                        title="Siguiente mapa (→ tecla derecha)"
+                        className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200 shadow-md ${
+                          mapSelected || maps.length <= 1
+                            ? 'bg-gray-200 border-2 border-gray-300 cursor-not-allowed'
+                            : 'bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-300 hover:shadow-lg'
+                        }`}
+                        disabled={mapSelected || maps.length <= 1}
+                        title={mapSelected ? "Deselecciona el mapa para navegar" : "Siguiente mapa (→ tecla derecha)"}
                       >
-                        <span className="text-blue-600 text-lg font-bold">›</span>
+                        <span className={`text-lg font-bold ${mapSelected ? 'text-gray-400' : 'text-blue-600'}`}>›</span>
                       </button>
                     </div>
 
-                    {/* Keyboard hint */}
-                    <div className="mt-3 text-center">
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                        💡 Usa ← → para navegar
-                      </span>
-                    </div>
-
-                    {/* Quick Map List (Optional - for accessibility) */}
-                    <div className="mt-3">
-                      <select
-                        value={selectedMapId}
-                        onChange={(e) => {
-                          const newMapId = e.target.value;
-                          const newIndex = maps.findIndex(map => map.id === newMapId);
-                          if (newIndex !== -1) {
-                            selectMapByIndex(newIndex);
-                          }
-                        }}
-                        className="w-full text-sm px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-50"
+                    {/* Selection Button */}
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={handleMapSelection}
+                        className={`w-full py-3 px-4 rounded-lg font-semibold text-lg transition-all duration-300 ${
+                          mapSelected
+                            ? 'bg-red-500 hover:bg-red-600 text-white hover:shadow-lg transform hover:-translate-y-0.5'
+                            : 'bg-blue-500 hover:bg-blue-600 text-white hover:shadow-lg transform hover:-translate-y-0.5'
+                        }`}
                       >
-                        {maps.map((map) => (
-                          <option key={map.id} value={map.id}>
-                            {map.name} ({map.game_version})
-                          </option>
-                        ))}
-                      </select>
+                        {mapSelected ? 'Deseleccionar Mapa' : 'Seleccionar este Mapa'}
+                      </button>
                     </div>
                   </div>
                 ) : (
@@ -532,16 +579,6 @@ export default function CreateGame() {
                     <div>No hay mapas disponibles</div>
                   </div>
                 )}
-              </div>
-
-              <div>
-                <Input
-                  type="date"
-                  label="Fecha de la Partida"
-                  value={playedAt}
-                  onChange={(e) => setPlayedAt(e.target.value)}
-                  required
-                />
               </div>
             </div>
           </div>
