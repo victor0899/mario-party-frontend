@@ -1,8 +1,20 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 
 export default function Dashboard() {
-  const { user, logout } = useAuthStore();
+  const { user, signOut } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      // Force logout even if there's an error
+      navigate('/login');
+    }
+  };
 
   if (!user) {
     return <div>Cargando...</div>;
@@ -15,8 +27,8 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-gray-800">Mario Party Tracker</h1>
           <div className="flex items-center space-x-4">
             <span className="text-gray-600">Hola, {user.name}</span>
-            <button 
-              onClick={logout}
+            <button
+              onClick={handleLogout}
               className="text-red-600 hover:text-red-700"
             >
               Cerrar Sesión
