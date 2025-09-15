@@ -10,6 +10,8 @@ import CreateGroup from './pages/CreateGroup';
 import Groups from './pages/Groups';
 import GroupDetail from './pages/GroupDetail';
 import JoinGroup from './pages/JoinGroup';
+import CreateGame from './pages/CreateGame';
+import Leaderboard from './pages/Leaderboard';
 
 // ProtectedRoute now redirects to '/login'
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -90,6 +92,24 @@ function App() {
           element={
             <ProtectedRoute>
               <JoinGroup />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/games/new"
+          element={
+            <ProtectedRoute>
+              <CreateGame />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/groups/:id/leaderboard"
+          element={
+            <ProtectedRoute>
+              <Leaderboard />
             </ProtectedRoute>
           }
         />

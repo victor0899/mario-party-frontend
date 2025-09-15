@@ -195,6 +195,28 @@ export class SupabaseAPI {
 
     if (resultsError) throw resultsError;
 
+    // Get the user's group member record to create automatic approval
+    const { data: member, error: memberError } = await supabase
+      .from('group_members')
+      .select('id')
+      .eq('group_id', data.group_id)
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .single();
+
+    if (memberError) throw memberError;
+
+    // Automatically approve the game for the user who created it
+    const { error: approvalError } = await supabase
+      .from('game_approvals')
+      .insert({
+        game_id: game.id,
+        voter_id: member.id,
+        vote: 'approve',
+      });
+
+    if (approvalError) throw approvalError;
+
     return game;
   }
 
@@ -233,7 +255,88 @@ export class SupabaseAPI {
       .single();
 
     if (error) throw error;
+
+    // Check if we need to update game status based on votes
+    await this.checkAndUpdateGameStatus(data.game_id);
+
     return approval;
+  }
+
+  private async checkAndUpdateGameStatus(gameId: string): Promise<void> {
+    // Get game with group info to count human members
+    const { data: game, error: gameError } = await supabase
+      .from('games')
+      .select(`
+        *,
+        group_id,
+        approvals:game_approvals(*),
+        group:group_id(
+          members:group_members!inner(*)
+        )
+      `)
+      .eq('id', gameId)
+      .single();
+
+    if (gameError) throw gameError;
+
+    // Count human members (non-CPU)
+    const humanMembers = game.group.members.filter((m: any) => !m.is_cpu && m.status === 'active');
+    const totalHumanMembers = humanMembers.length;
+
+    // Count votes
+    const approveVotes = game.approvals.filter((a: any) => a.vote === 'approve').length;
+    const rejectVotes = game.approvals.filter((a: any) => a.vote === 'reject').length;
+    const totalVotes = approveVotes + rejectVotes;
+
+    // Calculate majority needed (more than half)
+    const majorityNeeded = Math.floor(totalHumanMembers / 2) + 1;
+
+    let newStatus: string | null = null;
+
+    // Check if we have enough votes for approval
+    if (approveVotes >= majorityNeeded) {
+      newStatus = 'approved';
+    }
+    // Check if we have enough votes for rejection
+    else if (rejectVotes >= majorityNeeded) {
+      newStatus = 'rejected';
+    }
+    // Check if everyone has voted but no majority (shouldn't happen with odd numbers)
+    else if (totalVotes === totalHumanMembers && approveVotes !== rejectVotes) {
+      newStatus = approveVotes > rejectVotes ? 'approved' : 'rejected';
+    }
+
+    // Update game status if needed
+    if (newStatus && game.status !== newStatus) {
+      const { error: updateError } = await supabase
+        .from('games')
+        .update({ status: newStatus })
+        .eq('id', gameId);
+
+      if (updateError) throw updateError;
+    }
+  }
+
+  async getGameDetails(gameId: string): Promise<Game> {
+    const { data: game, error } = await supabase
+      .from('games')
+      .select(`
+        *,
+        map:map_id(*),
+        results:game_results(
+          *,
+          player:player_id(*)
+        ),
+        approvals:game_approvals(
+          *,
+          voter:voter_id(*)
+        )
+      `)
+      .eq('id', gameId)
+      .single();
+
+    if (error) throw error;
+    return game;
   }
 
   async getGroupGames(groupId: string, status?: 'pending' | 'approved' | 'rejected'): Promise<Game[]> {

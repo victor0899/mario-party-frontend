@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Button } from '../components';
+import { Button, GameApprovalModal } from '../components';
 import { supabaseAPI } from '../api/supabase';
 import { useAuthStore } from '../store/useAuthStore';
-import type { Group } from '../types/api';
+import type { Group, Game } from '../types/api';
 
 export default function GroupDetail() {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +11,8 @@ export default function GroupDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [showAddCPU, setShowAddCPU] = useState(false);
   const [cpuName, setCpuName] = useState('');
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
@@ -69,6 +71,30 @@ export default function GroupDetail() {
       navigator.clipboard.writeText(inviteLink);
       alert('Enlace de invitación copiado al portapapeles');
     }
+  };
+
+  const handleGameClick = async (game: Game) => {
+    if (game.status !== 'pending') return;
+
+    // Load full game data with results and approvals
+    try {
+      const fullGame = await supabaseAPI.getGameDetails(game.id);
+      setSelectedGame(fullGame);
+      setShowApprovalModal(true);
+    } catch (error) {
+      console.error('Error al cargar detalles del juego:', error);
+      alert('Error al cargar los detalles de la partida');
+    }
+  };
+
+  const handleModalClose = () => {
+    setShowApprovalModal(false);
+    setSelectedGame(null);
+  };
+
+  const handleVoteSubmitted = () => {
+    // Reload group data to get updated game statuses
+    loadGroup();
   };
 
   if (!user) {
@@ -340,7 +366,13 @@ export default function GroupDetail() {
               ) : (
                 <div className="space-y-3">
                   {group.games.slice(0, 5).map((game) => (
-                    <div key={game.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div
+                      key={game.id}
+                      className={`flex items-center justify-between p-3 bg-gray-50 rounded-lg ${
+                        game.status === 'pending' ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''
+                      }`}
+                      onClick={() => game.status === 'pending' && handleGameClick(game)}
+                    >
                       <div>
                         <div className="font-medium text-gray-800">
                           Partida {game.id?.slice(0, 8)}
@@ -357,8 +389,13 @@ export default function GroupDetail() {
                         }`}>
                           {game.status === 'approved' ? '✅ Aprobada' :
                            game.status === 'rejected' ? '❌ Rechazada' :
-                           '⏳ Pendiente'}
+                           '🏆 Pendiente'}
                         </span>
+                        {game.status === 'pending' && (
+                          <span className="text-xs text-gray-400">
+                            Haz clic para votar
+                          </span>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -368,6 +405,14 @@ export default function GroupDetail() {
           </div>
         </div>
       </div>
+
+      {/* Game Approval Modal */}
+      <GameApprovalModal
+        game={selectedGame}
+        isOpen={showApprovalModal}
+        onClose={handleModalClose}
+        onVoteSubmitted={handleVoteSubmitted}
+      />
     </div>
   );
 }
