@@ -82,6 +82,37 @@ export class SupabaseAPI {
       .single();
 
     if (error) throw error;
+
+    // Get user profiles for human members
+    if (group.members && group.members.length > 0) {
+      const humanMemberUserIds = group.members
+        .filter((member: any) => !member.is_cpu && member.user_id)
+        .map((member: any) => member.user_id);
+
+      if (humanMemberUserIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, nickname, profile_picture')
+          .in('id', humanMemberUserIds);
+
+        if (!profilesError && profiles) {
+          // Add profile data to members
+          group.members = group.members.map((member: any) => {
+            if (!member.is_cpu && member.user_id) {
+              const profile = profiles.find((p: any) => p.id === member.user_id);
+              if (profile) {
+                member.profile = {
+                  nickname: profile.nickname,
+                  profile_picture: profile.profile_picture
+                };
+              }
+            }
+            return member;
+          });
+        }
+      }
+    }
+
     return group;
   }
 

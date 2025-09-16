@@ -17,6 +17,36 @@ export default function GroupDetail() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
+  // Function to get character image from character ID
+  const getCharacterImage = (characterId: string) => {
+    const characterMap: { [key: string]: string } = {
+      'mario': '/images/characters/SMP_Icon_Mario.webp',
+      'luigi': '/images/characters/SMP_Icon_Luigi.webp',
+      'peach': '/images/characters/SMP_Icon_Peach.webp',
+      'bowser': '/images/characters/SMP_Icon_Bowser.webp',
+      'yoshi': '/images/characters/SMPJ_Icon_Yoshi.webp',
+      'toad': '/images/characters/SMPJ_Icon_Toad.webp',
+      'wario': '/images/characters/SMP_Icon_Wario.webp',
+      'waluigi': '/images/characters/SMP_Icon_Waluigi.webp',
+      'rosalina': '/images/characters/SMP_Icon_Rosalina.webp',
+      'bowser-jr': '/images/characters/SMP_Icon_Jr.webp',
+      'toadette': '/images/characters/SMPJ_Icon_Toadette.webp',
+      'daisy': '/images/characters/MPS_Daisy_icon.webp',
+      'shy-guy': '/images/characters/SMP_Icon_Shy_Guy.webp',
+      'koopa': '/images/characters/SMP_Icon_Koopa.webp',
+      'goomba': '/images/characters/SMP_Icon_Goomba.webp',
+      'boo': '/images/characters/SMP_Icon_Boo.webp',
+      'dk': '/images/characters/SMP_Icon_DK.webp',
+      'birdo': '/images/characters/MPS_Birdo_icon.webp',
+      'pauline': '/images/characters/SMPJ_Icon_Pauline.webp',
+      'ninji': '/images/characters/SMPJ_Icon_Ninji.webp',
+      'spike': '/images/characters/SMPJ_Icon_Spike.webp',
+      'monty-mole': '/images/characters/SMP_Icon_Monty_Mole.webp'
+    };
+
+    return characterMap[characterId] || '/images/characters/SMP_Icon_Mario.webp';
+  };
+
   // Calculate leaderboard from approved games
   const calculateLeaderboard = (members: GroupMember[], games: Game[]): LeaderboardEntry[] => {
     const playerStats: { [playerId: string]: LeaderboardEntry } = {};
@@ -25,8 +55,9 @@ export default function GroupDetail() {
     members.forEach(member => {
       playerStats[member.id] = {
         player_id: member.id,
-        player_name: member.is_cpu ? member.cpu_name! : `Usuario ${member.user_id}`,
+        player_name: member.is_cpu ? member.cpu_name! : (member.profile?.nickname || 'Usuario sin nombre'),
         is_cpu: member.is_cpu,
+        profile_picture: member.is_cpu ? undefined : member.profile?.profile_picture || undefined,
         total_league_points: 0,
         games_won: 0,
         games_played: 0,
@@ -283,12 +314,20 @@ export default function GroupDetail() {
                 {/* Human Members */}
                 {humanMembers.map((member, index) => (
                   <div key={member.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                      {index + 1}
+                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
+                      {member.profile?.profile_picture ? (
+                        <img
+                          src={getCharacterImage(member.profile.profile_picture)}
+                          alt={member.profile.nickname || 'Usuario'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        index + 1
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="font-medium text-gray-800">
-                        {member.user_id === user.id ? 'Tú' : `Usuario ${member.user_id}`}
+                        {member.user_id === user.id ? 'Tú' : (member.profile?.nickname || 'Usuario sin nombre')}
                       </div>
                       <div className="text-sm text-gray-500">
                         {member.user_id === group.creator_id && '👑 Creador'}
@@ -574,15 +613,25 @@ export default function GroupDetail() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-8 w-8">
-                              <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-xs ${
+                              <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-xs overflow-hidden ${
                                 entry.is_cpu ? 'bg-purple-500' : 'bg-blue-500'
                               }`}>
-                                {entry.is_cpu ? '🤖' : (index + 1)}
+                                {entry.is_cpu ? '🤖' : (
+                                  entry.profile_picture ? (
+                                    <img
+                                      src={getCharacterImage(entry.profile_picture)}
+                                      alt={entry.player_name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    index + 1
+                                  )
+                                )}
                               </div>
                             </div>
                             <div className="ml-3">
                               <div className="text-sm font-medium text-gray-900">
-                                {entry.is_cpu ? entry.player_name : `Usuario ${entry.player_id}`}
+                                {entry.player_name}
                               </div>
                               <div className="text-xs text-gray-500">
                                 {entry.is_cpu ? 'CPU Player' : 'Jugador'}

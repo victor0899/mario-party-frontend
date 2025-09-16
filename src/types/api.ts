@@ -49,6 +49,10 @@ export interface GroupMember {
   joined_at: string;
   status: 'active' | 'pending' | 'left';
   user?: User;
+  profile?: {
+    nickname?: string;
+    profile_picture?: string;
+  };
 }
 
 export interface Game {
@@ -120,6 +124,7 @@ export interface LeaderboardEntry {
   player_id: string;
   player_name: string;
   is_cpu: boolean;
+  profile_picture?: string;
 
   // League stats
   total_league_points: number;
