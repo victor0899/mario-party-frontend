@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Button, Input } from '../components';
-import { supabaseAPI } from '../api/supabase';
-import { useAuthStore } from '../store/useAuthStore';
-import type { Group, Map, CreateGameResultRequest } from '../types/api';
+import { Button, Input } from '../shared/components';
+import { supabaseAPI } from '../shared/services/supabase';
+import { useAuthStore } from '../app/store/useAuthStore';
+import type { Group, Map, CreateGameResultRequest } from '../shared/types/api';
 
 interface PlayerResult extends CreateGameResultRequest {
   playerId: string;

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Input } from '../components';
-import { supabaseAPI } from '../api/supabase';
-import { useAuthStore } from '../store/useAuthStore';
+import { Button, Input } from '../shared/components';
+import { supabaseAPI } from '../shared/services/supabase';
+import { useAuthStore } from '../app/store/useAuthStore';
 
 export default function CreateGroup() {
   const [name, setName] = useState('');

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from './ui/Button';
-import { supabaseAPI } from '../api/supabase';
+import { supabaseAPI } from '../services/supabase';
 import type { Game } from '../types/api';
 
 interface GameApprovalModalProps {

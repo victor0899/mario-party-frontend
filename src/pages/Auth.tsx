@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Input, Container, VideoBackground } from '../components';
-import { useAuthStore } from '../store/useAuthStore';
+import { Button, Input, Container, VideoBackground } from '../shared/components';
+import { useAuthStore } from '../app/store/useAuthStore';
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);

@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthStore } from './store/useAuthStore';
-import AppLayout from './components/layout/AppLayout';
-import { ProfileGuard } from './components';
+import { useAuthStore } from './app/store/useAuthStore';
+import AppLayout from './shared/components/layout/AppLayout';
+import { ProfileGuard } from './shared/components';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';

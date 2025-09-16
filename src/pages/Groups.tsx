@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '../components';
-import { supabaseAPI } from '../api/supabase';
-import { useAuthStore } from '../store/useAuthStore';
-import type { Group } from '../types/api';
+import { Button } from '../shared/components';
+import { supabaseAPI } from '../shared/services/supabase';
+import { useAuthStore } from '../app/store/useAuthStore';
+import type { Group } from '../shared/types/api';
 
 export default function Groups() {
   const [groups, setGroups] = useState<Group[]>([]);

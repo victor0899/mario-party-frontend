@@ -1,4 +1,4 @@
-import '../../App.css';
+import '../../../App.css';
 import Navbar from './Navbar';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

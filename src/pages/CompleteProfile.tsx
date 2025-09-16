@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Input } from '../components';
-import { useAuthStore } from '../store/useAuthStore';
+import { Button, Input } from '../shared/components';
+import { useAuthStore } from '../app/store/useAuthStore';
 
 const MARIO_CHARACTERS = [
   { id: 'mario', name: 'Mario', image: '/images/characters/SMP_Icon_Mario.webp' },

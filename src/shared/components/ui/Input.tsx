@@ -1,5 +1,5 @@
 import { forwardRef, type InputHTMLAttributes } from 'react';
-import { inputVariants } from '../../design-system/variants';
+import { inputVariants } from '../../../design-system/variants';
 import { cn } from '../../utils/cn';
 
 interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Button, GameApprovalModal } from '../components';
-import { supabaseAPI } from '../api/supabase';
-import { useAuthStore } from '../store/useAuthStore';
-import type { Group, Game, LeaderboardEntry, GroupMember } from '../types/api';
+import { Button, GameApprovalModal } from '../shared/components';
+import { supabaseAPI } from '../shared/services/supabase';
+import { useAuthStore } from '../app/store/useAuthStore';
+import type { Group, Game, LeaderboardEntry, GroupMember } from '../shared/types/api';
 
 export default function GroupDetail() {
   const { id } = useParams<{ id: string }>();

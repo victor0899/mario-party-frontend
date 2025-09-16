@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Button, Input, Container } from '../components';
-import { supabaseAPI } from '../api/supabase';
-import { supabase } from '../lib/supabase';
-import { useAuthStore } from '../store/useAuthStore';
-import type { Group } from '../types/api';
+import { Button, Input, Container } from '../shared/components';
+import { supabaseAPI } from '../shared/services/supabase';
+import { supabase } from '../shared/lib/supabase';
+import { useAuthStore } from '../app/store/useAuthStore';
+import type { Group } from '../shared/types/api';
 
 export default function JoinGroup() {
   const { inviteCode } = useParams<{ inviteCode: string }>();

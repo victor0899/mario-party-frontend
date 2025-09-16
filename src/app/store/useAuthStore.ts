@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User as AuthUser } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../shared/lib/supabase';
 
 interface Profile {
   id: string;

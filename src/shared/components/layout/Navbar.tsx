@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useAuthStore } from '../../../app/store/useAuthStore';
 
 export default function Navbar() {
   const { user, profile, signOut } = useAuthStore();

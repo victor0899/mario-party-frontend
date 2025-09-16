@@ -1,5 +1,5 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react';
-import { buttonVariants } from '../../design-system/variants';
+import { buttonVariants } from '../../../design-system/variants';
 import { cn } from '../../utils/cn';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

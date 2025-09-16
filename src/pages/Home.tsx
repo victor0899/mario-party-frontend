@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Container, VideoBackground, Button } from '../components';
+import { Container, VideoBackground, Button } from '../shared/components';
 
 export default function Home() {
   return (

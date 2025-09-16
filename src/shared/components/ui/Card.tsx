@@ -1,5 +1,5 @@
 import { forwardRef, type HTMLAttributes } from 'react';
-import { cardVariants } from '../../design-system/variants';
+import { cardVariants } from '../../../design-system/variants';
 import { cn } from '../../utils/cn';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {

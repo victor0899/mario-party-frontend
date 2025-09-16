@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Button } from '../components';
-import { supabaseAPI } from '../api/supabase';
-import { useAuthStore } from '../store/useAuthStore';
-import type { Group, LeaderboardEntry, GroupMember, Game } from '../types/api';
+import { Button } from '../shared/components';
+import { supabaseAPI } from '../shared/services/supabase';
+import { useAuthStore } from '../app/store/useAuthStore';
+import type { Group, LeaderboardEntry, GroupMember, Game } from '../shared/types/api';
 
 // Calculate leaderboard from approved games
 function calculateLeaderboard(members: GroupMember[], games: Game[]): LeaderboardEntry[] {

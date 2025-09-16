@@ -1,5 +1,5 @@
 import { forwardRef, type HTMLAttributes } from 'react';
-import { containerVariants } from '../../design-system/variants';
+import { containerVariants } from '../../../design-system/variants';
 import { cn } from '../../utils/cn';
 
 interface ContainerProps extends HTMLAttributes<HTMLDivElement> {
