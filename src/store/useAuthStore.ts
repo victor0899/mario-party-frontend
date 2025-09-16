@@ -103,14 +103,16 @@ export const useAuthStore = create<AuthState>()(
         const { user } = get();
         if (!user) throw new Error('No authenticated user');
 
+        const dataToUpsert = {
+          id: user.id,
+          ...profileData,
+          profile_completed: true,
+          updated_at: new Date().toISOString()
+        };
+
         const { data, error } = await supabase
           .from('profiles')
-          .upsert({
-            id: user.id,
-            ...profileData,
-            profile_completed: true,
-            updated_at: new Date().toISOString()
-          })
+          .upsert(dataToUpsert)
           .select()
           .single();
 

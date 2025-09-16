@@ -87,6 +87,7 @@ export default function CompleteProfile() {
     }
 
     setIsSubmitting(true);
+
     try {
       const profileData = {
         nickname: formData.nickname,
