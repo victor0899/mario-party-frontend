@@ -16,6 +16,13 @@ export default function GroupDetail() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
+  // Helper function to check if game was auto-approved (only 1 human player)
+  const isAutoApproved = (game: Game): boolean => {
+    if (!group || game.status !== 'approved') return false;
+    const humanMembers = group.members.filter(m => !m.is_cpu && m.status === 'active');
+    return humanMembers.length === 1;
+  };
+
   useEffect(() => {
     if (id) {
       loadGroup();
@@ -382,12 +389,16 @@ export default function GroupDetail() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          game.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          game.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {game.status === 'approved' ? '✅ Aprobada' :
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            game.status === 'approved' ? 'bg-green-100 text-green-800' :
+                            game.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}
+                          title={isAutoApproved(game) ? 'Auto-aprobada por ser el único jugador humano en el grupo' : ''}
+                        >
+                          {game.status === 'approved' ?
+                            (isAutoApproved(game) ? '🤖 Auto-aprobada' : '✅ Aprobada') :
                            game.status === 'rejected' ? '❌ Rechazada' :
                            '🏆 Pendiente'}
                         </span>

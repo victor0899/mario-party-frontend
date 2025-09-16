@@ -205,6 +205,18 @@ export class SupabaseAPI {
 
     if (memberError) throw memberError;
 
+    // Check if this group has only 1 human player
+    const { data: groupMembers, error: membersError } = await supabase
+      .from('group_members')
+      .select('*')
+      .eq('group_id', data.group_id)
+      .eq('status', 'active');
+
+    if (membersError) throw membersError;
+
+    const humanMembers = groupMembers.filter(m => !m.is_cpu);
+    const isOnlyHumanPlayer = humanMembers.length === 1;
+
     // Automatically approve the game for the user who created it
     const { error: approvalError } = await supabase
       .from('game_approvals')
@@ -215,6 +227,16 @@ export class SupabaseAPI {
       });
 
     if (approvalError) throw approvalError;
+
+    // If this is the only human player in the group, auto-approve the game
+    if (isOnlyHumanPlayer) {
+      const { error: updateError } = await supabase
+        .from('games')
+        .update({ status: 'approved' })
+        .eq('id', game.id);
+
+      if (updateError) throw updateError;
+    }
 
     return game;
   }
@@ -282,27 +304,32 @@ export class SupabaseAPI {
     const humanMembers = game.group.members.filter((m: any) => !m.is_cpu && m.status === 'active');
     const totalHumanMembers = humanMembers.length;
 
-    // Count votes
-    const approveVotes = game.approvals.filter((a: any) => a.vote === 'approve').length;
-    const rejectVotes = game.approvals.filter((a: any) => a.vote === 'reject').length;
-    const totalVotes = approveVotes + rejectVotes;
-
-    // Calculate majority needed (more than half)
-    const majorityNeeded = Math.floor(totalHumanMembers / 2) + 1;
-
     let newStatus: string | null = null;
 
-    // Check if we have enough votes for approval
-    if (approveVotes >= majorityNeeded) {
+    // Special case: If there's only 1 human player, auto-approve
+    if (totalHumanMembers === 1) {
       newStatus = 'approved';
-    }
-    // Check if we have enough votes for rejection
-    else if (rejectVotes >= majorityNeeded) {
-      newStatus = 'rejected';
-    }
-    // Check if everyone has voted but no majority (shouldn't happen with odd numbers)
-    else if (totalVotes === totalHumanMembers && approveVotes !== rejectVotes) {
-      newStatus = approveVotes > rejectVotes ? 'approved' : 'rejected';
+    } else {
+      // Count votes
+      const approveVotes = game.approvals.filter((a: any) => a.vote === 'approve').length;
+      const rejectVotes = game.approvals.filter((a: any) => a.vote === 'reject').length;
+      const totalVotes = approveVotes + rejectVotes;
+
+      // Calculate majority needed (more than half)
+      const majorityNeeded = Math.floor(totalHumanMembers / 2) + 1;
+
+      // Check if we have enough votes for approval
+      if (approveVotes >= majorityNeeded) {
+        newStatus = 'approved';
+      }
+      // Check if we have enough votes for rejection
+      else if (rejectVotes >= majorityNeeded) {
+        newStatus = 'rejected';
+      }
+      // Check if everyone has voted but no majority (shouldn't happen with odd numbers)
+      else if (totalVotes === totalHumanMembers && approveVotes !== rejectVotes) {
+        newStatus = approveVotes > rejectVotes ? 'approved' : 'rejected';
+      }
     }
 
     // Update game status if needed
