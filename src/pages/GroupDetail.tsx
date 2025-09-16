@@ -421,29 +421,17 @@ export default function GroupDetail() {
           {/* Right Column - Games & Leaderboard */}
           <div className="lg:col-span-2 space-y-6">
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex justify-center">
               <Button
                 variant="primary"
                 size="lg"
-                className="h-16"
+                className="h-16 w-full md:w-auto md:px-12"
                 onClick={() => navigate(`/games/new?group=${group.id}`)}
                 disabled={!isGroupFull}
               >
                 <div className="text-center">
                   <div className="text-2xl mb-1">🎮</div>
                   <div>Nueva Partida</div>
-                </div>
-              </Button>
-
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-16"
-                onClick={() => navigate(`/groups/${group.id}/leaderboard`)}
-              >
-                <div className="text-center">
-                  <div className="text-2xl mb-1">🏆</div>
-                  <div>Tabla de Posiciones</div>
                 </div>
               </Button>
             </div>
