@@ -167,14 +167,26 @@ export class SupabaseAPI {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Not authenticated');
 
-    // Create the game
+    // Check if this group has only 1 human player BEFORE creating the game
+    const { data: groupMembers, error: membersError } = await supabase
+      .from('group_members')
+      .select('*')
+      .eq('group_id', data.group_id)
+      .eq('status', 'active');
+
+    if (membersError) throw membersError;
+
+    const humanMembers = groupMembers.filter(m => !m.is_cpu);
+    const isOnlyHumanPlayer = humanMembers.length === 1;
+
+    // Create the game with appropriate status
     const { data: game, error: gameError } = await supabase
       .from('games')
       .insert({
         group_id: data.group_id,
         map_id: data.map_id,
         played_at: data.played_at,
-        status: 'pending',
+        status: isOnlyHumanPlayer ? 'approved' : 'pending',
         submitted_by: user.id,
       })
       .select('*')
@@ -205,18 +217,6 @@ export class SupabaseAPI {
 
     if (memberError) throw memberError;
 
-    // Check if this group has only 1 human player
-    const { data: groupMembers, error: membersError } = await supabase
-      .from('group_members')
-      .select('*')
-      .eq('group_id', data.group_id)
-      .eq('status', 'active');
-
-    if (membersError) throw membersError;
-
-    const humanMembers = groupMembers.filter(m => !m.is_cpu);
-    const isOnlyHumanPlayer = humanMembers.length === 1;
-
     // Automatically approve the game for the user who created it
     const { error: approvalError } = await supabase
       .from('game_approvals')
@@ -228,15 +228,7 @@ export class SupabaseAPI {
 
     if (approvalError) throw approvalError;
 
-    // If this is the only human player in the group, auto-approve the game
-    if (isOnlyHumanPlayer) {
-      const { error: updateError } = await supabase
-        .from('games')
-        .update({ status: 'approved' })
-        .eq('id', game.id);
-
-      if (updateError) throw updateError;
-    }
+    // Note: If this was the only human player, the game was already created with 'approved' status
 
     return game;
   }
