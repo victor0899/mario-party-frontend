@@ -13,6 +13,7 @@ import JoinGroup from './pages/JoinGroup';
 import CreateGame from './pages/CreateGame';
 import Leaderboard from './pages/Leaderboard';
 import CompleteProfile from './pages/CompleteProfile';
+import EditProfile from './pages/EditProfile';
 
 // ProtectedRoute now redirects to '/login' and checks profile completion
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -57,6 +58,17 @@ function App() {
           element={
             <ProtectedRoute>
               <CompleteProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/edit-profile"
+          element={
+            <ProtectedRoute>
+              <AppLayout>
+                <EditProfile />
+              </AppLayout>
             </ProtectedRoute>
           }
         />

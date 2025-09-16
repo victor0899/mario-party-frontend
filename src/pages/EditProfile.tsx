@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input } from '../components';
 import { useAuthStore } from '../store/useAuthStore';
@@ -43,8 +43,8 @@ const MINIGAMES = [
   'Crazy Cutters', 'Hot Rope Jump', 'Paddle Battle', 'Hexagon Heat'
 ];
 
-export default function CompleteProfile() {
-  const { updateProfile } = useAuthStore();
+export default function EditProfile() {
+  const { profile, updateProfile } = useAuthStore();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -57,6 +57,20 @@ export default function CompleteProfile() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load current profile data
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        nickname: profile.nickname || '',
+        profilePicture: profile.profile_picture || MARIO_CHARACTERS[0].id,
+        birthDate: profile.birth_date || '',
+        nationality: profile.nationality || '',
+        favoriteMinigame: profile.favorite_minigame || '',
+        bio: profile.bio || ''
+      });
+    }
+  }, [profile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,10 +112,11 @@ export default function CompleteProfile() {
       };
 
       await updateProfile(profileData);
+      alert('Perfil actualizado exitosamente');
       navigate('/dashboard');
     } catch (error: any) {
-      console.error('Error al completar perfil:', error);
-      alert('Error al guardar el perfil: ' + (error.message || 'Error desconocido'));
+      console.error('Error al actualizar perfil:', error);
+      alert('Error al actualizar el perfil: ' + (error.message || 'Error desconocido'));
     } finally {
       setIsSubmitting(false);
     }
@@ -111,14 +126,14 @@ export default function CompleteProfile() {
   maxBirthDate.setFullYear(maxBirthDate.getFullYear() - 13); // Minimum 13 years old
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl w-full space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-mario text-gray-900 mb-2">
-            Completa tu Perfil
-          </h2>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-mario text-gray-900 mb-2">
+            Editar Perfil
+          </h1>
           <p className="text-gray-600">
-            ¡Bienvenido! Para continuar, necesitamos que completes tu perfil
+            Actualiza tu información personal y preferencias
           </p>
         </div>
 
@@ -249,15 +264,26 @@ export default function CompleteProfile() {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              className="w-full"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Guardando...' : 'Completar Perfil'}
-            </Button>
+            <div className="flex space-x-4">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => navigate('/dashboard')}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                className="flex-1"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+              </Button>
+            </div>
 
             <div className="text-center text-xs text-gray-500 mt-4">
               * Campos obligatorios
