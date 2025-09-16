@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Button, GameApprovalModal } from '../components';
 import { supabaseAPI } from '../api/supabase';
 import { useAuthStore } from '../store/useAuthStore';
-import type { Group, Game } from '../types/api';
+import type { Group, Game, LeaderboardEntry, GroupMember } from '../types/api';
 
 export default function GroupDetail() {
   const { id } = useParams<{ id: string }>();
@@ -13,8 +13,108 @@ export default function GroupDetail() {
   const [cpuName, setCpuName] = useState('');
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const navigate = useNavigate();
   const { user } = useAuthStore();
+
+  // Calculate leaderboard from approved games
+  const calculateLeaderboard = (members: GroupMember[], games: Game[]): LeaderboardEntry[] => {
+    const playerStats: { [playerId: string]: LeaderboardEntry } = {};
+
+    // Initialize stats for all members
+    members.forEach(member => {
+      playerStats[member.id] = {
+        player_id: member.id,
+        player_name: member.is_cpu ? member.cpu_name! : `Usuario ${member.user_id}`,
+        is_cpu: member.is_cpu,
+        total_league_points: 0,
+        games_won: 0,
+        games_played: 0,
+        total_stars: 0,
+        total_coins: 0,
+        total_minigames_won: 0,
+        total_showdown_wins: 0,
+        total_items_bought: 0,
+        total_items_used: 0,
+        total_spaces_traveled: 0,
+        total_reactions_used: 0,
+        total_blue_spaces: 0,
+        total_red_spaces: 0,
+        total_lucky_spaces: 0,
+        total_unlucky_spaces: 0,
+        total_item_spaces: 0,
+        total_bowser_spaces: 0,
+        total_event_spaces: 0,
+        total_vs_spaces: 0,
+      };
+    });
+
+    // Process each approved game
+    games.forEach(game => {
+      if (game.results) {
+        game.results.forEach(result => {
+          const stats = playerStats[result.player_id];
+          if (stats) {
+            // Add league points based on position (4-3-2-1)
+            const points = 5 - result.position; // 1st=4pts, 2nd=3pts, 3rd=2pts, 4th=1pt
+            stats.total_league_points += points;
+
+            // Count wins (1st place)
+            if (result.position === 1) {
+              stats.games_won += 1;
+            }
+
+            // Count games played
+            stats.games_played += 1;
+
+            // Add individual stats
+            stats.total_stars += result.stars;
+            stats.total_coins += result.coins;
+            stats.total_minigames_won += result.minigames_won;
+            stats.total_showdown_wins += result.showdown_wins;
+            stats.total_items_bought += result.items_bought || 0;
+            stats.total_items_used += result.items_used || 0;
+            stats.total_spaces_traveled += result.spaces_traveled || 0;
+            stats.total_reactions_used += result.reactions_used || 0;
+            stats.total_blue_spaces += result.blue_spaces || 0;
+            stats.total_red_spaces += result.red_spaces || 0;
+            stats.total_lucky_spaces += result.lucky_spaces || 0;
+            stats.total_unlucky_spaces += result.unlucky_spaces || 0;
+            stats.total_item_spaces += result.item_spaces || 0;
+            stats.total_bowser_spaces += result.bowser_spaces || 0;
+            stats.total_event_spaces += result.event_spaces || 0;
+            stats.total_vs_spaces += result.vs_spaces || 0;
+          }
+        });
+      }
+    });
+
+    // Convert to array and sort by league points (with tiebreakers)
+    const leaderboard = Object.values(playerStats)
+      .filter(stats => stats.games_played > 0) // Only include players who have played
+      .sort((a, b) => {
+        // Primary: League points
+        if (a.total_league_points !== b.total_league_points) {
+          return b.total_league_points - a.total_league_points;
+        }
+        // Tiebreaker 1: Total stars
+        if (a.total_stars !== b.total_stars) {
+          return b.total_stars - a.total_stars;
+        }
+        // Tiebreaker 2: Total coins
+        if (a.total_coins !== b.total_coins) {
+          return b.total_coins - a.total_coins;
+        }
+        // Tiebreaker 3: Minigames won
+        if (a.total_minigames_won !== b.total_minigames_won) {
+          return b.total_minigames_won - a.total_minigames_won;
+        }
+        // Tiebreaker 4: Showdown wins
+        return b.total_showdown_wins - a.total_showdown_wins;
+      });
+
+    return leaderboard;
+  };
 
   // Helper function to check if game was auto-approved (only 1 human player)
   const isAutoApproved = (game: Game): boolean => {
@@ -36,6 +136,11 @@ export default function GroupDetail() {
     try {
       const groupData = await supabaseAPI.getGroup(id);
       setGroup(groupData);
+
+      // Calculate leaderboard from approved games
+      const approvedGames = await supabaseAPI.getGroupGames(id, 'approved');
+      const leaderboardData = calculateLeaderboard(groupData.members, approvedGames);
+      setLeaderboard(leaderboardData);
     } catch (error: any) {
       console.error('Error al cargar grupo:', error);
       alert('Error al cargar el grupo');
@@ -415,6 +520,145 @@ export default function GroupDetail() {
             </div>
           </div>
         </div>
+
+        {/* Leaderboard Section */}
+        {leaderboard.length > 0 && (
+          <div className="mt-8">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="px-6 py-4 bg-gray-50 border-b">
+                <h2 className="text-xl font-semibold text-gray-800 flex items-center">
+                  🏆 Tabla de Posiciones
+                </h2>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Pos
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Jugador
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Puntos
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Victorias
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Partidas
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ⭐ Estrellas
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        🪙 Monedas
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {leaderboard.map((entry, index) => (
+                      <tr key={entry.player_id} className={`
+                        ${index === 0 ? 'bg-yellow-50' : ''}
+                        ${index === 1 ? 'bg-gray-50' : ''}
+                        ${index === 2 ? 'bg-orange-50' : ''}
+                        hover:bg-blue-50 transition-colors
+                      `}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                              index === 0 ? 'bg-yellow-500' :
+                              index === 1 ? 'bg-gray-400' :
+                              index === 2 ? 'bg-orange-600' :
+                              'bg-blue-500'
+                            }`}>
+                              {index + 1}
+                            </div>
+                            {index < 3 && (
+                              <span className="ml-2">
+                                {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-8 w-8">
+                              <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-xs ${
+                                entry.is_cpu ? 'bg-purple-500' : 'bg-blue-500'
+                              }`}>
+                                {entry.is_cpu ? '🤖' : (index + 1)}
+                              </div>
+                            </div>
+                            <div className="ml-3">
+                              <div className="text-sm font-medium text-gray-900">
+                                {entry.is_cpu ? entry.player_name : `Usuario ${entry.player_id}`}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {entry.is_cpu ? 'CPU Player' : 'Jugador'}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="text-lg font-bold text-gray-900">
+                            {entry.total_league_points}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="text-sm text-gray-900">
+                            {entry.games_won}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="text-sm text-gray-900">
+                            {entry.games_played}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="text-sm text-gray-900">
+                            {entry.total_stars}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="text-sm text-gray-900">
+                            {entry.total_coins}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="px-6 py-4 bg-gray-50 border-t">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-lg font-semibold text-blue-600">
+                      {leaderboard.length}
+                    </div>
+                    <div className="text-xs text-gray-600">Jugadores Activos</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-green-600">
+                      {group?.games?.filter(g => g.status === 'approved').length || 0}
+                    </div>
+                    <div className="text-xs text-gray-600">Partidas Aprobadas</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-yellow-600">
+                      {leaderboard.reduce((sum, entry) => sum + entry.total_stars, 0)}
+                    </div>
+                    <div className="text-xs text-gray-600">Estrellas Totales</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Game Approval Modal */}
