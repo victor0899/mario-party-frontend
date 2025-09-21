@@ -166,7 +166,22 @@ export class SupabaseAPI {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Not authenticated');
 
-    // Get groups where user is the creator - simplified query
+    // Get groups where user is a member (including creator)
+    const { data: groupMemberships, error: membershipError } = await supabase
+      .from('group_members')
+      .select('group_id')
+      .eq('user_id', user.id)
+      .eq('status', 'active');
+
+    if (membershipError) throw membershipError;
+
+    if (!groupMemberships || groupMemberships.length === 0) {
+      return [];
+    }
+
+    const groupIds = groupMemberships.map(membership => membership.group_id);
+
+    // Get full group data for groups where user is a member
     const { data: groups, error } = await supabase
       .from('groups')
       .select(`
@@ -174,10 +189,45 @@ export class SupabaseAPI {
         members:group_members(*),
         games(id, status, played_at)
       `)
-      .eq('creator_id', user.id)
+      .in('id', groupIds)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
+
+    // Get user profiles for human members in all groups
+    if (groups && groups.length > 0) {
+      for (const group of groups) {
+        if (group.members && group.members.length > 0) {
+          const humanMemberUserIds = group.members
+            .filter((member: any) => !member.is_cpu && member.user_id)
+            .map((member: any) => member.user_id);
+
+          if (humanMemberUserIds.length > 0) {
+            const { data: profiles, error: profilesError } = await supabase
+              .from('profiles')
+              .select('id, nickname, profile_picture')
+              .in('id', humanMemberUserIds);
+
+            if (!profilesError && profiles) {
+              // Add profile data to members
+              group.members = group.members.map((member: any) => {
+                if (!member.is_cpu && member.user_id) {
+                  const profile = profiles.find((p: any) => p.id === member.user_id);
+                  if (profile) {
+                    member.profile = {
+                      nickname: profile.nickname,
+                      profile_picture: profile.profile_picture
+                    };
+                  }
+                }
+                return member;
+              });
+            }
+          }
+        }
+      }
+    }
+
     return groups || [];
   }
 
@@ -303,6 +353,8 @@ export class SupabaseAPI {
     // Check if we need to update game status based on votes
     await this.checkAndUpdateGameStatus(data.game_id);
 
+    console.log('Vote submitted, checking game status for game:', data.game_id);
+
     return approval;
   }
 
@@ -336,33 +388,38 @@ export class SupabaseAPI {
       // Count votes
       const approveVotes = game.approvals.filter((a: any) => a.vote === 'approve').length;
       const rejectVotes = game.approvals.filter((a: any) => a.vote === 'reject').length;
-      const totalVotes = approveVotes + rejectVotes;
 
-      // Calculate majority needed (more than half)
-      const majorityNeeded = Math.floor(totalHumanMembers / 2) + 1;
+      // Use exact vote logic:
+      // Approved: exactly 2 approve votes
+      // Rejected: 3+ reject votes
+      console.log(`Game ${gameId}: approveVotes=${approveVotes}, rejectVotes=${rejectVotes}, currentStatus=${game.status}`);
 
-      // Check if we have enough votes for approval
-      if (approveVotes >= majorityNeeded) {
+      if (approveVotes === 2) {
         newStatus = 'approved';
-      }
-      // Check if we have enough votes for rejection
-      else if (rejectVotes >= majorityNeeded) {
+        console.log('Setting status to approved');
+      } else if (rejectVotes >= 3) {
         newStatus = 'rejected';
-      }
-      // Check if everyone has voted but no majority (shouldn't happen with odd numbers)
-      else if (totalVotes === totalHumanMembers && approveVotes !== rejectVotes) {
-        newStatus = approveVotes > rejectVotes ? 'approved' : 'rejected';
+        console.log('Setting status to rejected');
       }
     }
 
     // Update game status if needed
     if (newStatus && game.status !== newStatus) {
-      const { error: updateError } = await supabase
+      console.log(`Updating game ${gameId} from ${game.status} to ${newStatus}`);
+      const { data: updateResult, error: updateError } = await supabase
         .from('games')
         .update({ status: newStatus })
-        .eq('id', gameId);
+        .eq('id', gameId)
+        .select();
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Error updating game status:', updateError);
+        throw updateError;
+      }
+      console.log(`Update result:`, updateResult);
+      console.log(`Successfully updated game ${gameId} to ${newStatus}`);
+    } else {
+      console.log(`No status update needed. Current: ${game.status}, Calculated: ${newStatus}`);
     }
   }
 
@@ -408,11 +465,17 @@ export class SupabaseAPI {
 
     if (status) {
       query = query.eq('status', status);
+      console.log(`Filtering games by status: ${status}`);
     }
 
     const { data: games, error } = await query;
+    console.log(`getGroupGames result for group ${groupId}:`, games?.length || 0, 'games found');
+    console.log('Games data:', games);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error getting group games:', error);
+      throw error;
+    }
     return games;
   }
 

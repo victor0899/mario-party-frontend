@@ -169,8 +169,13 @@ export default function GroupDetail() {
       setGroup(groupData);
 
       // Calculate leaderboard from approved games
+      const allGames = await supabaseAPI.getGroupGames(id);
+      console.log('All games found:', allGames.length, allGames);
+
       const approvedGames = await supabaseAPI.getGroupGames(id, 'approved');
+      console.log('Approved games found:', approvedGames.length, approvedGames);
       const leaderboardData = calculateLeaderboard(groupData.members, approvedGames);
+      console.log('Leaderboard data:', leaderboardData);
       setLeaderboard(leaderboardData);
     } catch (error: any) {
       console.error('Error al cargar grupo:', error);
@@ -237,7 +242,10 @@ export default function GroupDetail() {
 
   const handleVoteSubmitted = () => {
     // Reload group data to get updated game statuses
-    loadGroup();
+    // Add small delay to ensure database has been updated
+    setTimeout(() => {
+      loadGroup();
+    }, 500);
   };
 
   if (!user) {
@@ -503,8 +511,8 @@ export default function GroupDetail() {
                   )}
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {group.games.slice(0, 5).map((game) => (
+                <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
+                  {group.games.map((game) => (
                     <div
                       key={game.id}
                       className={`flex items-center justify-between p-3 bg-gray-50 rounded-lg ${

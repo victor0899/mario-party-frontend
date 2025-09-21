@@ -17,6 +17,36 @@ export default function CreateGame() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
+  // Function to get character image from character ID
+  const getCharacterImage = (characterId: string) => {
+    const characterMap: { [key: string]: string } = {
+      'mario': '/images/characters/SMP_Icon_Mario.webp',
+      'luigi': '/images/characters/SMP_Icon_Luigi.webp',
+      'peach': '/images/characters/SMP_Icon_Peach.webp',
+      'bowser': '/images/characters/SMP_Icon_Bowser.webp',
+      'yoshi': '/images/characters/SMPJ_Icon_Yoshi.webp',
+      'toad': '/images/characters/SMPJ_Icon_Toad.webp',
+      'wario': '/images/characters/SMP_Icon_Wario.webp',
+      'waluigi': '/images/characters/SMP_Icon_Waluigi.webp',
+      'rosalina': '/images/characters/SMP_Icon_Rosalina.webp',
+      'bowser-jr': '/images/characters/SMP_Icon_Jr.webp',
+      'toadette': '/images/characters/SMPJ_Icon_Toadette.webp',
+      'daisy': '/images/characters/MPS_Daisy_icon.webp',
+      'shy-guy': '/images/characters/SMP_Icon_Shy_Guy.webp',
+      'koopa': '/images/characters/SMP_Icon_Koopa.webp',
+      'goomba': '/images/characters/SMP_Icon_Goomba.webp',
+      'boo': '/images/characters/SMP_Icon_Boo.webp',
+      'dk': '/images/characters/SMP_Icon_DK.webp',
+      'birdo': '/images/characters/MPS_Birdo_icon.webp',
+      'pauline': '/images/characters/SMPJ_Icon_Pauline.webp',
+      'ninji': '/images/characters/SMPJ_Icon_Ninji.webp',
+      'spike': '/images/characters/SMPJ_Icon_Spike.webp',
+      'monty-mole': '/images/characters/SMP_Icon_Monty_Mole.webp'
+    };
+
+    return characterMap[characterId] || '/images/characters/SMP_Icon_Mario.webp';
+  };
+
   const [group, setGroup] = useState<Group | null>(null);
   const [maps, setMaps] = useState<Map[]>([]);
   const [selectedMapId, setSelectedMapId] = useState('');
@@ -228,7 +258,9 @@ export default function CreateGame() {
     const results: PlayerResult[] = activeMembers.map((member) => ({
       player_id: member.id,
       playerId: member.id,
-      playerName: member.is_cpu ? member.cpu_name! : `Usuario ${member.user_id}`,
+      playerName: member.is_cpu
+        ? member.cpu_name!
+        : (member.profile?.nickname || 'Usuario sin nombre'),
       position: 1, // Will be calculated automatically
       calculatedPosition: 1,
 
@@ -256,11 +288,13 @@ export default function CreateGame() {
     setPlayerResults(calculatePositions(results));
   };
 
-  const updatePlayerResult = (playerId: string, field: keyof PlayerResult, value: number) => {
+  const updatePlayerResult = (playerId: string, field: keyof PlayerResult, value: string) => {
     setPlayerResults(prev => {
       const updated = prev.map(player => {
         if (player.playerId === playerId) {
-          return { ...player, [field]: value };
+          // Convert empty string to 0, otherwise parse the number
+          const numericValue = value === '' ? 0 : (Number(value) || 0);
+          return { ...player, [field]: numericValue };
         }
         return player;
       });
@@ -591,15 +625,46 @@ export default function CreateGame() {
               {sortedResults.map((player) => (
                 <div key={player.playerId} className="border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${
-                        player.calculatedPosition === 1 ? 'bg-yellow-500' :
-                        player.calculatedPosition === 2 ? 'bg-gray-400' :
-                        player.calculatedPosition === 3 ? 'bg-orange-600' :
-                        'bg-red-500'
-                      }`}>
-                        {player.calculatedPosition}
+                    <div className="flex items-center space-x-4">
+                      {/* Profile Picture with Medal Border */}
+                      <div className="relative">
+                        <div className={`w-16 h-16 rounded-full p-1 ${
+                          player.calculatedPosition === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
+                          player.calculatedPosition === 2 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
+                          player.calculatedPosition === 3 ? 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700' :
+                          'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600'
+                        }`}>
+                          <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-white">
+                            {(() => {
+                              const member = group?.members?.find(m => m.id === player.player_id);
+                              if (member?.is_cpu) {
+                                return <span className="text-2xl">🤖</span>;
+                              } else if (member?.profile?.profile_picture) {
+                                return (
+                                  <img
+                                    src={getCharacterImage(member.profile.profile_picture)}
+                                    alt={player.playerName}
+                                    className="w-full h-full object-cover"
+                                  />
+                                );
+                              } else {
+                                return <span className="text-gray-500 text-xl">👤</span>;
+                              }
+                            })()}
+                          </div>
+                        </div>
+
+                        {/* Position Number Badge */}
+                        <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white ${
+                          player.calculatedPosition === 1 ? 'bg-yellow-600' :
+                          player.calculatedPosition === 2 ? 'bg-gray-500' :
+                          player.calculatedPosition === 3 ? 'bg-orange-700' :
+                          'bg-gray-600'
+                        }`}>
+                          {player.calculatedPosition}
+                        </div>
                       </div>
+
                       <div>
                         <h3 className="font-semibold text-lg">{player.playerName}</h3>
                         <p className="text-sm text-gray-500">
@@ -629,8 +694,9 @@ export default function CreateGame() {
                         type="number"
                         min="0"
                         max="99"
-                        value={player.stars}
-                        onChange={(e) => updatePlayerResult(player.playerId, 'stars', Number(e.target.value) || 0)}
+                        value={player.stars === 0 ? '' : player.stars}
+                        placeholder="0"
+                        onChange={(e) => updatePlayerResult(player.playerId, 'stars', e.target.value)}
                         className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
@@ -641,8 +707,9 @@ export default function CreateGame() {
                         type="number"
                         min="0"
                         max="999"
-                        value={player.coins}
-                        onChange={(e) => updatePlayerResult(player.playerId, 'coins', Number(e.target.value) || 0)}
+                        value={player.coins === 0 ? '' : player.coins}
+                        placeholder="0"
+                        onChange={(e) => updatePlayerResult(player.playerId, 'coins', e.target.value)}
                         className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
@@ -653,8 +720,9 @@ export default function CreateGame() {
                         type="number"
                         min="0"
                         max="50"
-                        value={player.minigames_won}
-                        onChange={(e) => updatePlayerResult(player.playerId, 'minigames_won', Number(e.target.value) || 0)}
+                        value={player.minigames_won === 0 ? '' : player.minigames_won}
+                        placeholder="0"
+                        onChange={(e) => updatePlayerResult(player.playerId, 'minigames_won', e.target.value)}
                         className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
@@ -665,8 +733,9 @@ export default function CreateGame() {
                         type="number"
                         min="0"
                         max="10"
-                        value={player.showdown_wins}
-                        onChange={(e) => updatePlayerResult(player.playerId, 'showdown_wins', Number(e.target.value) || 0)}
+                        value={player.showdown_wins === 0 ? '' : player.showdown_wins}
+                        placeholder="0"
+                        onChange={(e) => updatePlayerResult(player.playerId, 'showdown_wins', e.target.value)}
                         className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
