@@ -25,17 +25,6 @@ export const ImageCarousel = ({
     return () => clearInterval(interval);
   }, [images.length, autoSlideInterval]);
 
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index);
-  };
-
-  const goToPrevious = () => {
-    setCurrentIndex(currentIndex === 0 ? images.length - 1 : currentIndex - 1);
-  };
-
-  const goToNext = () => {
-    setCurrentIndex(currentIndex === images.length - 1 ? 0 : currentIndex + 1);
-  };
 
   if (images.length === 0) {
     return (
