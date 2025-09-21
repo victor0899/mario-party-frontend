@@ -1,4 +1,5 @@
 import { type FormEvent } from 'react';
+import toast from 'react-hot-toast';
 import { Button, Input } from '../../../shared/components';
 import { useAuth } from '../hooks/useAuth';
 import { useAuthForm } from '../hooks/useAuthForm';
@@ -32,25 +33,33 @@ export const AuthForm = ({ isLogin, onToggleMode, onSuccess }: AuthFormProps) =>
 
     try {
       if (isLogin) {
+        const loadingToast = toast.loading('Iniciando sesión...');
         const result = await signIn({ email, password });
+        toast.dismiss(loadingToast);
+
         if (result.success) {
+          toast.success('¡Bienvenido de vuelta!');
           onSuccess?.();
         } else {
-          alert(result.error?.message || 'Error al iniciar sesión');
+          toast.error(result.error?.message || 'Error al iniciar sesión');
         }
       } else {
+        const loadingToast = toast.loading('Creando cuenta...');
         const result = await signUp({ email, password, name });
+        toast.dismiss(loadingToast);
+
         if (result.success) {
-          alert('Registro exitoso! Revisa tu email para confirmar tu cuenta y luego podrás completar tu perfil.');
+          toast.success('¡Registro exitoso! Revisa tu email para confirmar tu cuenta.');
           resetForm();
           onToggleMode(); // Switch to login mode
           onSuccess?.();
         } else {
-          alert(result.error?.message || 'Error al crear la cuenta');
+          toast.error(result.error?.message || 'Error al crear la cuenta');
         }
       }
     } catch (error) {
       console.error('Auth error:', error);
+      toast.error('Ha ocurrido un error inesperado');
     }
   };
 

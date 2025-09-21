@@ -1,5 +1,7 @@
-import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useAuthStore } from './app/store/useAuthStore';
 import AppLayout from './shared/components/layout/AppLayout';
 import { ProfileGuard } from './shared/components';
@@ -14,6 +16,59 @@ import CreateGame from './pages/CreateGame';
 import Leaderboard from './pages/Leaderboard';
 import CompleteProfile from './pages/CompleteProfile';
 import EditProfile from './pages/EditProfile';
+
+// Component to handle email verification from Supabase redirects
+function EmailVerificationHandler() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const processedRef = useRef(false);
+
+  useEffect(() => {
+    // Only process if there's a hash in the URL and we haven't processed it yet
+    if (!location.hash || processedRef.current) return;
+
+    // Check if URL contains verification parameters from Supabase
+    const hashParams = new URLSearchParams(location.hash.substring(1));
+    const type = hashParams.get('type');
+    const accessToken = hashParams.get('access_token');
+    const error = hashParams.get('error');
+    const errorDescription = hashParams.get('error_description');
+
+    // If no relevant parameters, don't do anything
+    if (!type && !error) return;
+
+    // Mark as processed to prevent duplicate execution
+    processedRef.current = true;
+
+    if (error) {
+      // Handle verification errors
+      toast.error(errorDescription || 'Error en la verificación del email');
+      navigate('/auth', { replace: true });
+      return;
+    }
+
+    if (type && accessToken) {
+      switch (type) {
+        case 'signup':
+          toast.success('¡Email verificado exitosamente! Ya puedes iniciar sesión.');
+          break;
+        case 'recovery':
+          toast.success('Email verificado. Ahora puedes cambiar tu contraseña.');
+          break;
+        case 'email_change':
+          toast.success('¡Cambio de email verificado exitosamente!');
+          break;
+        default:
+          break;
+      }
+
+      // Always navigate after showing toast for any valid type
+      navigate('/auth', { replace: true });
+    }
+  }, [navigate, location.hash]);
+
+  return null; // This component doesn't render anything
+}
 
 // ProtectedRoute now redirects to '/login' and checks profile completion
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -45,6 +100,7 @@ function App() {
 
   return (
     <Router>
+      <EmailVerificationHandler />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
@@ -149,6 +205,41 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+
+      {/* Toast notifications */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#ffffff',
+            color: '#374151',
+            border: '1px solid #e5e7eb',
+            borderRadius: '0.75rem',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#ffffff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#ffffff',
+            },
+          },
+          loading: {
+            iconTheme: {
+              primary: '#3b82f6',
+              secondary: '#ffffff',
+            },
+          },
+        }}
+      />
     </Router>
   );
 }
