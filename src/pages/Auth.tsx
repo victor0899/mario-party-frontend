@@ -40,19 +40,9 @@ export default function Auth() {
               onSuccess={handleSuccess}
             />
 
-            {/* Divider */}
-            <div className="my-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/20"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-black/50 text-gray-300">o continúa con</span>
-                </div>
-              </div>
+            <div className="mt-6">
+              <SocialAuth onSuccess={handleSuccess} />
             </div>
-
-            <SocialAuth onSuccess={handleSuccess} />
 
             <div className="mt-6 text-center">
               <p className="text-gray-200">

@@ -146,19 +146,6 @@ export const AuthForm = ({ isLogin, onToggleMode, onSuccess }: AuthFormProps) =>
         {isLoading ? 'Cargando...' : (isLogin ? 'Iniciar Sesión' : 'Crear Cuenta')}
       </Button>
 
-      {/* Toggle Mode */}
-      <div className="text-center">
-        <button
-          type="button"
-          onClick={onToggleMode}
-          className="text-sm text-gray-400 hover:text-white transition-colors"
-        >
-          {isLogin
-            ? '¿No tienes cuenta? Crear una nueva'
-            : '¿Ya tienes cuenta? Iniciar sesión'
-          }
-        </button>
-      </div>
     </form>
   );
 };
