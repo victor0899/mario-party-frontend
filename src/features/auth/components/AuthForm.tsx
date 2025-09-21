@@ -93,40 +93,71 @@ export const AuthForm = ({ isLogin, onToggleMode, onSuccess }: AuthFormProps) =>
           required
           size="lg"
           error={errors.password}
+          showPasswordToggle={true}
         />
 
         {/* Password Requirements (solo para registro) */}
         {!isLogin && password && (
           <div className="mt-3 space-y-2">
-            <p className="text-sm text-gray-300 font-medium">Requisitos de contraseña:</p>
+            <p className="text-sm text-gray-700 font-medium">Requisitos de contraseña:</p>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <div className={`w-4 h-4 rounded-full ${passwordValidation.requirements.minLength ? 'bg-green-500' : 'bg-gray-500'}`} />
-                <span className={`text-xs ${passwordValidation.requirements.minLength ? 'text-green-300' : 'text-gray-300'}`}>
+                <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordValidation.requirements.minLength ? 'bg-green-500' : 'bg-gray-400'}`}>
+                  {passwordValidation.requirements.minLength && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className={`text-xs ${passwordValidation.requirements.minLength ? 'text-green-600' : 'text-gray-500'}`}>
                   Mínimo 8 caracteres
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-4 h-4 rounded-full ${passwordValidation.requirements.hasUpperCase ? 'bg-green-500' : 'bg-gray-500'}`} />
-                <span className={`text-xs ${passwordValidation.requirements.hasUpperCase ? 'text-green-300' : 'text-gray-300'}`}>
+                <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordValidation.requirements.hasUpperCase ? 'bg-green-500' : 'bg-gray-400'}`}>
+                  {passwordValidation.requirements.hasUpperCase && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className={`text-xs ${passwordValidation.requirements.hasUpperCase ? 'text-green-600' : 'text-gray-500'}`}>
                   Una mayúscula (A-Z)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-4 h-4 rounded-full ${passwordValidation.requirements.hasLowerCase ? 'bg-green-500' : 'bg-gray-500'}`} />
-                <span className={`text-xs ${passwordValidation.requirements.hasLowerCase ? 'text-green-300' : 'text-gray-300'}`}>
+                <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordValidation.requirements.hasLowerCase ? 'bg-green-500' : 'bg-gray-400'}`}>
+                  {passwordValidation.requirements.hasLowerCase && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className={`text-xs ${passwordValidation.requirements.hasLowerCase ? 'text-green-600' : 'text-gray-500'}`}>
                   Una minúscula (a-z)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-4 h-4 rounded-full ${passwordValidation.requirements.hasNumber ? 'bg-green-500' : 'bg-gray-500'}`} />
-                <span className={`text-xs ${passwordValidation.requirements.hasNumber ? 'text-green-300' : 'text-gray-300'}`}>
+                <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordValidation.requirements.hasNumber ? 'bg-green-500' : 'bg-gray-400'}`}>
+                  {passwordValidation.requirements.hasNumber && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className={`text-xs ${passwordValidation.requirements.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
                   Un número (0-9)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-4 h-4 rounded-full ${passwordValidation.requirements.hasSpecialChar ? 'bg-green-500' : 'bg-gray-500'}`} />
-                <span className={`text-xs ${passwordValidation.requirements.hasSpecialChar ? 'text-green-300' : 'text-gray-300'}`}>
+                <div className={`w-4 h-4 rounded-full flex items-center justify-center ${passwordValidation.requirements.hasSpecialChar ? 'bg-green-500' : 'bg-gray-400'}`}>
+                  {passwordValidation.requirements.hasSpecialChar && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className={`text-xs ${passwordValidation.requirements.hasSpecialChar ? 'text-green-600' : 'text-gray-500'}`}>
                   Un símbolo (!@#$%...)
                 </span>
               </div>
