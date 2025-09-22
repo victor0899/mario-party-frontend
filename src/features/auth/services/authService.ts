@@ -50,10 +50,15 @@ export class AuthService {
 
   async signInWithGoogle(): Promise<AuthResult> {
     try {
+      // Get the correct base URL for the current environment
+      const baseUrl = import.meta.env.PROD
+        ? window.location.origin
+        : 'http://localhost:5173';
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${baseUrl}/dashboard`
         }
       });
 
