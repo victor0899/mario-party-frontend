@@ -59,7 +59,8 @@ function AuthRedirectHandler() {
       // Wait a moment for Supabase to process the session, then re-initialize auth
       setTimeout(async () => {
         await initialize();
-        // Navigate to dashboard after auth state is updated
+        // Let ProtectedRoute and ProfileGuard handle navigation based on profile status
+        // New users will go to /complete-profile, existing users to /dashboard
         navigate('/dashboard', { replace: true });
       }, 1000);
 
