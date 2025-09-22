@@ -175,10 +175,28 @@ export const useAuthStore = create<AuthState>()(
         // Listen for auth changes
         supabase.auth.onAuthStateChange(async (event, session) => {
           console.log('🟡 AuthStore: auth state changed:', event, !!session?.user);
+
           if (session?.user) {
             console.log('🟡 AuthStore: auth change - setting user');
             get().setUser(session.user);
             await get().fetchProfile();
+
+            // Handle OAuth success navigation
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+              // Small delay to allow profile to load
+              setTimeout(() => {
+                const currentPath = window.location.pathname;
+                // Only navigate if we're on auth or dashboard page
+                if (currentPath === '/auth' || currentPath === '/dashboard') {
+                  const profile = get().profile;
+                  if (profile?.profile_completed) {
+                    window.location.href = '/dashboard';
+                  } else {
+                    window.location.href = '/complete-profile';
+                  }
+                }
+              }, 500);
+            }
           } else {
             console.log('🟡 AuthStore: auth change - clearing user');
             get().setUser(null);

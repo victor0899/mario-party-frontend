@@ -17,23 +17,8 @@ import Leaderboard from './pages/Leaderboard';
 import CompleteProfile from './pages/CompleteProfile';
 import EditProfile from './pages/EditProfile';
 
-// Component to handle OAuth redirects - simplified approach
+// Minimal component - let Supabase handle everything automatically
 function AuthRedirectHandler() {
-  const location = useLocation();
-
-  useEffect(() => {
-    // Use alert for production debugging since console.log doesn't appear
-    if (location.hash && location.hash.includes('access_token')) {
-      alert('🔴 OAuth callback detected with access_token!');
-
-      // Show toast
-      toast.success('¡Autenticación exitosa! Redirigiendo...');
-
-      // Don't interfere - let Supabase process the hash automatically
-      // The onAuthStateChange listener will handle navigation
-    }
-  }, [location]);
-
   return null;
 }
 
