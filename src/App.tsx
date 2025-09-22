@@ -21,6 +21,7 @@ import EditProfile from './pages/EditProfile';
 function AuthRedirectHandler() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { initialize } = useAuthStore();
   const processedRef = useRef(false);
 
   useEffect(() => {
@@ -50,10 +51,18 @@ function AuthRedirectHandler() {
     // Handle OAuth login (Google, etc.) - has access_token but no type
     if (accessToken && !type) {
       // This is an OAuth callback, let Supabase handle it automatically
-      // The auth state will be updated by the onAuthStateChange listener
       toast.success('¡Iniciando sesión exitosamente!');
+
       // Clear the hash from URL
       window.history.replaceState(null, '', window.location.pathname);
+
+      // Wait a moment for Supabase to process the session, then re-initialize auth
+      setTimeout(async () => {
+        await initialize();
+        // Navigate to dashboard after auth state is updated
+        navigate('/dashboard', { replace: true });
+      }, 1000);
+
       return;
     }
 
@@ -76,7 +85,7 @@ function AuthRedirectHandler() {
       // Navigate to auth page for email verification types
       navigate('/auth', { replace: true });
     }
-  }, [navigate, location.hash]);
+  }, [navigate, location.hash, initialize]);
 
   return null; // This component doesn't render anything
 }
