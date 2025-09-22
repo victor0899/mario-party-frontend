@@ -17,8 +17,8 @@ import Leaderboard from './pages/Leaderboard';
 import CompleteProfile from './pages/CompleteProfile';
 import EditProfile from './pages/EditProfile';
 
-// Component to handle email verification from Supabase redirects
-function EmailVerificationHandler() {
+// Component to handle email verification and OAuth redirects from Supabase
+function AuthRedirectHandler() {
   const navigate = useNavigate();
   const location = useLocation();
   const processedRef = useRef(false);
@@ -35,18 +35,29 @@ function EmailVerificationHandler() {
     const errorDescription = hashParams.get('error_description');
 
     // If no relevant parameters, don't do anything
-    if (!type && !error) return;
+    if (!type && !error && !accessToken) return;
 
     // Mark as processed to prevent duplicate execution
     processedRef.current = true;
 
     if (error) {
       // Handle verification errors
-      toast.error(errorDescription || 'Error en la verificación del email');
+      toast.error(errorDescription || 'Error en la autenticación');
       navigate('/auth', { replace: true });
       return;
     }
 
+    // Handle OAuth login (Google, etc.) - has access_token but no type
+    if (accessToken && !type) {
+      // This is an OAuth callback, let Supabase handle it automatically
+      // The auth state will be updated by the onAuthStateChange listener
+      toast.success('¡Iniciando sesión exitosamente!');
+      // Clear the hash from URL
+      window.history.replaceState(null, '', window.location.pathname);
+      return;
+    }
+
+    // Handle email verification types
     if (type && accessToken) {
       switch (type) {
         case 'signup':
@@ -62,7 +73,7 @@ function EmailVerificationHandler() {
           break;
       }
 
-      // Always navigate after showing toast for any valid type
+      // Navigate to auth page for email verification types
       navigate('/auth', { replace: true });
     }
   }, [navigate, location.hash]);
@@ -100,7 +111,7 @@ function App() {
 
   return (
     <Router>
-      <EmailVerificationHandler />
+      <AuthRedirectHandler />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
