@@ -157,23 +157,30 @@ export const useAuthStore = create<AuthState>()(
       },
 
       initialize: async () => {
+        console.log('🟡 AuthStore: initialize called');
         set({ loading: true });
 
         const { data: { session } } = await supabase.auth.getSession();
+        console.log('🟡 AuthStore: current session:', !!session, !!session?.user);
 
         if (session?.user) {
+          console.log('🟡 AuthStore: setting user from session');
           get().setUser(session.user);
           await get().fetchProfile();
         } else {
+          console.log('🟡 AuthStore: no session, setting loading false');
           set({ loading: false, isAuthenticated: false });
         }
 
         // Listen for auth changes
-        supabase.auth.onAuthStateChange(async (_event, session) => {
+        supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log('🟡 AuthStore: auth state changed:', event, !!session?.user);
           if (session?.user) {
+            console.log('🟡 AuthStore: auth change - setting user');
             get().setUser(session.user);
             await get().fetchProfile();
           } else {
+            console.log('🟡 AuthStore: auth change - clearing user');
             get().setUser(null);
             get().setProfile(null);
           }

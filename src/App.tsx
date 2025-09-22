@@ -80,8 +80,27 @@ function App() {
   const { initialize } = useAuthStore();
 
   useEffect(() => {
+    console.log('🟢 App component mounted, initializing auth...');
     initialize();
   }, [initialize]);
+
+  useEffect(() => {
+    // Log every URL change
+    const logUrlChange = () => {
+      console.log('🟢 URL changed:', window.location.href);
+      console.log('🟢 Hash:', window.location.hash);
+    };
+
+    // Log initial load
+    logUrlChange();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', logUrlChange);
+
+    return () => {
+      window.removeEventListener('hashchange', logUrlChange);
+    };
+  }, []);
 
   return (
     <Router>
