@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
@@ -22,77 +22,67 @@ function AuthRedirectHandler() {
   const navigate = useNavigate();
   const location = useLocation();
   const { initialize } = useAuthStore();
-  const processedRef = useRef(false);
 
   useEffect(() => {
-    // Only process if there's a hash in the URL and we haven't processed it yet
-    if (!location.hash || processedRef.current) return;
+    console.log('🔴 AuthRedirectHandler useEffect triggered');
+    console.log('🔴 Current location:', location);
+    console.log('🔴 Hash:', location.hash);
 
-    // Check if URL contains verification parameters from Supabase
-    const hashParams = new URLSearchParams(location.hash.substring(1));
-    const type = hashParams.get('type');
-    const accessToken = hashParams.get('access_token');
-    const error = hashParams.get('error');
-    const errorDescription = hashParams.get('error_description');
+    // Always process the hash if it exists
+    if (location.hash) {
+      console.log('🔴 Processing hash:', location.hash);
 
-    // If no relevant parameters, don't do anything
-    if (!type && !error && !accessToken) return;
+      // Check if URL contains verification parameters from Supabase
+      const hashParams = new URLSearchParams(location.hash.substring(1));
+      const type = hashParams.get('type');
+      const accessToken = hashParams.get('access_token');
+      const error = hashParams.get('error');
+      const errorDescription = hashParams.get('error_description');
 
-    // Mark as processed to prevent duplicate execution
-    processedRef.current = true;
+      console.log('🔴 Hash params:', { type, accessToken: !!accessToken, error });
 
-    if (error) {
-      // Handle verification errors
-      toast.error(errorDescription || 'Error en la autenticación');
-      navigate('/auth', { replace: true });
-      return;
-    }
-
-    // Handle OAuth login (Google, etc.) - has access_token but no type
-    if (accessToken && !type) {
-      console.log('🟢 OAuth callback detected with access_token');
-
-      // This is an OAuth callback, let Supabase handle it automatically
-      toast.success('¡Iniciando sesión exitosamente!');
-
-      // DON'T clear the hash immediately - let Supabase process it first
-      // DON'T navigate away - stay on current page and let the auth state update
-
-      // Wait for Supabase to process the session automatically
-      setTimeout(async () => {
-        console.log('🟢 Reinitializing auth state...');
-        await initialize();
-
-        // Clear the hash AFTER Supabase processed it
-        window.history.replaceState(null, '', window.location.pathname);
-
-        console.log('🟢 Auth initialized, staying on current page');
-        // Don't navigate - let the auth state change trigger automatic routing
-      }, 500);
-
-      return;
-    }
-
-    // Handle email verification types
-    if (type && accessToken) {
-      switch (type) {
-        case 'signup':
-          toast.success('¡Email verificado exitosamente! Ya puedes iniciar sesión.');
-          break;
-        case 'recovery':
-          toast.success('Email verificado. Ahora puedes cambiar tu contraseña.');
-          break;
-        case 'email_change':
-          toast.success('¡Cambio de email verificado exitosamente!');
-          break;
-        default:
-          break;
+      if (error) {
+        console.log('🔴 OAuth error detected');
+        toast.error(errorDescription || 'Error en la autenticación');
+        navigate('/auth', { replace: true });
+        return;
       }
 
-      // Navigate to auth page for email verification types
-      navigate('/auth', { replace: true });
+      // Handle OAuth login (Google, etc.) - has access_token but no type
+      if (accessToken && !type) {
+        console.log('🔴 OAuth callback detected with access_token');
+        toast.success('¡Iniciando sesión exitosamente!');
+
+        // Force page reload to trigger Supabase session initialization
+        setTimeout(() => {
+          console.log('🔴 Reloading page to initialize OAuth session');
+          window.location.href = '/dashboard';
+        }, 1000);
+
+        return;
+      }
+
+      // Handle email verification types
+      if (type && accessToken) {
+        console.log('🔴 Email verification detected');
+        switch (type) {
+          case 'signup':
+            toast.success('¡Email verificado exitosamente! Ya puedes iniciar sesión.');
+            break;
+          case 'recovery':
+            toast.success('Email verificado. Ahora puedes cambiar tu contraseña.');
+            break;
+          case 'email_change':
+            toast.success('¡Cambio de email verificado exitosamente!');
+            break;
+          default:
+            break;
+        }
+
+        navigate('/auth', { replace: true });
+      }
     }
-  }, [navigate, location.hash, initialize]);
+  }, [navigate, location.hash, location.pathname, initialize]);
 
   return null; // This component doesn't render anything
 }
