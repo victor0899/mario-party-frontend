@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Button, Input } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
@@ -32,11 +33,11 @@ export default function CreateGroup() {
       navigate('/dashboard', { replace: true });
 
       // Show success message
-      alert(`¡Grupo "${name}" creado exitosamente! Código de invitación: ${group.invite_code}`);
+      toast.success(`¡Grupo "${name}" creado exitosamente! Código de invitación: ${group.invite_code}`);
 
     } catch (error: any) {
       console.error('Error al crear grupo:', error);
-      alert(error.message || 'Error al crear el grupo');
+      toast.error(error.message || 'Error al crear el grupo');
     } finally {
       setIsLoading(false);
     }

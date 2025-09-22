@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Button } from './ui/Button';
 import { supabaseAPI } from '../services/supabase';
 import type { Game } from '../types/api';
@@ -62,7 +63,7 @@ export default function GameApprovalModal({
       onClose();
     } catch (error: any) {
       console.error('Error al votar:', error);
-      alert('Error al enviar el voto: ' + (error.message || 'Error desconocido'));
+      toast.error('Error al enviar el voto: ' + (error.message || 'Error desconocido'));
     } finally {
       setIsVoting(false);
     }

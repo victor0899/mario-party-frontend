@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Button, Input } from '../shared/components';
 import { useAuthStore } from '../app/store/useAuthStore';
 
@@ -76,27 +77,27 @@ export default function EditProfile() {
     e.preventDefault();
 
     if (!formData.nickname.trim()) {
-      alert('El nickname es obligatorio');
+      toast.error('El nickname es obligatorio');
       return;
     }
 
     if (!formData.birthDate) {
-      alert('La fecha de nacimiento es obligatoria');
+      toast.error('La fecha de nacimiento es obligatoria');
       return;
     }
 
     if (!formData.nationality) {
-      alert('La nacionalidad es obligatoria');
+      toast.error('La nacionalidad es obligatoria');
       return;
     }
 
     if (!formData.favoriteMinigame) {
-      alert('Debes seleccionar tu minijuego favorito');
+      toast.error('Debes seleccionar tu minijuego favorito');
       return;
     }
 
     if (!formData.bio.trim()) {
-      alert('Cuéntanos algo sobre ti');
+      toast.error('Cuéntanos algo sobre ti');
       return;
     }
 
@@ -112,11 +113,11 @@ export default function EditProfile() {
       };
 
       await updateProfile(profileData);
-      alert('Perfil actualizado exitosamente');
+      toast.success('Perfil actualizado exitosamente');
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Error al actualizar perfil:', error);
-      alert('Error al actualizar el perfil: ' + (error.message || 'Error desconocido'));
+      toast.error('Error al actualizar el perfil: ' + (error.message || 'Error desconocido'));
     } finally {
       setIsSubmitting(false);
     }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Button } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
@@ -135,7 +136,7 @@ export default function Leaderboard() {
       setLeaderboard(leaderboardData);
     } catch (error: any) {
       console.error('Error al cargar datos:', error);
-      alert('Error al cargar los datos');
+      toast.error('Error al cargar los datos');
       navigate('/groups');
     } finally {
       setIsLoading(false);

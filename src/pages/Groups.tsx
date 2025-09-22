@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Button } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
@@ -22,7 +23,7 @@ export default function Groups() {
       setGroups(userGroups);
     } catch (error: any) {
       console.error('Error al cargar grupos:', error);
-      alert('Error al cargar los grupos');
+      toast.error('Error al cargar los grupos');
     } finally {
       setIsLoading(false);
     }
@@ -30,7 +31,7 @@ export default function Groups() {
 
   const copyInviteCode = (code: string) => {
     navigator.clipboard.writeText(code);
-    alert(`Código de invitación copiado: ${code}`);
+    toast.success(`Código de invitación copiado: ${code}`);
   };
 
   const deleteGroup = async (groupId: string, groupName: string) => {
@@ -40,11 +41,11 @@ export default function Groups() {
 
     try {
       await supabaseAPI.deleteGroup(groupId);
-      alert('Grupo eliminado exitosamente');
+      toast.success('Grupo eliminado exitosamente');
       loadGroups(); // Reload the groups list
     } catch (error: any) {
       console.error('Error al eliminar grupo:', error);
-      alert('Error al eliminar el grupo: ' + (error.message || 'Error desconocido'));
+      toast.error('Error al eliminar el grupo: ' + (error.message || 'Error desconocido'));
     }
   };
 
@@ -178,7 +179,7 @@ export default function Groups() {
                         onClick={() => {
                           const inviteLink = `${window.location.origin}/groups/join/${group.invite_code}`;
                           navigator.clipboard.writeText(inviteLink);
-                          alert('Enlace de invitación copiado al portapapeles');
+                          toast.success('Enlace de invitación copiado al portapapeles');
                         }}
                       >
                         Compartir Invitación

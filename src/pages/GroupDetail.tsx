@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Button, GameApprovalModal } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
@@ -179,7 +180,7 @@ export default function GroupDetail() {
       setLeaderboard(leaderboardData);
     } catch (error: any) {
       console.error('Error al cargar grupo:', error);
-      alert('Error al cargar el grupo');
+      toast.error('Error al cargar el grupo');
       navigate('/groups');
     } finally {
       setIsLoading(false);
@@ -196,20 +197,20 @@ export default function GroupDetail() {
         cpu_avatar: '🤖',
       });
 
-      alert(`CPU "${cpuName}" agregado exitosamente`);
+      toast.success(`CPU "${cpuName}" agregado exitosamente`);
       setCpuName('');
       setShowAddCPU(false);
       loadGroup(); // Reload group data
     } catch (error: any) {
       console.error('Error al agregar CPU:', error);
-      alert('Error al agregar CPU: ' + (error.message || 'Error desconocido'));
+      toast.error('Error al agregar CPU: ' + (error.message || 'Error desconocido'));
     }
   };
 
   const copyInviteCode = () => {
     if (group) {
       navigator.clipboard.writeText(group.invite_code);
-      alert(`Código de invitación copiado: ${group.invite_code}`);
+      toast.success(`Código de invitación copiado: ${group.invite_code}`);
     }
   };
 
@@ -217,7 +218,7 @@ export default function GroupDetail() {
     if (group) {
       const inviteLink = `${window.location.origin}/groups/join/${group.invite_code}`;
       navigator.clipboard.writeText(inviteLink);
-      alert('Enlace de invitación copiado al portapapeles');
+      toast.success('Enlace de invitación copiado al portapapeles');
     }
   };
 
@@ -231,7 +232,7 @@ export default function GroupDetail() {
       setShowApprovalModal(true);
     } catch (error) {
       console.error('Error al cargar detalles del juego:', error);
-      alert('Error al cargar los detalles de la partida');
+      toast.error('Error al cargar los detalles de la partida');
     }
   };
 

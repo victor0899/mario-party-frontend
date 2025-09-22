@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Button, Input } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
@@ -95,7 +96,7 @@ export default function CreateGame() {
 
   const loadInitialData = async () => {
     if (!groupId) {
-      alert('ID de grupo requerido');
+      toast.error('ID de grupo requerido');
       navigate('/groups');
       return;
     }
@@ -139,7 +140,7 @@ export default function CreateGame() {
       }
     } catch (error: any) {
       console.error('Error al cargar datos:', error);
-      alert('Error al cargar los datos');
+      toast.error('Error al cargar los datos');
       navigate('/groups');
     } finally {
       setIsLoading(false);
@@ -306,12 +307,12 @@ export default function CreateGame() {
 
   const validateForm = (): boolean => {
     if (!selectedMapId || !mapSelected) {
-      alert('Por favor selecciona un mapa usando el botón "Seleccionar este Mapa"');
+      toast.error('Por favor selecciona un mapa usando el botón "Seleccionar este Mapa"');
       return false;
     }
 
     if (!playedAt) {
-      alert('Selecciona la fecha de la partida');
+      toast.error('Selecciona la fecha de la partida');
       return false;
     }
 
@@ -354,11 +355,11 @@ export default function CreateGame() {
         results: gameResults,
       });
 
-      alert('¡Partida registrada exitosamente! Ahora está pendiente de aprobación por otros miembros.');
+      toast.success('¡Partida registrada exitosamente! Ahora está pendiente de aprobación por otros miembros.');
       navigate(`/groups/${group.id}`);
     } catch (error: any) {
       console.error('Error al registrar partida:', error);
-      alert('Error al registrar la partida: ' + (error.message || 'Error desconocido'));
+      toast.error('Error al registrar la partida: ' + (error.message || 'Error desconocido'));
     } finally {
       setIsSubmitting(false);
     }

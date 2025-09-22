@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Button, Input, Container } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { supabase } from '../shared/lib/supabase';
@@ -68,7 +69,7 @@ export default function JoinGroup() {
     );
 
     if (isAlreadyMember) {
-      alert('Ya eres miembro de este grupo');
+      toast('Ya eres miembro de este grupo');
       navigate(`/groups/${group.id}`);
       return;
     }
@@ -83,7 +84,7 @@ export default function JoinGroup() {
     setIsJoining(true);
     try {
       await supabaseAPI.joinGroup({ invite_code: group.invite_code });
-      alert(`¡Te has unido exitosamente al grupo "${group.name}"!`);
+      toast.success(`¡Te has unido exitosamente al grupo "${group.name}"!`);
       navigate(`/groups/${group.id}`);
     } catch (error: any) {
       console.error('Error al unirse al grupo:', error);
