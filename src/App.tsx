@@ -22,13 +22,11 @@ function AuthRedirectHandler() {
   const location = useLocation();
 
   useEffect(() => {
-    console.log('🔴 AuthRedirectHandler - location changed:', location.pathname, location.hash);
-
-    // Only handle OAuth callbacks with access_token
+    // Use alert for production debugging since console.log doesn't appear
     if (location.hash && location.hash.includes('access_token')) {
-      console.log('🔴 OAuth callback detected, letting Supabase handle it automatically');
+      alert('🔴 OAuth callback detected with access_token!');
 
-      // Just show a toast and let Supabase's automatic session handling work
+      // Show toast
       toast.success('¡Autenticación exitosa! Redirigiendo...');
 
       // Don't interfere - let Supabase process the hash automatically
