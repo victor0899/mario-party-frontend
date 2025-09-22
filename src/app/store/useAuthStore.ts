@@ -95,8 +95,20 @@ export const useAuthStore = create<AuthState>()(
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
 
+        // Clear state
         get().setUser(null);
         get().setProfile(null);
+
+        // Force clear the persisted storage
+        localStorage.removeItem('mario-party-auth');
+
+        // Reset loading state
+        set({
+          user: null,
+          profile: null,
+          isAuthenticated: false,
+          loading: false
+        });
       },
 
       updateProfile: async (profileData: Partial<Profile>) => {

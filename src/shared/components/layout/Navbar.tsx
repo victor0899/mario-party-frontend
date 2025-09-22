@@ -10,11 +10,19 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
+      setIsDropdownOpen(false);
       await signOut();
-      navigate('/auth');
+      // Force navigation after a brief delay to ensure state is cleared
+      setTimeout(() => {
+        navigate('/auth');
+        // Force a page reload to ensure clean state
+        window.location.reload();
+      }, 100);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
+      // Even if logout fails, clear local state and redirect
       navigate('/auth');
+      window.location.reload();
     }
   };
 
@@ -163,10 +171,7 @@ export default function Navbar() {
                 </Link>
 
                 <button
-                  onClick={() => {
-                    setIsDropdownOpen(false);
-                    handleLogout();
-                  }}
+                  onClick={handleLogout}
                   className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                 >
                   <svg className="w-4 h-4 mr-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
