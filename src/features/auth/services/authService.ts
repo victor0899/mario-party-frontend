@@ -49,23 +49,40 @@ export class AuthService {
   }
 
   async signInWithGoogle(): Promise<AuthResult> {
+    console.log('🔵 signInWithGoogle called');
+
     try {
       // Get the correct base URL for the current environment
       const baseUrl = import.meta.env.PROD
         ? window.location.origin
         : 'http://localhost:5173';
 
-      const { error } = await supabase.auth.signInWithOAuth({
+      const redirectUrl = `${baseUrl}/dashboard`;
+
+      console.log('🔵 Environment:', import.meta.env.PROD ? 'PRODUCTION' : 'DEVELOPMENT');
+      console.log('🔵 Current origin:', window.location.origin);
+      console.log('🔵 Redirect URL:', redirectUrl);
+
+      console.log('🔵 Calling supabase.auth.signInWithOAuth...');
+
+      const result = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${baseUrl}/dashboard`
+          redirectTo: redirectUrl
         }
       });
 
-      if (error) throw error;
+      console.log('🔵 OAuth result:', result);
 
+      if (result.error) {
+        console.error('🔴 OAuth error:', result.error);
+        throw result.error;
+      }
+
+      console.log('🟢 OAuth initiated successfully');
       return { user: null }; // OAuth redirects, so no immediate user
     } catch (error) {
+      console.error('🔴 signInWithGoogle error:', error);
       return { user: null, error: error as Error };
     }
   }

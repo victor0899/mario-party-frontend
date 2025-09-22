@@ -10,19 +10,26 @@ export const SocialAuth = ({ onSuccess }: SocialAuthProps) => {
   const { signInWithGoogle, isLoading } = useAuth();
 
   const handleGoogleSignIn = async () => {
+    console.log('🟠 SocialAuth.handleGoogleSignIn clicked');
     try {
       const loadingToast = toast.loading('Conectando con Google...');
+      console.log('🟠 Loading toast shown, calling signInWithGoogle...');
+
       const result = await signInWithGoogle();
+      console.log('🟠 signInWithGoogle result:', result);
+
       toast.dismiss(loadingToast);
 
       if (result.success) {
+        console.log('🟢 Success! Showing welcome toast');
         toast.success('¡Bienvenido!');
         onSuccess?.();
       } else {
+        console.error('🔴 Failed result:', result.error);
         toast.error(result.error?.message || 'Error al iniciar sesión con Google');
       }
     } catch (error) {
-      console.error('Google sign in error:', error);
+      console.error('🔴 SocialAuth catch error:', error);
       toast.error('Ha ocurrido un error inesperado');
     }
   };
