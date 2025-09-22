@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import { useAuthStore } from './app/store/useAuthStore';
@@ -17,74 +17,26 @@ import Leaderboard from './pages/Leaderboard';
 import CompleteProfile from './pages/CompleteProfile';
 import EditProfile from './pages/EditProfile';
 
-// Component to handle email verification and OAuth redirects from Supabase
+// Component to handle OAuth redirects - simplified approach
 function AuthRedirectHandler() {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { initialize } = useAuthStore();
 
   useEffect(() => {
-    console.log('🔴 AuthRedirectHandler useEffect triggered');
-    console.log('🔴 Current location:', location);
-    console.log('🔴 Hash:', location.hash);
+    console.log('🔴 AuthRedirectHandler - location changed:', location.pathname, location.hash);
 
-    // Always process the hash if it exists
-    if (location.hash) {
-      console.log('🔴 Processing hash:', location.hash);
+    // Only handle OAuth callbacks with access_token
+    if (location.hash && location.hash.includes('access_token')) {
+      console.log('🔴 OAuth callback detected, letting Supabase handle it automatically');
 
-      // Check if URL contains verification parameters from Supabase
-      const hashParams = new URLSearchParams(location.hash.substring(1));
-      const type = hashParams.get('type');
-      const accessToken = hashParams.get('access_token');
-      const error = hashParams.get('error');
-      const errorDescription = hashParams.get('error_description');
+      // Just show a toast and let Supabase's automatic session handling work
+      toast.success('¡Autenticación exitosa! Redirigiendo...');
 
-      console.log('🔴 Hash params:', { type, accessToken: !!accessToken, error });
-
-      if (error) {
-        console.log('🔴 OAuth error detected');
-        toast.error(errorDescription || 'Error en la autenticación');
-        navigate('/auth', { replace: true });
-        return;
-      }
-
-      // Handle OAuth login (Google, etc.) - has access_token but no type
-      if (accessToken && !type) {
-        console.log('🔴 OAuth callback detected with access_token');
-        toast.success('¡Iniciando sesión exitosamente!');
-
-        // Force page reload to trigger Supabase session initialization
-        setTimeout(() => {
-          console.log('🔴 Reloading page to initialize OAuth session');
-          window.location.href = '/dashboard';
-        }, 1000);
-
-        return;
-      }
-
-      // Handle email verification types
-      if (type && accessToken) {
-        console.log('🔴 Email verification detected');
-        switch (type) {
-          case 'signup':
-            toast.success('¡Email verificado exitosamente! Ya puedes iniciar sesión.');
-            break;
-          case 'recovery':
-            toast.success('Email verificado. Ahora puedes cambiar tu contraseña.');
-            break;
-          case 'email_change':
-            toast.success('¡Cambio de email verificado exitosamente!');
-            break;
-          default:
-            break;
-        }
-
-        navigate('/auth', { replace: true });
-      }
+      // Don't interfere - let Supabase process the hash automatically
+      // The onAuthStateChange listener will handle navigation
     }
-  }, [navigate, location.hash, location.pathname, initialize]);
+  }, [location]);
 
-  return null; // This component doesn't render anything
+  return null;
 }
 
 // ProtectedRoute now redirects to '/login' and checks profile completion
@@ -92,21 +44,31 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuthStore();
   const location = useLocation();
 
-  // If we're on a page with OAuth hash, give it time to process
+  console.log('🟦 ProtectedRoute:', { isAuthenticated, loading, pathname: location.pathname, hash: !!location.hash });
+
+  // If we're on a page with OAuth hash, give it extra time to process
   const hasOAuthHash = location.hash.includes('access_token');
 
-  if (loading || (hasOAuthHash && !isAuthenticated)) {
+  if (loading) {
+    console.log('🟦 ProtectedRoute: Loading state');
     return <div className="min-h-screen flex items-center justify-center">
-      <div className="text-white">
-        {hasOAuthHash ? 'Procesando autenticación...' : 'Cargando...'}
-      </div>
+      <div className="text-white">Cargando...</div>
     </div>;
   }
 
-  if (!isAuthenticated && !hasOAuthHash) {
+  if (hasOAuthHash && !isAuthenticated) {
+    console.log('🟦 ProtectedRoute: OAuth hash detected, waiting for auth');
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="text-white">Procesando autenticación...</div>
+    </div>;
+  }
+
+  if (!isAuthenticated) {
+    console.log('🟦 ProtectedRoute: Not authenticated, redirecting to auth');
     return <Navigate to="/auth" />;
   }
 
+  console.log('🟦 ProtectedRoute: Authenticated, rendering children');
   return (
     <ProfileGuard>
       {children}
