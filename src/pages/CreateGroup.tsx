@@ -55,13 +55,6 @@ export default function CreateGroup() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-800">Crear Nuevo Grupo</h1>
-        </div>
-      </div>
-
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">

@@ -180,24 +180,6 @@ export default function Leaderboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">🏆 Tabla de Posiciones</h1>
-            <p className="text-gray-600 text-sm">{group.name}</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-500">
-              {approvedGames.length} partida{approvedGames.length !== 1 ? 's' : ''} aprobada{approvedGames.length !== 1 ? 's' : ''}
-            </span>
-            <Link to={`/groups/${id}`} className="text-gray-600 hover:text-gray-800">
-              ← Volver al Grupo
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
         {leaderboard.length === 0 ? (

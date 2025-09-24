@@ -131,7 +131,9 @@ function App() {
           path="/groups"
           element={
             <ProtectedRoute>
-              <Groups />
+              <AppLayout>
+                <Groups />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
@@ -140,7 +142,9 @@ function App() {
           path="/groups/new"
           element={
             <ProtectedRoute>
-              <CreateGroup />
+              <AppLayout>
+                <CreateGroup />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
@@ -149,7 +153,9 @@ function App() {
           path="/groups/:id"
           element={
             <ProtectedRoute>
-              <GroupDetail />
+              <AppLayout>
+                <GroupDetail />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
@@ -158,7 +164,9 @@ function App() {
           path="/groups/join"
           element={
             <ProtectedRoute>
-              <JoinGroup />
+              <AppLayout>
+                <JoinGroup />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
@@ -167,7 +175,9 @@ function App() {
           path="/groups/join/:inviteCode"
           element={
             <ProtectedRoute>
-              <JoinGroup />
+              <AppLayout>
+                <JoinGroup />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
@@ -176,7 +186,9 @@ function App() {
           path="/games/new"
           element={
             <ProtectedRoute>
-              <CreateGame />
+              <AppLayout>
+                <CreateGame />
+              </AppLayout>
             </ProtectedRoute>
           }
         />
@@ -185,7 +197,9 @@ function App() {
           path="/groups/:id/leaderboard"
           element={
             <ProtectedRoute>
-              <Leaderboard />
+              <AppLayout>
+                <Leaderboard />
+              </AppLayout>
             </ProtectedRoute>
           }
         />

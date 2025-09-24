@@ -447,22 +447,6 @@ export default function CreateGame() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">Registrar Nueva Partida</h1>
-            <p className="text-gray-600">{group.name}</p>
-          </div>
-          <button
-            onClick={() => navigate(`/groups/${group.id}`)}
-            className="text-gray-600 hover:text-gray-800"
-          >
-            ← Volver al Grupo
-          </button>
-        </div>
-      </div>
-
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">

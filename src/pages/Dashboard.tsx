@@ -28,30 +28,8 @@ export default function Dashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header with Create Group button */}
-      <div className="flex justify-end items-center mb-8">
-        <Link
-          to="/groups/new"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-        >
-          <span>➕</span>
-          <span>Crear Grupo</span>
-        </Link>
-      </div>
-
       {/* Groups Section */}
       <div>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Mis Grupos</h2>
-          {groups.length > 0 && (
-            <Link
-              to="/groups"
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Ver todos →
-            </Link>
-          )}
-        </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">

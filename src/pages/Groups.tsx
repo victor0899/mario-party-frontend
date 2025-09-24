@@ -57,23 +57,6 @@ export default function Groups() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Mis Grupos</h1>
-          <div className="flex items-center space-x-4">
-            <Link to="/groups/new">
-              <Button variant="primary" size="sm">
-                Crear Nuevo Grupo
-              </Button>
-            </Link>
-            <Link to="/dashboard" className="text-gray-600 hover:text-gray-800">
-              ← Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
         {isLoading ? (
@@ -201,37 +184,6 @@ export default function Groups() {
           </div>
         )}
 
-        {/* Quick Actions */}
-        {groups.length > 0 && (
-          <div className="mt-12">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Acciones Rápidas</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Link to="/groups/join">
-                <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
-                  <div className="text-2xl mb-2">🔍</div>
-                  <h3 className="font-medium text-gray-800">Buscar Grupos</h3>
-                  <p className="text-sm text-gray-600">Encuentra grupos públicos</p>
-                </div>
-              </Link>
-
-              <Link to="/games/new">
-                <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
-                  <div className="text-2xl mb-2">🎮</div>
-                  <h3 className="font-medium text-gray-800">Nueva Partida</h3>
-                  <p className="text-sm text-gray-600">Registrar resultados</p>
-                </div>
-              </Link>
-
-              <Link to="/groups/new">
-                <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
-                  <div className="text-2xl mb-2">➕</div>
-                  <h3 className="font-medium text-gray-800">Crear Liga</h3>
-                  <p className="text-sm text-gray-600">Nueva competencia</p>
-                </div>
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

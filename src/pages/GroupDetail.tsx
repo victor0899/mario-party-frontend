@@ -291,26 +291,6 @@ export default function GroupDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">{group.name}</h1>
-            {group.description && (
-              <p className="text-gray-600 text-sm">{group.description}</p>
-            )}
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-500">
-              {group.members?.length || 0}/{group.max_members} miembros
-            </span>
-            <Link to="/groups" className="text-gray-600 hover:text-gray-800">
-              ← Mis Grupos
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
