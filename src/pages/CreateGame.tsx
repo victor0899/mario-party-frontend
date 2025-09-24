@@ -639,7 +639,17 @@ export default function CreateGame() {
                             {(() => {
                               const member = group?.members?.find(m => m.id === player.player_id);
                               if (member?.is_cpu) {
-                                return <span className="text-2xl">🤖</span>;
+                                if (member.cpu_avatar) {
+                                  return (
+                                    <img
+                                      src={getCharacterImage(member.cpu_avatar)}
+                                      alt={player.playerName}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  );
+                                } else {
+                                  return <span className="text-2xl">🤖</span>;
+                                }
                               } else if (member?.profile?.profile_picture) {
                                 return (
                                   <img
