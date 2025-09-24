@@ -335,8 +335,32 @@ export default function CreateGame() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm() || !group || !user) return;
+    console.log('🚀 Iniciando submit...');
+    console.log('📊 Estado actual:', {
+      selectedMapId,
+      mapSelected,
+      playedAt,
+      playerResultsCount: playerResults.length,
+      groupId: group?.id,
+      userId: user?.id
+    });
 
+    if (!validateForm()) {
+      console.log('❌ Validación fallida');
+      return;
+    }
+
+    if (!group) {
+      console.log('❌ No hay grupo');
+      return;
+    }
+
+    if (!user) {
+      console.log('❌ No hay usuario');
+      return;
+    }
+
+    console.log('✅ Validaciones pasadas, enviando datos...');
     setIsSubmitting(true);
     try {
       // Prepare game results data
@@ -361,6 +385,13 @@ export default function CreateGame() {
         vs_spaces: player.vs_spaces,
       }));
 
+      console.log('📤 Enviando datos al API:', {
+        group_id: group.id,
+        map_id: selectedMapId,
+        played_at: new Date(playedAt).toISOString(),
+        results: gameResults,
+      });
+
       await supabaseAPI.createGame({
         group_id: group.id,
         map_id: selectedMapId,
@@ -368,12 +399,15 @@ export default function CreateGame() {
         results: gameResults,
       });
 
+      console.log('✅ Partida creada exitosamente');
       toast.success('¡Partida registrada exitosamente! Ahora está pendiente de aprobación por otros miembros.');
       navigate(`/groups/${group.id}`);
     } catch (error: any) {
-      console.error('Error al registrar partida:', error);
+      console.error('❌ Error al registrar partida:', error);
+      console.error('Detalles completos del error:', error);
       toast.error('Error al registrar la partida: ' + (error.message || 'Error desconocido'));
     } finally {
+      console.log('🏁 Terminando submit, isSubmitting -> false');
       setIsSubmitting(false);
     }
   };
@@ -631,7 +665,15 @@ export default function CreateGame() {
 
           {/* Player Results */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Resultados por Jugador</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">Resultados por Jugador</h2>
+            <div className="mb-6 p-3 bg-gray-50 rounded-lg">
+              <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                <span>🥇 1er Lugar: 4 puntos</span>
+                <span>🥈 2do Lugar: 3 puntos</span>
+                <span>🥉 3er Lugar: 2 puntos</span>
+                <span>4to Lugar: 1 punto</span>
+              </div>
+            </div>
 
             <div className="space-y-8">
               {playerResults.map((player) => (
@@ -689,12 +731,6 @@ export default function CreateGame() {
 
                       <div>
                         <h3 className="font-semibold text-lg">{player.playerName}</h3>
-                        <p className="text-sm text-gray-500">
-                          {player.calculatedPosition === 1 ? '🥇 1er Lugar (4 puntos)' :
-                           player.calculatedPosition === 2 ? '🥈 2do Lugar (3 puntos)' :
-                           player.calculatedPosition === 3 ? '🥉 3er Lugar (2 puntos)' :
-                           '4to Lugar (1 punto)'}
-                        </p>
                       </div>
                     </div>
 
