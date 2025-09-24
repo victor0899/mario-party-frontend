@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { supabaseAPI } from '../shared/services/supabase';
 import type { Group } from '../shared/types/api';
+import { LoadingSpinner } from '../shared/components/ui';
 
 export default function Dashboard() {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -28,12 +29,28 @@ export default function Dashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0">
+        <div>
+          <h1 className="text-3xl font-mario text-gray-900">
+            Dashboard
+          </h1>
+        </div>
+        <Link
+          to="/groups/new"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 sm:w-auto"
+        >
+          <span className="text-lg">+</span>
+          <span>Crear Nuevo Grupo</span>
+        </Link>
+      </div>
+
       {/* Groups Section */}
       <div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-gray-500">Cargando grupos...</div>
+            <LoadingSpinner text="Cargando grupos..." size="md" />
           </div>
         ) : groups.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
@@ -52,8 +69,12 @@ export default function Dashboard() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {groups.slice(0, 6).map((group) => (
+          <div>
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">
+              Mis Grupos ({groups.length})
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {groups.slice(0, 6).map((group) => (
               <div key={group.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -104,6 +125,7 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+            </div>
           </div>
         )}
       </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Button, Input } from '../shared/components';
+import { Button, Input, Spinner } from '../shared/components';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { supabase } from '../shared/lib/supabase';
 
@@ -246,10 +246,11 @@ export default function CompleteProfile() {
               type="submit"
               variant="primary"
               size="lg"
-              className="w-full"
+              className="w-full flex items-center justify-center space-x-2"
               disabled={isSubmitting || nicknameStatus !== 'available' || !formData.nickname.trim()}
             >
-              {isSubmitting ? 'Guardando...' : 'Completar Perfil'}
+              {isSubmitting && <Spinner size="sm" className="border-white border-t-transparent" />}
+              <span>{isSubmitting ? 'Guardando...' : 'Completar Perfil'}</span>
             </Button>
 
             <div className="text-center text-xs text-gray-500 mt-4">

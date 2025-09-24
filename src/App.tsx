@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from './app/store/useAuthStore';
 import AppLayout from './shared/components/layout/AppLayout';
 import { ProfileGuard } from './shared/components';
+import { LoadingSpinner } from './shared/components/ui';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
@@ -34,15 +35,23 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     console.log('🟦 ProtectedRoute: Loading state');
-    return <div className="min-h-screen flex items-center justify-center">
-      <div className="text-white">Cargando...</div>
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-600 to-purple-700">
+      <LoadingSpinner
+        text="Cargando..."
+        size="lg"
+        textClassName="text-white text-lg"
+      />
     </div>;
   }
 
   if (hasOAuthHash && !isAuthenticated) {
     console.log('🟦 ProtectedRoute: OAuth hash detected, waiting for auth');
-    return <div className="min-h-screen flex items-center justify-center">
-      <div className="text-white">Procesando autenticación...</div>
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-600 to-purple-700">
+      <LoadingSpinner
+        text="Procesando autenticación..."
+        size="lg"
+        textClassName="text-white text-lg"
+      />
     </div>;
   }
 

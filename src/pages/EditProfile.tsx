@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Button, Input } from '../shared/components';
+import { Button, Input, Spinner } from '../shared/components';
 import { useAuthStore } from '../app/store/useAuthStore';
 
 const MARIO_CHARACTERS = [
@@ -29,20 +29,6 @@ const MARIO_CHARACTERS = [
   { id: 'monty-mole', name: 'Monty Mole', image: '/images/characters/SMP_Icon_Monty_Mole.webp' }
 ];
 
-const COUNTRIES = [
-  'Argentina', 'Bolivia', 'Brasil', 'Chile', 'Colombia', 'Costa Rica',
-  'Cuba', 'Ecuador', 'El Salvador', 'España', 'Guatemala', 'Honduras',
-  'México', 'Nicaragua', 'Panamá', 'Paraguay', 'Perú', 'Puerto Rico',
-  'República Dominicana', 'Uruguay', 'Venezuela', 'Estados Unidos',
-  'Canadá', 'Otro'
-];
-
-const MINIGAMES = [
-  'Platform Peril', 'Tug o\' War', 'Musical Mushroom', 'Coin Block Blitz',
-  'Jump Man', 'Piranha\s Pursuit', 'Treasure Diving', 'Desert Dash',
-  'Shy Guy Says', 'Bumper Balls', 'Crane Game', 'Face Lift',
-  'Crazy Cutters', 'Hot Rope Jump', 'Paddle Battle', 'Hexagon Heat'
-];
 
 export default function EditProfile() {
   const { profile, updateProfile } = useAuthStore();
@@ -50,11 +36,7 @@ export default function EditProfile() {
 
   const [formData, setFormData] = useState({
     nickname: '',
-    profilePicture: MARIO_CHARACTERS[0].id,
-    birthDate: '',
-    nationality: '',
-    favoriteMinigame: '',
-    bio: ''
+    profilePicture: MARIO_CHARACTERS[0].id
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,11 +46,7 @@ export default function EditProfile() {
     if (profile) {
       setFormData({
         nickname: profile.nickname || '',
-        profilePicture: profile.profile_picture || MARIO_CHARACTERS[0].id,
-        birthDate: profile.birth_date || '',
-        nationality: profile.nationality || '',
-        favoriteMinigame: profile.favorite_minigame || '',
-        bio: profile.bio || ''
+        profilePicture: profile.profile_picture || MARIO_CHARACTERS[0].id
       });
     }
   }, [profile]);
@@ -81,35 +59,11 @@ export default function EditProfile() {
       return;
     }
 
-    if (!formData.birthDate) {
-      toast.error('La fecha de nacimiento es obligatoria');
-      return;
-    }
-
-    if (!formData.nationality) {
-      toast.error('La nacionalidad es obligatoria');
-      return;
-    }
-
-    if (!formData.favoriteMinigame) {
-      toast.error('Debes seleccionar tu minijuego favorito');
-      return;
-    }
-
-    if (!formData.bio.trim()) {
-      toast.error('Cuéntanos algo sobre ti');
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       const profileData = {
         nickname: formData.nickname,
-        profile_picture: formData.profilePicture,
-        birth_date: formData.birthDate,
-        nationality: formData.nationality,
-        favorite_minigame: formData.favoriteMinigame,
-        bio: formData.bio
+        profile_picture: formData.profilePicture
       };
 
       await updateProfile(profileData);
@@ -122,9 +76,6 @@ export default function EditProfile() {
       setIsSubmitting(false);
     }
   };
-
-  const maxBirthDate = new Date();
-  maxBirthDate.setFullYear(maxBirthDate.getFullYear() - 13); // Minimum 13 years old
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -195,74 +146,6 @@ export default function EditProfile() {
                 </div>
               </div>
 
-              {/* Birth Date */}
-              <Input
-                label="Fecha de Nacimiento *"
-                type="date"
-                value={formData.birthDate}
-                onChange={(e) => setFormData(prev => ({ ...prev, birthDate: e.target.value }))}
-                max={maxBirthDate.toISOString().split('T')[0]}
-                required
-              />
-
-              {/* Nationality */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nacionalidad *
-                </label>
-                <select
-                  value={formData.nationality}
-                  onChange={(e) => setFormData(prev => ({ ...prev, nationality: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Selecciona tu país</option>
-                  {COUNTRIES.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Favorite Minigame */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Minijuego Favorito *
-                </label>
-                <select
-                  value={formData.favoriteMinigame}
-                  onChange={(e) => setFormData(prev => ({ ...prev, favoriteMinigame: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Selecciona tu minijuego favorito</option>
-                  {MINIGAMES.map((game) => (
-                    <option key={game} value={game}>
-                      {game}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Bio */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Cuéntanos de ti *
-                </label>
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                  placeholder="Describe tu estilo de juego, experiencia con Mario Party, o cualquier cosa interesante sobre ti..."
-                  rows={4}
-                  maxLength={500}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                  required
-                />
-                <div className="text-xs text-gray-500 mt-1">
-                  {formData.bio.length}/500 caracteres
-                </div>
-              </div>
             </div>
 
             <div className="flex space-x-4">
@@ -279,10 +162,11 @@ export default function EditProfile() {
                 type="submit"
                 variant="primary"
                 size="lg"
-                className="flex-1"
+                className="flex-1 flex items-center justify-center space-x-2"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Guardando...' : 'Guardar Cambios'}
+                {isSubmitting && <Spinner size="sm" className="border-white border-t-transparent" />}
+                <span>{isSubmitting ? 'Guardando...' : 'Guardar Cambios'}</span>
               </Button>
             </div>
 

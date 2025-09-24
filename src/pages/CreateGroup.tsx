@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Button, Input } from '../shared/components';
+import { Button, Input, Spinner } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 
@@ -144,9 +144,10 @@ export default function CreateGroup() {
                   variant="primary"
                   isLoading={isLoading}
                   disabled={!name.trim() || isLoading}
-                  className="flex-1"
+                  className="flex-1 flex items-center justify-center space-x-2"
                 >
-                  {isLoading ? 'Creando...' : 'Crear Liga'}
+                  {isLoading && <Spinner size="sm" className="border-white border-t-transparent" />}
+                  <span>{isLoading ? 'Creando...' : 'Crear Liga'}</span>
                 </Button>
               </div>
             </form>

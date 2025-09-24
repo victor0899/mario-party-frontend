@@ -82,27 +82,6 @@ export default function Navbar() {
             </h1>
           </Link>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link
-              to="/dashboard"
-              className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
-            >
-              Dashboard
-            </Link>
-            <Link
-              to="/groups"
-              className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
-            >
-              Mis Grupos
-            </Link>
-            <Link
-              to="/games/new"
-              className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
-            >
-              Nueva Partida
-            </Link>
-          </div>
 
           {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>
@@ -120,11 +99,11 @@ export default function Navbar() {
               </div>
 
               {/* User Info */}
-              <div className="hidden sm:block text-left">
-                <div className="text-sm font-medium text-gray-800">
+              <div className="hidden sm:block text-left max-w-32">
+                <div className="text-sm font-medium text-gray-800 truncate">
                   {profile?.nickname || 'Usuario'}
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 truncate">
                   {user?.email}
                 </div>
               </div>
@@ -151,10 +130,10 @@ export default function Navbar() {
             {isDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                 <div className="px-4 py-2 border-b border-gray-100">
-                  <div className="text-sm font-medium text-gray-800">
+                  <div className="text-sm font-medium text-gray-800 truncate">
                     {profile?.nickname || 'Usuario'}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 truncate" title={user?.email}>
                     {user?.email}
                   </div>
                 </div>
