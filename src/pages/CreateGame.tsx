@@ -256,7 +256,20 @@ export default function CreateGame() {
     if (!group?.members) return;
 
     const activeMembers = group.members.filter(m => m.status === 'active');
-    const results: PlayerResult[] = activeMembers.map((member) => ({
+
+    // Sort members: humans first (alphabetically), then CPUs (alphabetically)
+    const sortedMembers = [...activeMembers].sort((a, b) => {
+      // CPUs go to the end
+      if (a.is_cpu && !b.is_cpu) return 1;
+      if (!a.is_cpu && b.is_cpu) return -1;
+
+      // Within each group, sort alphabetically
+      const nameA = a.is_cpu ? a.cpu_name! : (a.profile?.nickname || 'Usuario sin nombre');
+      const nameB = b.is_cpu ? b.cpu_name! : (b.profile?.nickname || 'Usuario sin nombre');
+      return nameA.localeCompare(nameB);
+    });
+
+    const results: PlayerResult[] = sortedMembers.map((member) => ({
       player_id: member.id,
       playerId: member.id,
       playerName: member.is_cpu
@@ -397,8 +410,6 @@ export default function CreateGame() {
       </div>
     );
   }
-
-  const sortedResults = [...playerResults].sort((a, b) => a.calculatedPosition - b.calculatedPosition);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -623,7 +634,7 @@ export default function CreateGame() {
             <h2 className="text-xl font-semibold text-gray-800 mb-6">Resultados por Jugador</h2>
 
             <div className="space-y-8">
-              {sortedResults.map((player) => (
+              {playerResults.map((player) => (
                 <div key={player.playerId} className="border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-4">
@@ -687,14 +698,6 @@ export default function CreateGame() {
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <div className="text-xs text-gray-500">Posición calculada automáticamente</div>
-                      <div className="text-lg font-bold text-gray-800">
-                        {player.calculatedPosition === 1 ? '🥇' :
-                         player.calculatedPosition === 2 ? '🥈' :
-                         player.calculatedPosition === 3 ? '🥉' : '4️⃣'}
-                      </div>
-                    </div>
                   </div>
 
                   {/* Basic Metrics Grid - Only first 4 fields */}
