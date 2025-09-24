@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Button, GameApprovalModal } from '../shared/components';
+import { Button, GameApprovalModal, AddCPUModal } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import type { Group, Game, LeaderboardEntry, GroupMember } from '../shared/types/api';
@@ -10,8 +10,8 @@ export default function GroupDetail() {
   const { id } = useParams<{ id: string }>();
   const [group, setGroup] = useState<Group | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showAddCPU, setShowAddCPU] = useState(false);
-  const [cpuName, setCpuName] = useState('');
+  const [showAddCPUModal, setShowAddCPUModal] = useState(false);
+  const [isAddingCPU, setIsAddingCPU] = useState(false);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -48,6 +48,7 @@ export default function GroupDetail() {
     return characterMap[characterId] || '/images/characters/SMP_Icon_Mario.webp';
   };
 
+
   // Calculate leaderboard from approved games
   const calculateLeaderboard = (members: GroupMember[], games: Game[]): LeaderboardEntry[] => {
     const playerStats: { [playerId: string]: LeaderboardEntry } = {};
@@ -58,7 +59,7 @@ export default function GroupDetail() {
         player_id: member.id,
         player_name: member.is_cpu ? member.cpu_name! : (member.profile?.nickname || 'Usuario sin nombre'),
         is_cpu: member.is_cpu,
-        profile_picture: member.is_cpu ? undefined : member.profile?.profile_picture || undefined,
+        profile_picture: member.is_cpu ? member.cpu_avatar : member.profile?.profile_picture || undefined,
         total_league_points: 0,
         games_won: 0,
         games_played: 0,
@@ -187,23 +188,25 @@ export default function GroupDetail() {
     }
   };
 
-  const addCPUMember = async () => {
+  const addCPUMember = async (cpuName: string, cpuAvatar: string) => {
     if (!id || !cpuName.trim()) return;
 
+    setIsAddingCPU(true);
     try {
       await supabaseAPI.addCPUMember({
         group_id: id,
         cpu_name: cpuName.trim(),
-        cpu_avatar: '🤖',
+        cpu_avatar: cpuAvatar,
       });
 
       toast.success(`CPU "${cpuName}" agregado exitosamente`);
-      setCpuName('');
-      setShowAddCPU(false);
+      setShowAddCPUModal(false);
       loadGroup(); // Reload group data
     } catch (error: any) {
       console.error('Error al agregar CPU:', error);
       toast.error('Error al agregar CPU: ' + (error.message || 'Error desconocido'));
+    } finally {
+      setIsAddingCPU(false);
     }
   };
 
@@ -312,7 +315,7 @@ export default function GroupDetail() {
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Members & Invitations */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-6 flex flex-col">
             {/* Members */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -348,8 +351,16 @@ export default function GroupDetail() {
                 {/* CPU Members */}
                 {cpuMembers.map((member) => (
                   <div key={member.id} className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
-                    <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white">
-                      🤖
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-purple-500 flex items-center justify-center">
+                      {member.cpu_avatar ? (
+                        <img
+                          src={getCharacterImage(member.cpu_avatar)}
+                          alt={member.cpu_name || 'CPU'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-white">🤖</span>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="font-medium text-gray-800">{member.cpu_name}</div>
@@ -374,49 +385,14 @@ export default function GroupDetail() {
               {/* Add CPU Button */}
               {!isGroupFull && (
                 <div className="mt-4">
-                  {!showAddCPU ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => setShowAddCPU(true)}
-                    >
-                      🤖 Agregar CPU
-                    </Button>
-                  ) : (
-                    <div className="space-y-3">
-                      <input
-                        type="text"
-                        value={cpuName}
-                        onChange={(e) => setCpuName(e.target.value)}
-                        placeholder="Nombre del CPU (ej: Mario CPU)"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        maxLength={20}
-                      />
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={addCPUMember}
-                          disabled={!cpuName.trim()}
-                          className="flex-1"
-                        >
-                          Agregar
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => {
-                            setShowAddCPU(false);
-                            setCpuName('');
-                          }}
-                          className="flex-1"
-                        >
-                          Cancelar
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => setShowAddCPUModal(true)}
+                  >
+                    🤖 Agregar CPU
+                  </Button>
                 </div>
               )}
             </div>
@@ -468,48 +444,38 @@ export default function GroupDetail() {
 
           {/* Right Column - Games & Leaderboard */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Quick Actions */}
-            <div className="flex justify-center">
-              <Button
-                variant="primary"
-                size="lg"
-                className="h-16 w-full md:w-auto md:px-12"
-                onClick={() => navigate(`/games/new?group=${group.id}`)}
-                disabled={!isGroupFull}
-              >
-                <div className="text-center">
-                  <div className="text-2xl mb-1">🎮</div>
-                  <div>Nueva Partida</div>
-                </div>
-              </Button>
-            </div>
-
             {/* Recent Games */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Partidas Recientes
-              </h2>
+            <div className="bg-white rounded-lg shadow-md p-6 min-h-[400px] flex flex-col">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Partidas Recientes
+                </h2>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => navigate(`/games/new?group=${group.id}`)}
+                  disabled={!isGroupFull}
+                  className="flex items-center space-x-2"
+                >
+                  <span>+</span>
+                  <span>Nueva Partida</span>
+                </Button>
+              </div>
 
               {!group.games || group.games.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="text-4xl mb-4">🎮</div>
-                  <h3 className="text-lg font-medium text-gray-800 mb-2">
-                    No hay partidas registradas
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    {!isGroupFull
-                      ? `Necesitas ${group.max_members - (group.members?.length || 0)} jugador(es) más para empezar a jugar`
-                      : 'Registra tu primera partida para empezar la competencia'
-                    }
-                  </p>
-                  {isGroupFull && (
-                    <Button
-                      variant="primary"
-                      onClick={() => navigate(`/games/new?group=${group.id}`)}
-                    >
-                      Registrar Primera Partida
-                    </Button>
-                  )}
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-4xl mb-4">🎮</div>
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">
+                      No hay partidas registradas
+                    </h3>
+                    <p className="text-gray-600">
+                      {!isGroupFull
+                        ? `Necesitas ${group.max_members - (group.members?.length || 0)} jugador(es) más para empezar a jugar`
+                        : 'Las partidas aparecerán aquí una vez que se registren'
+                      }
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
@@ -625,16 +591,16 @@ export default function GroupDetail() {
                               <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-xs overflow-hidden ${
                                 entry.is_cpu ? 'bg-purple-500' : 'bg-blue-500'
                               }`}>
-                                {entry.is_cpu ? '🤖' : (
-                                  entry.profile_picture ? (
-                                    <img
-                                      src={getCharacterImage(entry.profile_picture)}
-                                      alt={entry.player_name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    index + 1
-                                  )
+                                {entry.profile_picture ? (
+                                  <img
+                                    src={getCharacterImage(entry.profile_picture)}
+                                    alt={entry.player_name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : entry.is_cpu ? (
+                                  <span className="text-white">🤖</span>
+                                ) : (
+                                  index + 1
                                 )}
                               </div>
                             </div>
@@ -713,6 +679,14 @@ export default function GroupDetail() {
         isOpen={showApprovalModal}
         onClose={handleModalClose}
         onVoteSubmitted={handleVoteSubmitted}
+      />
+
+      {/* Add CPU Modal */}
+      <AddCPUModal
+        isOpen={showAddCPUModal}
+        onClose={() => setShowAddCPUModal(false)}
+        onAdd={addCPUMember}
+        isLoading={isAddingCPU}
       />
     </div>
   );
