@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { gameApi } from '../services/game.api';
-import {
+import type {
   Game,
   Map,
   CreateGameRequest,

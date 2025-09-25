@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 import { leaderboardApi } from '../services/leaderboard.api';
-import {
+import type {
   LeaderboardEntry,
   LeaderboardRequest,
   LeaderboardResponse

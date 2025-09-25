@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import toast from 'react-hot-toast';
 import { useAuthStore } from './app/store/useAuthStore';
 import AppLayout from './shared/components/layout/AppLayout';
 import { ProfileGuard } from './shared/components';

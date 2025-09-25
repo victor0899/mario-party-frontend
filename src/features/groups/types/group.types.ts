@@ -1,4 +1,4 @@
-import { User } from '../../auth/types/auth.types';
+import type { User } from '../../auth/types/auth.types';
 
 // Group and member related types
 export interface Group {

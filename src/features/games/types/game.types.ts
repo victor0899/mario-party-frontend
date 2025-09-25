@@ -1,4 +1,4 @@
-import { GroupMember } from '../../groups/types/group.types';
+import type { GroupMember } from '../../groups/types/group.types';
 
 // Mario Party League specific types
 export interface Map {

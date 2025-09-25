@@ -7,7 +7,7 @@ interface SocialAuthProps {
 }
 
 export const SocialAuth = ({ onSuccess }: SocialAuthProps) => {
-  const { signInWithGoogle, isLoading } = useAuth();
+  const { signInWithGoogle } = useAuth();
 
   const handleGoogleSignIn = async () => {
     console.log('🟠 SocialAuth.handleGoogleSignIn clicked');

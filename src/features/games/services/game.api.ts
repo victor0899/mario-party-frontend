@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/services/client';
-import {
+import type {
   Game,
   GameResult,
   Map,

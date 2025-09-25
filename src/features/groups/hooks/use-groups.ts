@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { groupApi } from '../services/group.api';
-import {
+import type {
   Group,
   CreateGroupRequest,
   JoinGroupRequest,

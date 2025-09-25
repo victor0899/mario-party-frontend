@@ -12,7 +12,7 @@ import type {
 export default function useAuth() {
   const [loading, setLoading] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
-  const { user, setUser, clearUser } = useAuthStore();
+  const { user, setUser, signOut } = useAuthStore();
   const navigate = useNavigate();
 
   // Login function
@@ -22,7 +22,7 @@ export default function useAuth() {
       const response = await authApi.login(credentials);
       const userData = response.data.user;
 
-      setUser(userData);
+      setUser(userData as any);
       toast.success('¡Bienvenido de vuelta!');
 
       // Navigate based on profile completion
@@ -49,7 +49,7 @@ export default function useAuth() {
       const response = await authApi.register(userData);
       const newUser = response.data.user;
 
-      setUser(newUser);
+      setUser(newUser as any);
       toast.success('¡Cuenta creada exitosamente!');
       navigate('/complete-profile');
 
@@ -70,7 +70,7 @@ export default function useAuth() {
       const response = await authApi.updateProfile(profileData);
       const updatedUser = response.data;
 
-      setUser(updatedUser);
+      setUser(updatedUser as any);
       toast.success('Perfil actualizado exitosamente');
 
       return { success: true, user: updatedUser };
@@ -88,20 +88,20 @@ export default function useAuth() {
     setLoading(true);
     try {
       await authApi.logout();
-      clearUser();
+      await signOut();
       toast.success('Sesión cerrada exitosamente');
       navigate('/auth');
 
       return { success: true };
     } catch (error: any) {
       // Even if API call fails, clear local state
-      clearUser();
+      await signOut();
       navigate('/auth');
       return { success: true }; // Always return success for logout
     } finally {
       setLoading(false);
     }
-  }, [clearUser, navigate]);
+  }, [signOut, navigate]);
 
   // Get current profile
   const fetchProfile = useCallback(async () => {
@@ -112,7 +112,7 @@ export default function useAuth() {
       const response = await authApi.getProfile();
       const profileData = response.data;
 
-      setUser(profileData);
+      setUser(profileData as any);
       return { success: true, user: profileData };
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Error al obtener el perfil';
@@ -158,12 +158,12 @@ export default function useAuth() {
   // Check if user profile is complete
   const isProfileComplete = useCallback((): boolean => {
     if (!user) return false;
-    return !!(user.nickname && user.profileCompleted);
+    return !!((user as any).nickname && (user as any).profileCompleted);
   }, [user]);
 
   // Auto-fetch profile on mount if user exists but profile might be stale
   useEffect(() => {
-    if (user && !user.profileCompleted) {
+    if (user && !(user as any).profileCompleted) {
       fetchProfile();
     }
   }, [user, fetchProfile]);
@@ -186,7 +186,7 @@ export default function useAuth() {
     resetPassword,
 
     // Computed values
-    userDisplayName: user?.nickname || user?.name || 'Usuario',
-    userAvatar: user?.profilePicture || null,
+    userDisplayName: (user as any)?.nickname || (user as any)?.name || 'Usuario',
+    userAvatar: (user as any)?.profilePicture || null,
   };
 }
