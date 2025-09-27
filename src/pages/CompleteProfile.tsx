@@ -187,6 +187,47 @@ export default function CompleteProfile() {
                 )}
               </div>
 
+              {/* Selección de Foto de Perfil */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-4">
+                  Elige tu Personaje de Mario Party
+                </label>
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+                  {MARIO_CHARACTERS.map((character) => (
+                    <button
+                      key={character.id}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, profilePicture: character.id }))}
+                      className={`relative rounded-lg overflow-hidden transition-all duration-200 ${
+                        formData.profilePicture === character.id
+                          ? 'ring-4 ring-blue-500 scale-105 shadow-lg'
+                          : 'ring-2 ring-gray-200 hover:ring-blue-300 hover:scale-102'
+                      }`}
+                      title={character.name}
+                    >
+                      <img
+                        src={character.image}
+                        alt={character.name}
+                        className="w-full h-full object-cover aspect-square"
+                        loading="lazy"
+                      />
+                      {formData.profilePicture === character.id && (
+                        <div className="absolute bottom-1 right-1">
+                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 text-sm text-gray-500">
+                  Personaje seleccionado: <span className="font-medium">{MARIO_CHARACTERS.find(c => c.id === formData.profilePicture)?.name}</span>
+                </p>
+              </div>
+
               <button
                 type="submit"
                 disabled={isSubmitting || nicknameStatus !== 'available'}
