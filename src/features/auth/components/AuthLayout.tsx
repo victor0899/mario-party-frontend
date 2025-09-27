@@ -17,7 +17,7 @@ interface AuthLayoutProps {
 
 export const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
-    <div className="h-screen flex w-full overflow-hidden">
+    <div className="h-full flex w-screen overflow-hidden">
       <div className="hidden lg:flex lg:w-1/2 h-full items-center justify-center bg-gray-100 p-4">
         <div className="w-full max-w-lg h-3/4">
           <ImageCarousel
@@ -40,12 +40,6 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
             </div>
           </div>
 
-          <div className="lg:hidden mt-8">
-            <div className="bg-gray-100 rounded-lg p-4 text-center">
-              <div className="text-4xl mb-2">🎮</div>
-              <p className="text-gray-600 text-sm">Mario Party League</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -7,21 +7,25 @@
 /* Reset para eliminar bordes/espacios */
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html, body {
   margin: 0;
   padding: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   overflow-x: hidden;
+  position: relative;
 }
 
 #root {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   margin: 0;
   padding: 0;
+  position: relative;
 }
 
 /* Mario Party font utilities */

@@ -56,43 +56,6 @@ export const ImageCarousel = ({
         ))}
       </div>
 
-      {/* Navigation dots */}
-      {images.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-3 h-3 rounded-full transition-all ${
-                index === currentIndex
-                  ? 'bg-white scale-110'
-                  : 'bg-white/50 hover:bg-white/75'
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Navigation arrows */}
-      {images.length > 1 && (
-        <>
-          <button
-            onClick={() => setCurrentIndex(currentIndex === 0 ? images.length - 1 : currentIndex - 1)}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-all"
-            aria-label="Previous image"
-          >
-            ←
-          </button>
-          <button
-            onClick={() => setCurrentIndex(currentIndex === images.length - 1 ? 0 : currentIndex + 1)}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-all"
-            aria-label="Next image"
-          >
-            →
-          </button>
-        </>
-      )}
     </div>
   );
 };
