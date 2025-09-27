@@ -24,14 +24,12 @@ export default function CreateGroup() {
         name: name.trim(),
         description: description.trim() || undefined,
         is_public: isPublic,
-        max_members: 4, // Fixed for Mario Party (4 players)
+        max_members: 4,
       });
 
 
-      // Navigate to the group detail page or back to dashboard
       navigate('/dashboard', { replace: true });
 
-      // Show success message
       toast.success(`¡Grupo "${name}" creado exitosamente! Código de invitación: ${group.invite_code}`);
 
     } catch (error: any) {
@@ -54,7 +52,6 @@ export default function CreateGroup() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6">

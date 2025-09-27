@@ -97,7 +97,7 @@ export const Grid = forwardRef<HTMLDivElement, GridProps>(
 
 Grid.displayName = 'Grid';
 
-// Grid Item component
+
 interface GridItemProps extends HTMLAttributes<HTMLDivElement> {
   span?: 1 | 2 | 3 | 4 | 5 | 6 | 12;
   responsive?: {

@@ -51,7 +51,7 @@ export class AuthService {
   async signInWithGoogle(): Promise<AuthResult> {
 
     try {
-      // Get the correct base URL for the current environment
+
       const baseUrl = import.meta.env.PROD
         ? window.location.origin
         : 'http://localhost:5173';
@@ -72,7 +72,7 @@ export class AuthService {
         throw result.error;
       }
 
-      return { user: null }; // OAuth redirects, so no immediate user
+      return { user: null };
     } catch (error) {
       return { user: null, error: error as Error };
     }

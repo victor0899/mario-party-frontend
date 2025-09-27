@@ -1,4 +1,3 @@
-// VideoBackground component for fullscreen video backgrounds
 
 export const VideoBackground = () => {
   return (
@@ -37,7 +36,6 @@ export const VideoBackground = () => {
         <source src="/videos/hero-background.webm" type="video/webm" />
       </video>
       
-      {/* Enhanced overlay with gradient for better text readability */}
       <div
         style={{
           position: 'absolute',

@@ -19,7 +19,6 @@ export default function CreateGame() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
 
-  // Function to get character image from character ID
   const getCharacterImage = (characterId: string) => {
     const characterMap: { [key: string]: string } = {
       'mario': '/images/characters/SMP_Icon_Mario.webp',
@@ -58,7 +57,6 @@ export default function CreateGame() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mapSelected, setMapSelected] = useState(false);
 
-  // Initialize player results with all members
   const [playerResults, setPlayerResults] = useState<PlayerResult[]>([]);
 
   useEffect(() => {
@@ -71,15 +69,14 @@ export default function CreateGame() {
     }
   }, [group]);
 
-  // Keyboard navigation for map carousel
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) {
-        return; // Don't interfere with form inputs
+        return;
       }
 
       if (mapSelected) {
-        return; // Don't allow navigation when map is selected
+        return;
       }
 
       if (e.key === 'ArrowLeft') {
@@ -122,7 +119,6 @@ export default function CreateGame() {
 
       setGroup(groupData);
 
-      // Sort maps in the specified order
       const mapOrder = [
         'Mega Wiggler\'s Tree Party',
         'Roll \'em Raceway',
@@ -137,7 +133,6 @@ export default function CreateGame() {
         const indexA = mapOrder.indexOf(a.name);
         const indexB = mapOrder.indexOf(b.name);
 
-        // If map is not in the order list, put it at the end
         if (indexA === -1 && indexB === -1) return 0;
         if (indexA === -1) return 1;
         if (indexB === -1) return -1;
@@ -170,9 +165,7 @@ export default function CreateGame() {
     }
   };
 
-  // Helper function to get map image URL
   const getMapImageUrl = (mapName: string) => {
-    // List of available image files (you can update this as you add more maps)
     const availableImages: { [key: string]: string } = {
       'Goomba Lagoon': 'GoombaLagoon.webp',
       'King Bowser\'s Keep': 'SMPJ_King_Bowser\'s_Keep.webp',
@@ -187,7 +180,6 @@ export default function CreateGame() {
     return filename ? `/images/maps/${filename}` : null;
   };
 
-  // Check if map image exists (with fallback)
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
 
@@ -217,7 +209,6 @@ export default function CreateGame() {
     setImageLoading(prev => new Set(prev).add(mapId));
   };
 
-  // Map carousel navigation functions
   const navigateMap = (direction: 'prev' | 'next') => {
     if (maps.length === 0) return;
 
@@ -230,14 +221,14 @@ export default function CreateGame() {
 
     setSelectedMapIndex(newIndex);
     setSelectedMapId(maps[newIndex].id);
-    setMapSelected(false); // Reset selection state when navigating
+    setMapSelected(false);
   };
 
   const selectMapByIndex = (index: number) => {
     if (index >= 0 && index < maps.length) {
       setSelectedMapIndex(index);
       setSelectedMapId(maps[index].id);
-      setMapSelected(false); // Reset selection state when changing map
+      setMapSelected(false);
     }
   };
 
@@ -246,25 +237,18 @@ export default function CreateGame() {
   };
 
   const calculatePositions = (results: PlayerResult[]): PlayerResult[] => {
-    // Sort players by Mario Party rules (stars first, then tiebreakers)
     const sorted = [...results].sort((a, b) => {
-      // 1. Stars (higher is better)
       if (a.stars !== b.stars) return b.stars - a.stars;
 
-      // 2. Coins (higher is better)
       if (a.coins !== b.coins) return b.coins - a.coins;
 
-      // 3. Minigames won (higher is better)
       if (a.minigames_won !== b.minigames_won) return b.minigames_won - a.minigames_won;
 
-      // 4. Showdown wins (higher is better)
       if (a.showdown_wins !== b.showdown_wins) return b.showdown_wins - a.showdown_wins;
 
-      // If everything is tied, maintain original order
       return 0;
     });
 
-    // Assign positions based on sort order
     return results.map(player => {
       const sortedIndex = sorted.findIndex(p => p.playerId === player.playerId);
       return {
@@ -280,13 +264,10 @@ export default function CreateGame() {
 
     const activeMembers = group.members.filter(m => m.status === 'active');
 
-    // Sort members: humans first (alphabetically), then CPUs (alphabetically)
     const sortedMembers = [...activeMembers].sort((a, b) => {
-      // CPUs go to the end
       if (a.is_cpu && !b.is_cpu) return 1;
       if (!a.is_cpu && b.is_cpu) return -1;
 
-      // Within each group, sort alphabetically
       const nameA = a.is_cpu ? a.cpu_name! : (a.profile?.nickname || 'Usuario sin nombre');
       const nameB = b.is_cpu ? b.cpu_name! : (b.profile?.nickname || 'Usuario sin nombre');
       return nameA.localeCompare(nameB);
@@ -298,16 +279,14 @@ export default function CreateGame() {
       playerName: member.is_cpu
         ? member.cpu_name!
         : (member.profile?.nickname || 'Usuario sin nombre'),
-      position: 1, // Will be calculated automatically
+      position: 1,
       calculatedPosition: 1,
 
-      // Initialize basic metrics to 0
       stars: 0,
       coins: 0,
       minigames_won: 0,
       showdown_wins: 0,
 
-      // Initialize all other metrics to 0 (for future use)
       items_bought: 0,
       items_used: 0,
       spaces_traveled: 0,
@@ -329,14 +308,12 @@ export default function CreateGame() {
     setPlayerResults(prev => {
       const updated = prev.map(player => {
         if (player.playerId === playerId) {
-          // Convert empty string to 0, otherwise parse the number
           const numericValue = value === '' ? 0 : (Number(value) || 0);
           return { ...player, [field]: numericValue };
         }
         return player;
       });
 
-      // Recalculate positions after any update
       return calculatePositions(updated);
     });
   };
@@ -376,7 +353,6 @@ export default function CreateGame() {
     setIsSubmitting(true);
 
     try {
-      // Prepare game results data
       const gameResults = playerResults.map(player => ({
         player_id: player.player_id,
         position: player.position,
@@ -398,7 +374,6 @@ export default function CreateGame() {
         vs_spaces: player.vs_spaces,
       }));
 
-      // Create game with timeout
       await withTimeout(
         supabaseAPI.createGame({
           group_id: group.id,
@@ -469,14 +444,11 @@ export default function CreateGame() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Content */}
       <div className="container mx-auto px-4 py-8">
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-          {/* Game Info */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-6">Información de la Partida</h2>
 
-            {/* Date Input - Full width at top */}
             <div className="mb-6">
               <Input
                 type="date"
@@ -488,9 +460,7 @@ export default function CreateGame() {
               />
             </div>
 
-            {/* Map Selector - Full width below date */}
             <div>
-              {/* Map Carousel Selector */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-4">
                   Mapa Jugado
@@ -498,9 +468,7 @@ export default function CreateGame() {
 
                 {maps.length > 0 ? (
                   <div className="relative">
-                    {/* Main Map Display */}
                     <div className="relative rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 bg-gray-100">
-                      {/* Map Image */}
                       {(() => {
                         const currentMap = maps[selectedMapIndex];
                         const imageUrl = getMapImageUrl(currentMap?.name);
@@ -527,14 +495,12 @@ export default function CreateGame() {
                                 onLoad={() => handleImageLoad(currentMap?.id)}
                                 style={{ opacity: isLoading ? 0 : 1 }}
                               />
-                              {/* Overlay for text readability */}
                               <div className={`absolute inset-0 transition-all duration-500 ${
                                 mapSelected
                                   ? 'bg-gradient-to-t from-black/80 via-black/30 to-transparent'
                                   : 'bg-gradient-to-t from-black/60 via-black/20 to-transparent'
                               }`}></div>
 
-                              {/* Selected overlay effect */}
                               {mapSelected && (
                                 <div className="absolute inset-0 bg-white bg-opacity-10 backdrop-blur-[0.5px]"></div>
                               )}
@@ -542,7 +508,6 @@ export default function CreateGame() {
                             </div>
                           );
                         } else {
-                          // Fallback gradient when no image or image fails to load
                           return (
                             <div className={`h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative transition-all duration-500 ${
                               mapSelected ? 'blur-[1px] brightness-110 contrast-75 saturate-50' : ''
@@ -553,12 +518,10 @@ export default function CreateGame() {
                               <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="text-6xl opacity-40">🗺️</div>
                               </div>
-                              {/* Small indicator that no image is available */}
                               <div className="absolute bottom-2 left-2 text-xs bg-black bg-opacity-50 text-white px-2 py-1 rounded">
                                 Sin imagen
                               </div>
 
-                              {/* Selected overlay effect for fallback */}
                               {mapSelected && (
                                 <div className="absolute inset-0 bg-white bg-opacity-10 backdrop-blur-[0.5px]"></div>
                               )}
@@ -567,7 +530,6 @@ export default function CreateGame() {
                         }
                       })()}
 
-                      {/* Map Info Overlay */}
                       <div className="absolute inset-0 flex items-end p-4">
                         <div className="text-white w-full">
                           <div className="text-xl font-bold mb-1 transition-all duration-300 drop-shadow-lg">
@@ -593,7 +555,6 @@ export default function CreateGame() {
 
                     </div>
 
-                    {/* Navigation Controls */}
                     <div className="flex justify-between items-center mt-4">
                       <button
                         type="button"
@@ -609,7 +570,6 @@ export default function CreateGame() {
                         <span className={`text-lg font-bold ${mapSelected ? 'text-gray-400' : 'text-blue-600'}`}>‹</span>
                       </button>
 
-                      {/* Map indicators */}
                       <div className="flex space-x-2">
                         {maps.map((_, index) => (
                           <button
@@ -644,7 +604,6 @@ export default function CreateGame() {
                       </button>
                     </div>
 
-                    {/* Selection Button */}
                     <div className="mt-4">
                       <button
                         type="button"
@@ -669,7 +628,6 @@ export default function CreateGame() {
             </div>
           </div>
 
-          {/* Player Results */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-2">Resultados por Jugador</h2>
             <div className="mb-6 p-3 bg-gray-50 rounded-lg">
@@ -686,8 +644,7 @@ export default function CreateGame() {
                 <div key={player.playerId} className="border border-gray-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-4">
-                      {/* Profile Picture with Medal Border */}
-                      <div className="relative">
+                        <div className="relative">
                         <div className={`w-16 h-16 rounded-full p-1 ${
                           player.calculatedPosition === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
                           player.calculatedPosition === 2 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
@@ -724,7 +681,6 @@ export default function CreateGame() {
                           </div>
                         </div>
 
-                        {/* Position Number Badge */}
                         <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white ${
                           player.calculatedPosition === 1 ? 'bg-yellow-600' :
                           player.calculatedPosition === 2 ? 'bg-gray-500' :
@@ -742,7 +698,6 @@ export default function CreateGame() {
 
                   </div>
 
-                  {/* Basic Metrics Grid - Only first 4 fields */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">⭐ Estrellas</label>
@@ -801,7 +756,6 @@ export default function CreateGame() {
             </div>
           </div>
 
-          {/* Submit */}
           <div className="flex space-x-4 justify-end">
             <Button
               type="button"

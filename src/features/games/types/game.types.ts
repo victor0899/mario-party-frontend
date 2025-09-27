@@ -1,6 +1,5 @@
 import type { GroupMember } from '../../groups/types/group.types';
 
-// Mario Party League specific types
 export interface Map {
   id: string;
   name: string;
@@ -30,7 +29,6 @@ export interface GameResult {
   position: number;
   league_points: number;
 
-  // Core game metrics
   stars: number;
   coins: number;
   minigames_won: number;
@@ -40,7 +38,6 @@ export interface GameResult {
   spaces_traveled: number;
   reactions_used: number;
 
-  // Space landing counts
   blue_spaces: number;
   red_spaces: number;
   lucky_spaces: number;
@@ -63,7 +60,6 @@ export interface GameApproval {
   voter?: GroupMember;
 }
 
-// Game API request types
 export interface CreateGameRequest {
   group_id: string;
   map_id: string;
@@ -97,14 +93,13 @@ export interface VoteGameRequest {
   vote: 'approve' | 'reject';
 }
 
-// Legacy Score interface for backward compatibility
 export interface Score {
   id: string;
   gameId: string;
   userId: string;
   points: number;
   winner: boolean;
-  user: unknown; // Will reference User from auth types
+  user: unknown;
   game: Game;
 }
 

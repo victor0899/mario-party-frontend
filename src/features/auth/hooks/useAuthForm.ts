@@ -26,7 +26,7 @@ export const useAuthForm = (isLogin: boolean = true) => {
 
   const [errors, setErrors] = useState<Partial<AuthFormData>>({});
 
-  // Password validation for registration
+
   const validatePassword = (password: string): PasswordValidation => {
     const requirements = {
       minLength: password.length >= 8,
@@ -43,7 +43,7 @@ export const useAuthForm = (isLogin: boolean = true) => {
 
   const passwordValidation = validatePassword(formData.password);
 
-  // Form validation
+
   const validateForm = (): boolean => {
     const newErrors: Partial<AuthFormData> = {};
 
@@ -70,7 +70,7 @@ export const useAuthForm = (isLogin: boolean = true) => {
   const updateField = (field: keyof AuthFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
 
-    // Clear error when user starts typing
+
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
@@ -93,7 +93,7 @@ export const useAuthForm = (isLogin: boolean = true) => {
     validateForm,
     updateField,
     resetForm,
-    // Convenience getters
+
     email: formData.email,
     password: formData.password,
     name: formData.name,

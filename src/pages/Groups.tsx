@@ -42,7 +42,7 @@ export default function Groups() {
     try {
       await supabaseAPI.deleteGroup(groupId);
       toast.success('Grupo eliminado exitosamente');
-      loadGroups(); // Reload the groups list
+      loadGroups();
     } catch (error: any) {
       console.error('Error al eliminar grupo:', error);
       toast.error('Error al eliminar el grupo: ' + (error.message || 'Error desconocido'));
@@ -57,7 +57,6 @@ export default function Groups() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Content */}
       <div className="container mx-auto px-4 py-8">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -83,7 +82,6 @@ export default function Groups() {
             {groups.map((group) => (
               <div key={group.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                 <div className="p-6">
-                  {/* Group Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-xl font-semibold text-gray-800 mb-1">
@@ -108,7 +106,6 @@ export default function Groups() {
                     </div>
                   </div>
 
-                  {/* Group Stats */}
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-500">Miembros:</span>
@@ -124,7 +121,6 @@ export default function Groups() {
                     </div>
                   </div>
 
-                  {/* Invite Code */}
                   <div className="mb-4">
                     <label className="block text-xs font-medium text-gray-500 mb-1">
                       Código de Invitación
@@ -143,7 +139,6 @@ export default function Groups() {
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
                   <div className="space-y-2">
                     <Button
                       variant="primary"

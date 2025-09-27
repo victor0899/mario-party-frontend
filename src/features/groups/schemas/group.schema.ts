@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-// Create group validation schema
+
 export const createGroupSchema = Yup.object().shape({
   name: Yup.string()
     .min(2, 'El nombre del grupo debe tener al menos 2 caracteres')
@@ -20,7 +20,7 @@ export const createGroupSchema = Yup.object().shape({
 
 export type CreateGroupFormValues = Yup.InferType<typeof createGroupSchema>;
 
-// Join group validation schema
+
 export const joinGroupSchema = Yup.object().shape({
   invite_code: Yup.string()
     .length(8, 'El código de invitación debe tener exactamente 8 caracteres')
@@ -33,7 +33,7 @@ export const joinGroupSchema = Yup.object().shape({
 
 export type JoinGroupFormValues = Yup.InferType<typeof joinGroupSchema>;
 
-// Add CPU member validation schema
+
 export const addCPUSchema = Yup.object().shape({
   cpu_name: Yup.string()
     .min(2, 'El nombre del CPU debe tener al menos 2 caracteres')
@@ -50,7 +50,7 @@ export const addCPUSchema = Yup.object().shape({
 
 export type AddCPUFormValues = Yup.InferType<typeof addCPUSchema>;
 
-// Update group validation schema
+
 export const updateGroupSchema = Yup.object().shape({
   name: Yup.string()
     .min(2, 'El nombre del grupo debe tener al menos 2 caracteres')
@@ -70,7 +70,7 @@ export const updateGroupSchema = Yup.object().shape({
 
 export type UpdateGroupFormValues = Yup.InferType<typeof updateGroupSchema>;
 
-// Transfer ownership validation schema
+
 export const transferOwnershipSchema = Yup.object().shape({
   newOwnerId: Yup.string()
     .required('Debes seleccionar un nuevo propietario'),

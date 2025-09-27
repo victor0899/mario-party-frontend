@@ -18,7 +18,7 @@ export default function useGames() {
   const [creating, setCreating] = useState(false);
   const [voting, setVoting] = useState(false);
 
-  // Fetch all maps
+
   const fetchMaps = useCallback(async (activeOnly = true) => {
     setMapsLoading(true);
     try {
@@ -37,7 +37,7 @@ export default function useGames() {
     }
   }, []);
 
-  // Fetch games for a specific group
+
   const fetchGroupGames = useCallback(async (groupId: string) => {
     setLoading(true);
     try {
@@ -53,7 +53,7 @@ export default function useGames() {
     }
   }, []);
 
-  // Get specific game by ID
+
   const fetchGame = useCallback(async (gameId: string) => {
     setLoading(true);
     try {
@@ -69,14 +69,14 @@ export default function useGames() {
     }
   }, []);
 
-  // Create new game
+
   const createGame = useCallback(async (gameData: CreateGameRequest) => {
     setCreating(true);
     try {
       const response = await gameApi.createGame(gameData);
       const newGame = response.data;
 
-      // Add to games list if we're viewing the same group
+
       setGames(prev => [newGame, ...prev]);
 
       toast.success('Juego creado exitosamente. Esperando aprobación de otros jugadores.');
@@ -90,17 +90,17 @@ export default function useGames() {
     }
   }, []);
 
-  // Vote on a game
+
   const voteGame = useCallback(async (voteData: VoteGameRequest) => {
     setVoting(true);
     try {
       await gameApi.voteGame(voteData);
 
-      // Update game in local state
+
       const updateGameStatus = (game: Game) => {
         if (game.id === voteData.game_id) {
-          // This is simplified - in reality you'd need to recalculate the status
-          // based on all votes
+
+
           return { ...game, status: 'pending' as const };
         }
         return game;
@@ -122,7 +122,7 @@ export default function useGames() {
     }
   }, []);
 
-  // Fetch pending games
+
   const fetchPendingGames = useCallback(async () => {
     setLoading(true);
     try {
@@ -138,13 +138,13 @@ export default function useGames() {
     }
   }, []);
 
-  // Delete game
+
   const deleteGame = useCallback(async (gameId: string) => {
     setLoading(true);
     try {
       await gameApi.deleteGame(gameId);
 
-      // Remove from local state
+
       setGames(prev => prev.filter(game => game.id !== gameId));
       setPendingGames(prev => prev.filter(game => game.id !== gameId));
 
@@ -163,7 +163,7 @@ export default function useGames() {
     }
   }, [selectedGame]);
 
-  // Get recent games
+
   const fetchRecentGames = useCallback(async (limit = 10) => {
     setLoading(true);
     try {
@@ -178,13 +178,13 @@ export default function useGames() {
     }
   }, []);
 
-  // Batch approve games
+
   const batchApproveGames = useCallback(async (gameIds: string[]) => {
     setLoading(true);
     try {
       await gameApi.batchApprove(gameIds);
 
-      // Update local state
+
       const updateApprovedGames = (game: Game) => {
         if (gameIds.includes(game.id)) {
           return { ...game, status: 'approved' as const };
@@ -206,18 +206,18 @@ export default function useGames() {
     }
   }, []);
 
-  // Find map by ID
+
   const getMapById = useCallback((mapId: string): Map | undefined => {
     return maps.find(map => map.id === mapId);
   }, [maps]);
 
-  // Auto-fetch maps on mount
+
   useEffect(() => {
     fetchMaps();
   }, [fetchMaps]);
 
   return {
-    // State
+
     games,
     maps,
     selectedGame,
@@ -227,7 +227,7 @@ export default function useGames() {
     creating,
     voting,
 
-    // Actions
+
     fetchMaps,
     fetchGroupGames,
     fetchGame,
@@ -239,10 +239,10 @@ export default function useGames() {
     batchApproveGames,
     setSelectedGame,
 
-    // Utilities
+
     getMapById,
 
-    // Computed values
+
     gamesCount: games.length,
     pendingGamesCount: pendingGames.length,
     approvedGames: games.filter(game => game.status === 'approved'),

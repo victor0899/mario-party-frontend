@@ -14,12 +14,12 @@ import type {
 } from '../types/api';
 
 export class SupabaseAPI {
-  // Groups
+
   async createGroup(data: CreateGroupRequest): Promise<Group> {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Not authenticated');
 
-    // Create the group
+
     const { data: group, error } = await supabase
       .from('groups')
       .insert({
@@ -34,7 +34,7 @@ export class SupabaseAPI {
 
     if (error) throw error;
 
-    // Add creator as first member
+
     const { error: memberError } = await supabase
       .from('group_members')
       .insert({
@@ -54,7 +54,7 @@ export class SupabaseAPI {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Not authenticated');
 
-    // Only group creators can delete their groups
+
     const { error } = await supabase
       .from('groups')
       .delete()
@@ -82,7 +82,7 @@ export class SupabaseAPI {
 
     if (error) throw error;
 
-    // Get user profiles for human members
+
     if (group.members && group.members.length > 0) {
       const humanMemberUserIds = group.members
         .filter((member: any) => !member.is_cpu && member.user_id)
@@ -95,7 +95,7 @@ export class SupabaseAPI {
           .in('id', humanMemberUserIds);
 
         if (!profilesError && profiles) {
-          // Add profile data to members
+
           group.members = group.members.map((member: any) => {
             if (!member.is_cpu && member.user_id) {
               const profile = profiles.find((p: any) => p.id === member.user_id);
@@ -119,7 +119,7 @@ export class SupabaseAPI {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Not authenticated');
 
-    // First, find the group by invite code
+
     const { data: group, error: groupError } = await supabase
       .from('groups')
       .select('id')
@@ -128,7 +128,7 @@ export class SupabaseAPI {
 
     if (groupError) throw groupError;
 
-    // Join the group
+
     const { data: member, error } = await supabase
       .from('group_members')
       .insert({
@@ -165,7 +165,7 @@ export class SupabaseAPI {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Not authenticated');
 
-    // Get groups where user is a member (including creator)
+
     const { data: groupMemberships, error: membershipError } = await supabase
       .from('group_members')
       .select('group_id')
@@ -180,7 +180,7 @@ export class SupabaseAPI {
 
     const groupIds = groupMemberships.map(membership => membership.group_id);
 
-    // Get full group data for groups where user is a member
+
     const { data: groups, error } = await supabase
       .from('groups')
       .select(`
@@ -193,7 +193,7 @@ export class SupabaseAPI {
 
     if (error) throw error;
 
-    // Get user profiles for human members in all groups
+
     if (groups && groups.length > 0) {
       for (const group of groups) {
         if (group.members && group.members.length > 0) {
@@ -208,7 +208,7 @@ export class SupabaseAPI {
               .in('id', humanMemberUserIds);
 
             if (!profilesError && profiles) {
-              // Add profile data to members
+
               group.members = group.members.map((member: any) => {
                 if (!member.is_cpu && member.user_id) {
                   const profile = profiles.find((p: any) => p.id === member.user_id);
@@ -230,7 +230,7 @@ export class SupabaseAPI {
     return groups || [];
   }
 
-  // Maps
+
   async getMaps(): Promise<Map[]> {
     const { data: maps, error } = await supabase
       .from('maps')
@@ -242,12 +242,12 @@ export class SupabaseAPI {
     return maps;
   }
 
-  // Games
+
   async createGame(data: CreateGameRequest): Promise<Game> {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Not authenticated');
 
-    // Check if this group has only 1 human player BEFORE creating the game
+
     const { data: groupMembers, error: membersError } = await supabase
       .from('group_members')
       .select('*')
@@ -259,7 +259,7 @@ export class SupabaseAPI {
     const humanMembers = groupMembers.filter(m => !m.is_cpu);
     const isOnlyHumanPlayer = humanMembers.length === 1;
 
-    // Create the game with appropriate status
+
     const { data: game, error: gameError } = await supabase
       .from('games')
       .insert({
@@ -274,7 +274,7 @@ export class SupabaseAPI {
 
     if (gameError) throw gameError;
 
-    // Create the game results
+
     const gameResults = data.results.map(result => ({
       ...result,
       game_id: game.id,
@@ -286,7 +286,7 @@ export class SupabaseAPI {
 
     if (resultsError) throw resultsError;
 
-    // Get the user's group member record to create automatic approval
+
     const { data: member, error: memberError } = await supabase
       .from('group_members')
       .select('id')
@@ -297,7 +297,7 @@ export class SupabaseAPI {
 
     if (memberError) throw memberError;
 
-    // Automatically approve the game for the user who created it
+
     const { error: approvalError } = await supabase
       .from('game_approvals')
       .insert({
@@ -308,7 +308,7 @@ export class SupabaseAPI {
 
     if (approvalError) throw approvalError;
 
-    // Note: If this was the only human player, the game was already created with 'approved' status
+
 
     return game;
   }
@@ -317,7 +317,7 @@ export class SupabaseAPI {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Not authenticated');
 
-    // Get the user's group member record for this game
+
     const { data: game, error: gameError } = await supabase
       .from('games')
       .select('group_id')
@@ -336,7 +336,7 @@ export class SupabaseAPI {
 
     if (memberError) throw memberError;
 
-    // Cast the vote
+
     const { data: approval, error } = await supabase
       .from('game_approvals')
       .upsert({
@@ -349,7 +349,7 @@ export class SupabaseAPI {
 
     if (error) throw error;
 
-    // Check if we need to update game status based on votes
+
     await this.checkAndUpdateGameStatus(data.game_id);
 
 
@@ -357,7 +357,7 @@ export class SupabaseAPI {
   }
 
   private async checkAndUpdateGameStatus(gameId: string): Promise<void> {
-    // Get game with group info to count human members
+
     const { data: game, error: gameError } = await supabase
       .from('games')
       .select(`
@@ -373,23 +373,23 @@ export class SupabaseAPI {
 
     if (gameError) throw gameError;
 
-    // Count human members (non-CPU)
+
     const humanMembers = game.group.members.filter((m: any) => !m.is_cpu && m.status === 'active');
     const totalHumanMembers = humanMembers.length;
 
     let newStatus: string | null = null;
 
-    // Special case: If there's only 1 human player, auto-approve
+
     if (totalHumanMembers === 1) {
       newStatus = 'approved';
     } else {
-      // Count votes
+
       const approveVotes = game.approvals.filter((a: any) => a.vote === 'approve').length;
       const rejectVotes = game.approvals.filter((a: any) => a.vote === 'reject').length;
 
-      // Use exact vote logic:
-      // Approved: exactly 2 approve votes
-      // Rejected: 3+ reject votes
+
+
+
 
       if (approveVotes === 2) {
         newStatus = 'approved';
@@ -398,7 +398,7 @@ export class SupabaseAPI {
       }
     }
 
-    // Update game status if needed
+
     if (newStatus && game.status !== newStatus) {
       const { error: updateError } = await supabase
         .from('games')
@@ -433,7 +433,7 @@ export class SupabaseAPI {
 
     if (error) throw error;
 
-    // Get user profiles for human members in game results
+
     if (game.results && game.results.length > 0) {
       const humanPlayerIds = game.results
         .filter((result: any) => result.player && !result.player.is_cpu && result.player.user_id)
@@ -446,7 +446,7 @@ export class SupabaseAPI {
           .in('id', humanPlayerIds);
 
         if (!profilesError && profiles) {
-          // Add profile data to results
+
           game.results = game.results.map((result: any) => {
             if (result.player && !result.player.is_cpu && result.player.user_id) {
               const profile = profiles.find((p: any) => p.id === result.player.user_id);
@@ -463,7 +463,7 @@ export class SupabaseAPI {
       }
     }
 
-    // Get user profiles for human members in game approvals
+
     if (game.approvals && game.approvals.length > 0) {
       const humanVoterIds = game.approvals
         .filter((approval: any) => approval.voter && !approval.voter.is_cpu && approval.voter.user_id)
@@ -476,7 +476,7 @@ export class SupabaseAPI {
           .in('id', humanVoterIds);
 
         if (!profilesError && profiles) {
-          // Add profile data to approvals
+
           game.approvals = game.approvals.map((approval: any) => {
             if (approval.voter && !approval.voter.is_cpu && approval.voter.user_id) {
               const profile = profiles.find((p: any) => p.id === approval.voter.user_id);
@@ -524,9 +524,9 @@ export class SupabaseAPI {
       throw error;
     }
 
-    // Get user profiles for human members in all games
+
     if (games && games.length > 0) {
-      // Collect all unique human player IDs across all games
+
       const allHumanPlayerIds = new Set<string>();
 
       games.forEach(game => {
@@ -553,7 +553,7 @@ export class SupabaseAPI {
           .in('id', Array.from(allHumanPlayerIds));
 
         if (!profilesError && profiles) {
-          // Add profile data to all games
+
           games.forEach(game => {
             if (game.results) {
               game.results = game.results.map((result: any) => {
@@ -591,10 +591,10 @@ export class SupabaseAPI {
     return games;
   }
 
-  // Leaderboard
+
   async getGroupLeaderboard(groupId: string): Promise<LeaderboardEntry[]> {
-    // This is a complex query that aggregates data from multiple tables
-    // We'll use a database function for this
+
+
     const { data: leaderboard, error } = await supabase
       .rpc('get_group_leaderboard', { group_id: groupId });
 
@@ -602,7 +602,7 @@ export class SupabaseAPI {
     return leaderboard;
   }
 
-  // Search groups
+
   async searchGroups(query: string): Promise<Group[]> {
     const { data: groups, error } = await supabase
       .from('groups')

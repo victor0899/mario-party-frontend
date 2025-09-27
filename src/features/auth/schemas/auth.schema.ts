@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-// Login form validation schema
+
 export const loginSchema = Yup.object().shape({
   email: Yup.string()
     .email('Por favor ingresa un email válido')
@@ -12,7 +12,7 @@ export const loginSchema = Yup.object().shape({
 
 export type LoginFormValues = Yup.InferType<typeof loginSchema>;
 
-// Registration form validation schema
+
 export const registerSchema = Yup.object().shape({
   name: Yup.string()
     .min(2, 'El nombre debe tener al menos 2 caracteres')
@@ -36,7 +36,7 @@ export const registerSchema = Yup.object().shape({
 
 export type RegisterFormValues = Yup.InferType<typeof registerSchema>;
 
-// Profile update validation schema
+
 export const profileUpdateSchema = Yup.object().shape({
   nickname: Yup.string()
     .min(2, 'El nickname debe tener al menos 2 caracteres')
@@ -66,7 +66,7 @@ export const profileUpdateSchema = Yup.object().shape({
 
 export type ProfileUpdateFormValues = Yup.InferType<typeof profileUpdateSchema>;
 
-// Password reset validation schema
+
 export const passwordResetSchema = Yup.object().shape({
   email: Yup.string()
     .email('Por favor ingresa un email válido')
@@ -75,7 +75,7 @@ export const passwordResetSchema = Yup.object().shape({
 
 export type PasswordResetFormValues = Yup.InferType<typeof passwordResetSchema>;
 
-// New password validation schema
+
 export const newPasswordSchema = Yup.object().shape({
   password: Yup.string()
     .min(6, 'La contraseña debe tener al menos 6 caracteres')

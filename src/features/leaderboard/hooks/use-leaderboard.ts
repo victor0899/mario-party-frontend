@@ -16,7 +16,7 @@ export default function useLeaderboard() {
   const [loading, setLoading] = useState(false);
   const [statsLoading, setStatsLoading] = useState(false);
 
-  // Fetch group leaderboard
+
   const fetchGroupLeaderboard = useCallback(async (groupId: string, params?: LeaderboardRequest) => {
     setLoading(true);
     try {
@@ -32,7 +32,7 @@ export default function useLeaderboard() {
     }
   }, []);
 
-  // Fetch global leaderboard
+
   const fetchGlobalLeaderboard = useCallback(async (params?: LeaderboardRequest) => {
     setLoading(true);
     try {
@@ -48,7 +48,7 @@ export default function useLeaderboard() {
     }
   }, []);
 
-  // Get user's position in group
+
   const fetchUserGroupPosition = useCallback(async (groupId: string, userId: string) => {
     setLoading(true);
     try {
@@ -64,7 +64,7 @@ export default function useLeaderboard() {
     }
   }, []);
 
-  // Get user's global position
+
   const fetchUserGlobalPosition = useCallback(async (userId: string) => {
     setLoading(true);
     try {
@@ -80,7 +80,7 @@ export default function useLeaderboard() {
     }
   }, []);
 
-  // Get top performers in specific categories
+
   const fetchTopPerformers = useCallback(async (groupId: string, category: string, limit = 5) => {
     setLoading(true);
     try {
@@ -99,7 +99,7 @@ export default function useLeaderboard() {
     }
   }, []);
 
-  // Get user's detailed statistics
+
   const fetchUserStats = useCallback(async (groupId: string, userId: string) => {
     setStatsLoading(true);
     try {
@@ -115,7 +115,7 @@ export default function useLeaderboard() {
     }
   }, []);
 
-  // Get monthly leaderboard
+
   const fetchMonthlyLeaderboard = useCallback(async (groupId: string, year: number, month: number) => {
     setLoading(true);
     try {
@@ -130,7 +130,7 @@ export default function useLeaderboard() {
     }
   }, []);
 
-  // Get seasonal rankings
+
   const fetchSeasonalRankings = useCallback(async (groupId: string, season: string) => {
     setLoading(true);
     try {
@@ -145,7 +145,7 @@ export default function useLeaderboard() {
     }
   }, []);
 
-  // Get leaderboard stats summary
+
   const fetchLeaderboardStats = useCallback(async (groupId: string) => {
     setLoading(true);
     try {
@@ -160,7 +160,7 @@ export default function useLeaderboard() {
     }
   }, []);
 
-  // Utility functions
+
   const getPlayerRank = useCallback((playerId: string): number | null => {
     if (!groupLeaderboard) return null;
 
@@ -191,7 +191,7 @@ export default function useLeaderboard() {
   }, [groupLeaderboard]);
 
   return {
-    // State
+
     groupLeaderboard,
     globalLeaderboard,
     userPosition,
@@ -200,7 +200,7 @@ export default function useLeaderboard() {
     loading,
     statsLoading,
 
-    // Actions
+
     fetchGroupLeaderboard,
     fetchGlobalLeaderboard,
     fetchUserGroupPosition,
@@ -211,13 +211,13 @@ export default function useLeaderboard() {
     fetchSeasonalRankings,
     fetchLeaderboardStats,
 
-    // Utilities
+
     getPlayerRank,
     getTopPlayer,
     calculateWinRate,
     getPlayersByCategory,
 
-    // Computed values
+
     hasGroupLeaderboard: !!groupLeaderboard,
     hasGlobalLeaderboard: !!globalLeaderboard,
     groupPlayersCount: groupLeaderboard?.entries.length || 0,

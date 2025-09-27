@@ -32,7 +32,6 @@ export default function Dashboard() {
     } catch (error: any) {
       console.error('❌ Error al cargar grupos:', error);
 
-      // Check if it's an auth error
       if (error.message?.includes('auth') || error.message?.includes('JWT') || error.message?.includes('session')) {
         console.log('🔄 Auth error detected, redirecting to login');
         toast.error('Sesión expirada. Redirigiendo...');
@@ -49,7 +48,6 @@ export default function Dashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0">
         <div>
           <h1 className="text-3xl font-mario text-gray-900">
@@ -65,7 +63,6 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      {/* Groups Section */}
       <div>
 
         {isLoading ? (

@@ -15,7 +15,7 @@ export default function useGroups() {
   const [creating, setCreating] = useState(false);
   const [joining, setJoining] = useState(false);
 
-  // Fetch all user groups
+
   const fetchGroups = useCallback(async () => {
     setLoading(true);
     try {
@@ -31,7 +31,7 @@ export default function useGroups() {
     }
   }, []);
 
-  // Get specific group by ID
+
   const fetchGroup = useCallback(async (groupId: string) => {
     setLoading(true);
     try {
@@ -47,7 +47,7 @@ export default function useGroups() {
     }
   }, []);
 
-  // Create new group
+
   const createGroup = useCallback(async (groupData: CreateGroupRequest) => {
     setCreating(true);
     try {
@@ -68,13 +68,13 @@ export default function useGroups() {
     }
   }, []);
 
-  // Join group by invite code
+
   const joinGroup = useCallback(async (joinData: JoinGroupRequest) => {
     setJoining(true);
     try {
       const response = await groupApi.joinGroup(joinData);
 
-      // Refresh groups to include the newly joined group
+
       await fetchGroups();
 
       toast.success('Te has unido al grupo exitosamente');
@@ -88,13 +88,13 @@ export default function useGroups() {
     }
   }, [fetchGroups]);
 
-  // Leave group
+
   const leaveGroup = useCallback(async (groupId: string) => {
     setLoading(true);
     try {
       await groupApi.leaveGroup(groupId);
 
-      // Remove group from local state
+
       setGroups(prev => prev.filter(group => group.id !== groupId));
       if (selectedGroup?.id === groupId) {
         setSelectedGroup(null);
@@ -111,13 +111,13 @@ export default function useGroups() {
     }
   }, [selectedGroup]);
 
-  // Add CPU member to group
+
   const addCPUMember = useCallback(async (cpuData: AddCPUMemberRequest) => {
     setLoading(true);
     try {
       const response = await groupApi.addCPUMember(cpuData);
 
-      // Update selected group if it matches
+
       if (selectedGroup?.id === cpuData.group_id) {
         setSelectedGroup(prev => prev ? {
           ...prev,
@@ -136,13 +136,13 @@ export default function useGroups() {
     }
   }, [selectedGroup]);
 
-  // Remove member from group
+
   const removeMember = useCallback(async (groupId: string, memberId: string) => {
     setLoading(true);
     try {
       await groupApi.removeMember(groupId, memberId);
 
-      // Update selected group if it matches
+
       if (selectedGroup?.id === groupId) {
         setSelectedGroup(prev => prev ? {
           ...prev,
@@ -161,19 +161,19 @@ export default function useGroups() {
     }
   }, [selectedGroup]);
 
-  // Update group settings
+
   const updateGroup = useCallback(async (groupId: string, groupData: Partial<CreateGroupRequest>) => {
     setLoading(true);
     try {
       const response = await groupApi.updateGroup(groupId, groupData);
       const updatedGroup = response.data;
 
-      // Update groups list
+
       setGroups(prev => prev.map(group =>
         group.id === groupId ? updatedGroup : group
       ));
 
-      // Update selected group if it matches
+
       if (selectedGroup?.id === groupId) {
         setSelectedGroup(updatedGroup);
       }
@@ -189,14 +189,14 @@ export default function useGroups() {
     }
   }, [selectedGroup]);
 
-  // Regenerate invite code
+
   const regenerateInviteCode = useCallback(async (groupId: string) => {
     setLoading(true);
     try {
       const response = await groupApi.regenerateInviteCode(groupId);
       const newInviteCode = response.data.invite_code;
 
-      // Update selected group if it matches
+
       if (selectedGroup?.id === groupId) {
         setSelectedGroup(prev => prev ? {
           ...prev,
@@ -215,20 +215,20 @@ export default function useGroups() {
     }
   }, [selectedGroup]);
 
-  // Auto-fetch groups on mount
+
   useEffect(() => {
     fetchGroups();
   }, [fetchGroups]);
 
   return {
-    // State
+
     groups,
     selectedGroup,
     loading,
     creating,
     joining,
 
-    // Actions
+
     fetchGroups,
     fetchGroup,
     createGroup,
@@ -240,7 +240,7 @@ export default function useGroups() {
     regenerateInviteCode,
     setSelectedGroup,
 
-    // Computed values
+
     groupsCount: groups.length,
     hasGroups: groups.length > 0,
     selectedGroupMembersCount: selectedGroup?.members.length || 0,

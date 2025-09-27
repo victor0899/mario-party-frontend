@@ -12,14 +12,14 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
   const location = useLocation();
 
   useEffect(() => {
-    // Only check profile completion if user is authenticated
+
     if (isAuthenticated && user) {
-      // Don't redirect if already on complete-profile page
+
       if (location.pathname === '/complete-profile') {
         return;
       }
 
-      // Check if profile is completed
+
       const profileCompleted = profile?.profile_completed;
 
       if (!profileCompleted) {
@@ -28,7 +28,7 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
     }
   }, [user, profile, isAuthenticated, navigate, location.pathname]);
 
-  // If user is authenticated but profile not completed, and not on complete-profile page
+
   if (isAuthenticated && user && !profile?.profile_completed && location.pathname !== '/complete-profile') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">

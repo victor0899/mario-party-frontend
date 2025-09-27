@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Button, Input, Spinner } from '../shared/components';
+import { Button, Spinner } from '../shared/components';
 import { useAuthStore } from '../app/store/useAuthStore';
 
 const MARIO_CHARACTERS = [
@@ -41,7 +41,7 @@ export default function EditProfile() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load current profile data
+
   useEffect(() => {
     if (profile) {
       setFormData({
@@ -92,18 +92,6 @@ export default function EditProfile() {
         <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4">
-              {/* Nickname */}
-              <Input
-                label="Nickname *"
-                type="text"
-                value={formData.nickname}
-                onChange={(e) => setFormData(prev => ({ ...prev, nickname: e.target.value }))}
-                placeholder="Tu nickname para las partidas"
-                maxLength={20}
-                required
-              />
-
-              {/* Character Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Personaje Favorito *

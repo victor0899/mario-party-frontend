@@ -8,13 +8,11 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If user is authenticated, redirect to dashboard
     if (isAuthenticated && !loading) {
       navigate('/dashboard');
     }
   }, [isAuthenticated, loading, navigate]);
 
-  // Show loading while checking authentication status
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-600 to-purple-700">
@@ -24,10 +22,8 @@ export default function Home() {
   }
   return (
     <div className="relative min-h-screen flex items-center justify-center">
-      {/* Video Background */}
       <VideoBackground />
       
-      {/* Content */}
       <Container className="relative z-10 w-full">
         <div className="w-full mx-auto p-8 flex flex-col items-center">
           <div className="text-center mb-8">

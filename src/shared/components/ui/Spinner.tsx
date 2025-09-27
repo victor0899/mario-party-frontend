@@ -51,5 +51,5 @@ export function LoadingSpinner({
   );
 }
 
-// Export both components for flexibility
+
 export default LoadingSpinner;

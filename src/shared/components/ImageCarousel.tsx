@@ -42,25 +42,57 @@ export const ImageCarousel = ({
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
-      {/* Images */}
-      <div className="relative h-full">
+      <div className="flex transition-transform duration-500 ease-in-out"
+           style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
         {images.map((image, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              index === currentIndex ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
+          <div key={index} className="w-full flex-shrink-0">
             <img
               src={image}
               alt={`Slide ${index + 1}`}
-              className="w-full h-full object-contain object-center"
+              className="w-full h-full object-cover"
+              loading="lazy"
             />
           </div>
         ))}
       </div>
 
+      {/* Navigation dots */}
+      {images.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                index === currentIndex
+                  ? 'bg-white scale-110'
+                  : 'bg-white/50 hover:bg-white/75'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
 
+      {/* Navigation arrows */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={() => setCurrentIndex(currentIndex === 0 ? images.length - 1 : currentIndex - 1)}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-all"
+            aria-label="Previous image"
+          >
+            ←
+          </button>
+          <button
+            onClick={() => setCurrentIndex(currentIndex === images.length - 1 ? 0 : currentIndex + 1)}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-all"
+            aria-label="Next image"
+          >
+            →
+          </button>
+        </>
+      )}
     </div>
   );
 };

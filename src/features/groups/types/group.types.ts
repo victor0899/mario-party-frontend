@@ -1,6 +1,6 @@
 import type { User } from '../../auth/types/auth.types';
 
-// Group and member related types
+
 export interface Group {
   id: string;
   name: string;
@@ -13,7 +13,7 @@ export interface Group {
   updated_at: string;
   creator?: User;
   members: GroupMember[];
-  games: unknown[]; // Will be defined in games module
+  games: unknown[];
 }
 
 export interface GroupMember {
@@ -32,7 +32,7 @@ export interface GroupMember {
   };
 }
 
-// Group API request types
+
 export interface CreateGroupRequest {
   name: string;
   description?: string;
@@ -50,7 +50,7 @@ export interface AddCPUMemberRequest {
   cpu_avatar?: string;
 }
 
-// Legacy types for backward compatibility
+
 export interface AddMemberRequest {
   userId: string;
 }

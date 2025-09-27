@@ -5,7 +5,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 
-  // Profile fields
+
   nickname?: string;
   profilePicture?: string;
   birthDate?: string;
@@ -15,7 +15,7 @@ export interface User {
   profileCompleted?: boolean;
 }
 
-// Mario Party League specific types
+
 export interface Map {
   id: string;
   name: string;
@@ -76,7 +76,7 @@ export interface GameResult {
   position: number;
   league_points: number;
 
-  // Core game metrics
+
   stars: number;
   coins: number;
   minigames_won: number;
@@ -86,7 +86,7 @@ export interface GameResult {
   spaces_traveled: number;
   reactions_used: number;
 
-  // Space landing counts
+
   blue_spaces: number;
   red_spaces: number;
   lucky_spaces: number;
@@ -109,7 +109,7 @@ export interface GameApproval {
   voter?: GroupMember;
 }
 
-// Legacy Score interface for backward compatibility
+
 export interface Score {
   id: string;
   gameId: string;
@@ -126,12 +126,12 @@ export interface LeaderboardEntry {
   is_cpu: boolean;
   profile_picture?: string;
 
-  // League stats
+
   total_league_points: number;
   games_won: number;
   games_played: number;
 
-  // Tiebreaker metrics (in order of priority)
+
   total_stars: number;
   total_coins: number;
   total_minigames_won: number;
@@ -150,7 +150,7 @@ export interface LeaderboardEntry {
   total_vs_spaces: number;
 }
 
-// Request types for Mario Party League
+
 export interface CreateGroupRequest {
   name: string;
   description?: string;
@@ -201,7 +201,7 @@ export interface VoteGameRequest {
   vote: 'approve' | 'reject';
 }
 
-// Legacy types for backward compatibility
+
 export interface CreateUserRequest {
   email: string;
   name: string;

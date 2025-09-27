@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-// Create game validation schema
+
 export const createGameSchema = Yup.object().shape({
   group_id: Yup.string()
     .required('Debes seleccionar un grupo'),
@@ -123,7 +123,7 @@ export const createGameSchema = Yup.object().shape({
 
 export type CreateGameFormValues = Yup.InferType<typeof createGameSchema>;
 
-// Vote game validation schema
+
 export const voteGameSchema = Yup.object().shape({
   game_id: Yup.string()
     .required('ID del juego requerido'),
@@ -134,7 +134,7 @@ export const voteGameSchema = Yup.object().shape({
 
 export type VoteGameFormValues = Yup.InferType<typeof voteGameSchema>;
 
-// Game filter validation schema
+
 export const gameFilterSchema = Yup.object().shape({
   status: Yup.string()
     .oneOf(['pending', 'approved', 'rejected', 'all'], 'Estado inválido')

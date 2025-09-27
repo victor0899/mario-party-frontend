@@ -7,11 +7,11 @@ import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import type { Group, LeaderboardEntry, GroupMember, Game } from '../shared/types/api';
 
-// Calculate leaderboard from approved games
+
 function calculateLeaderboard(members: GroupMember[], games: Game[]): LeaderboardEntry[] {
   const playerStats: { [playerId: string]: LeaderboardEntry } = {};
 
-  // Initialize stats for all members
+
   members.forEach(member => {
     playerStats[member.id] = {
       player_id: member.id,
@@ -39,25 +39,25 @@ function calculateLeaderboard(members: GroupMember[], games: Game[]): Leaderboar
     };
   });
 
-  // Process each approved game
+
   games.forEach(game => {
     if (game.results) {
       game.results.forEach(result => {
         const stats = playerStats[result.player_id];
         if (stats) {
-          // Add league points based on position (4-3-2-1)
-          const points = 5 - result.position; // 1st=4pts, 2nd=3pts, 3rd=2pts, 4th=1pt
+
+          const points = 5 - result.position;
           stats.total_league_points += points;
 
-          // Count wins (1st place)
+
           if (result.position === 1) {
             stats.games_won += 1;
           }
 
-          // Count games played
+
           stats.games_played += 1;
 
-          // Add individual stats
+
           stats.total_stars += result.stars;
           stats.total_coins += result.coins;
           stats.total_minigames_won += result.minigames_won;
@@ -79,27 +79,27 @@ function calculateLeaderboard(members: GroupMember[], games: Game[]): Leaderboar
     }
   });
 
-  // Convert to array and sort by league points (with tiebreakers)
+
   const leaderboard = Object.values(playerStats)
-    .filter(stats => stats.games_played > 0) // Only include players who have played
+    .filter(stats => stats.games_played > 0)
     .sort((a, b) => {
-      // Primary: League points
+
       if (a.total_league_points !== b.total_league_points) {
         return b.total_league_points - a.total_league_points;
       }
-      // Tiebreaker 1: Total stars
+
       if (a.total_stars !== b.total_stars) {
         return b.total_stars - a.total_stars;
       }
-      // Tiebreaker 2: Total coins
+
       if (a.total_coins !== b.total_coins) {
         return b.total_coins - a.total_coins;
       }
-      // Tiebreaker 3: Minigames won
+
       if (a.total_minigames_won !== b.total_minigames_won) {
         return b.total_minigames_won - a.total_minigames_won;
       }
-      // Tiebreaker 4: Showdown wins
+
       return b.total_showdown_wins - a.total_showdown_wins;
     });
 
@@ -125,14 +125,14 @@ export default function Leaderboard() {
 
     setIsLoading(true);
     try {
-      // Load group with games and results
+
       const groupData = await supabaseAPI.getGroup(id);
       setGroup(groupData);
 
-      // Get approved games with full details
+
       const approvedGames = await supabaseAPI.getGroupGames(id, 'approved');
 
-      // Calculate leaderboard from approved games
+
       const leaderboardData = calculateLeaderboard(groupData.members, approvedGames);
       setLeaderboard(leaderboardData);
     } catch (error: any) {
@@ -181,49 +181,70 @@ export default function Leaderboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Content */}
       <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold text-gray-800">
+              📊 Tabla de Posiciones - {group.name}
+            </h1>
+            <Link to={`/groups/${id}`}>
+              <Button variant="secondary">
+                ← Volver al Grupo
+              </Button>
+            </Link>
+          </div>
+          {approvedGames.length > 0 ? (
+            <p className="text-gray-600 mt-2">
+              Basado en {approvedGames.length} partida{approvedGames.length !== 1 ? 's' : ''} aprobada{approvedGames.length !== 1 ? 's' : ''}
+            </p>
+          ) : (
+            <p className="text-gray-600 mt-2">
+              No hay partidas aprobadas aún
+            </p>
+          )}
+        </div>
+
         {leaderboard.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <div className="text-4xl mb-4">🏆</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              No hay estadísticas disponibles
+            <div className="text-6xl mb-4">🎮</div>
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">
+              No hay datos de tabla de posiciones
             </h2>
             <p className="text-gray-600 mb-6">
-              {approvedGames.length === 0
-                ? 'No hay partidas aprobadas aún. ¡Juega y aprueba algunas partidas para ver la tabla de posiciones!'
-                : 'Las estadísticas se están calculando...'
-              }
+              Necesitas tener al menos una partida aprobada para ver la tabla de posiciones.
             </p>
             <Link to={`/groups/${id}`}>
-              <Button variant="primary">Volver al Grupo</Button>
+              <Button variant="primary">
+                Ir al Grupo
+              </Button>
             </Link>
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Podium Top 3 */}
+          <>
             {leaderboard.length >= 3 && (
               <div className="bg-white rounded-lg shadow-md p-8 mb-8">
                 <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">
                   🏆 Podium
                 </h2>
                 <div className="flex justify-center items-end space-x-8">
-                  {/* 2nd Place */}
-                  <div className="text-center">
-                    <div className="w-20 h-20 bg-gray-400 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-2">
-                      2
-                    </div>
-                    <div className="bg-gray-100 px-4 py-2 rounded-lg">
-                      <div className="font-semibold text-gray-800">
-                        {leaderboard[1].is_cpu ? leaderboard[1].player_name : `Usuario ${leaderboard[1].player_id}`}
+                  {/* Second Place */}
+                  {leaderboard[1] && (
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gray-400 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-2">
+                        2
                       </div>
-                      <div className="text-sm text-gray-600">
-                        {leaderboard[1].total_league_points} pts
+                      <div className="bg-gray-50 px-4 py-2 rounded-lg border-2 border-gray-300">
+                        <div className="font-bold text-gray-800">
+                          {leaderboard[1].is_cpu ? leaderboard[1].player_name : `Usuario ${leaderboard[1].player_id}`}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          🥈 {leaderboard[1].total_league_points} pts
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
-                  {/* 1st Place */}
+                  {/* First Place */}
                   <div className="text-center">
                     <div className="w-24 h-24 bg-yellow-500 rounded-full flex items-center justify-center text-white text-3xl font-bold mb-2">
                       1
@@ -238,25 +259,26 @@ export default function Leaderboard() {
                     </div>
                   </div>
 
-                  {/* 3rd Place */}
-                  <div className="text-center">
-                    <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-2">
-                      3
-                    </div>
-                    <div className="bg-gray-100 px-4 py-2 rounded-lg">
-                      <div className="font-semibold text-gray-800">
-                        {leaderboard[2].is_cpu ? leaderboard[2].player_name : `Usuario ${leaderboard[2].player_id}`}
+                  {/* Third Place */}
+                  {leaderboard[2] && (
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-2">
+                        3
                       </div>
-                      <div className="text-sm text-gray-600">
-                        {leaderboard[2].total_league_points} pts
+                      <div className="bg-orange-50 px-4 py-2 rounded-lg border-2 border-orange-300">
+                        <div className="font-bold text-gray-800">
+                          {leaderboard[2].is_cpu ? leaderboard[2].player_name : `Usuario ${leaderboard[2].player_id}`}
+                        </div>
+                        <div className="text-sm text-orange-600">
+                          🥉 {leaderboard[2].total_league_points} pts
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Full Leaderboard Table */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="px-6 py-4 bg-gray-50 border-b">
                 <h2 className="text-xl font-semibold text-gray-800">
@@ -382,31 +404,7 @@ export default function Leaderboard() {
                 </table>
               </div>
             </div>
-
-            {/* Summary Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">
-                  {leaderboard.length}
-                </div>
-                <div className="text-gray-600">Jugadores Activos</div>
-              </div>
-
-              <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">
-                  {approvedGames.length}
-                </div>
-                <div className="text-gray-600">Partidas Completadas</div>
-              </div>
-
-              <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                <div className="text-3xl font-bold text-yellow-600 mb-2">
-                  {leaderboard.reduce((sum, entry) => sum + entry.total_stars, 0)}
-                </div>
-                <div className="text-gray-600">Estrellas Totales</div>
-              </div>
-            </div>
-          </div>
+          </>
         )}
       </div>
     </div>

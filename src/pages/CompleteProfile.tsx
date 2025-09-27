@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Button, Input, Spinner } from '../shared/components';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { supabase } from '../shared/lib/supabase';
 
@@ -42,13 +41,11 @@ export default function CompleteProfile() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nicknameStatus, setNicknameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
-  const [nicknameError, setNicknameError] = useState('');
 
-  // Check nickname availability with debounce
+
   useEffect(() => {
     if (!formData.nickname.trim() || formData.nickname.length < 3) {
       setNicknameStatus('idle');
-      setNicknameError('');
       return;
     }
 
@@ -56,7 +53,7 @@ export default function CompleteProfile() {
       setNicknameStatus('checking');
 
       try {
-        // Check if nickname exists in Supabase profiles table
+
         const { data, error } = await supabase
           .from('profiles')
           .select('nickname')
@@ -66,11 +63,10 @@ export default function CompleteProfile() {
 
         if (error) {
           console.error('Supabase error details:', error);
-          // If it's an RLS permission error, we'll assume the nickname is available
-          // since we can't check it due to security restrictions
+
+
           if (error.code === 'PGRST116' || error.message.includes('RLS')) {
             setNicknameStatus('available');
-            setNicknameError('');
             return;
           }
           throw error;
@@ -78,15 +74,12 @@ export default function CompleteProfile() {
 
         if (data) {
           setNicknameStatus('taken');
-          setNicknameError('Este nickname no está disponible');
         } else {
           setNicknameStatus('available');
-          setNicknameError('');
         }
       } catch (error) {
         console.error('Error checking nickname:', error);
         setNicknameStatus('idle');
-        setNicknameError('Error al verificar disponibilidad');
       }
     }, 800);
 
@@ -150,20 +143,18 @@ export default function CompleteProfile() {
         <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-6">
-              {/* Nickname */}
               <div>
-                <Input
-                  label="Nickname"
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nickname
+                </label>
+                <input
                   type="text"
                   value={formData.nickname}
                   onChange={(e) => setFormData(prev => ({ ...prev, nickname: e.target.value }))}
-                  placeholder="Tu nickname para las partidas"
-                  maxLength={20}
+                  placeholder="Tu nickname único"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
-                  error={nicknameError}
                 />
-
-                {/* Nickname Status */}
                 {formData.nickname.length >= 3 && (
                   <div className="mt-2 flex items-center gap-2">
                     {nicknameStatus === 'checking' && (
@@ -196,67 +187,17 @@ export default function CompleteProfile() {
                 )}
               </div>
 
-              {/* Character Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Personaje Favorito <span className="text-red-400">*</span>
-                </label>
-                <div className="grid grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  {MARIO_CHARACTERS.map((character) => (
-                    <button
-                      key={character.id}
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, profilePicture: character.id }))}
-                      className={`group relative p-2 rounded-lg transition-all duration-200 ${
-                        formData.profilePicture === character.id
-                          ? 'bg-blue-50 ring-2 ring-blue-400 scale-105 shadow-lg'
-                          : 'bg-white hover:bg-gray-50 hover:scale-105 border border-gray-200'
-                      }`}
-                    >
-                      <div className="aspect-square overflow-hidden rounded-md">
-                        <img
-                          src={character.image}
-                          alt={character.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="mt-1 text-center">
-                        <span className={`text-xs font-medium ${
-                          formData.profilePicture === character.id
-                            ? 'text-blue-600'
-                            : 'text-gray-600'
-                        }`}>
-                          {character.name}
-                        </span>
-                      </div>
-                      {formData.profilePicture === character.id && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                          <span className="text-xs text-white">✓</span>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              className="w-full flex items-center justify-center space-x-2"
-              disabled={isSubmitting || nicknameStatus !== 'available' || !formData.nickname.trim()}
-            >
-              {isSubmitting && <Spinner size="sm" className="border-white border-t-transparent" />}
-              <span>{isSubmitting ? 'Guardando...' : 'Completar Perfil'}</span>
-            </Button>
-
-            <div className="text-center text-xs text-gray-500 mt-4">
-              * Campos obligatorios
+              <button
+                type="submit"
+                disabled={isSubmitting || nicknameStatus !== 'available'}
+                className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Guardando...' : 'Completar Perfil'}
+              </button>
             </div>
           </form>
         </div>
       </div>
     </div>
   );
-}
+};

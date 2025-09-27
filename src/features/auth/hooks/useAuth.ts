@@ -57,7 +57,6 @@ export const useAuth = () => {
         throw result.error;
       }
 
-      // Google OAuth will redirect, so we don't handle user state here
       return { success: true };
     } catch (error) {
       return { success: false, error: error as Error };

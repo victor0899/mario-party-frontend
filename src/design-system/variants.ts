@@ -1,17 +1,17 @@
-// Component Variants - Reusable style combinations
+
 
 export const buttonVariants = {
-  // Base styles
+
   base: 'inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   
-  // Size variants
+
   size: {
     sm: 'h-8 px-3 text-sm rounded-md',
     md: 'h-10 px-4 text-base rounded-lg',
     lg: 'h-12 px-6 text-lg rounded-xl',
   },
   
-  // Color variants
+
   variant: {
     primary: 'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500',
     secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus-visible:ring-gray-500',
@@ -24,17 +24,17 @@ export const buttonVariants = {
 } as const;
 
 export const inputVariants = {
-  // Base styles
+
   base: 'flex w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50',
   
-  // Size variants
+
   size: {
     sm: 'h-8 px-3 text-sm',
     md: 'h-10 px-4 text-base',
     lg: 'h-12 px-4 text-lg',
   },
   
-  // State variants
+
   state: {
     default: 'border-gray-300 focus:ring-blue-500',
     error: 'border-red-500 focus:ring-red-500',
@@ -43,17 +43,17 @@ export const inputVariants = {
 } as const;
 
 export const cardVariants = {
-  // Base styles
+
   base: 'rounded-lg border border-gray-200 bg-white text-gray-900 shadow-sm',
   
-  // Size variants
+
   size: {
     sm: 'p-4',
     md: 'p-6',
     lg: 'p-8',
   },
   
-  // Elevation variants
+
   elevation: {
     flat: 'shadow-none border-gray-200',
     low: 'shadow-sm border-gray-200',
@@ -63,10 +63,10 @@ export const cardVariants = {
 } as const;
 
 export const containerVariants = {
-  // Base styles
+
   base: 'mx-auto w-full px-4',
   
-  // Max width variants
+
   maxWidth: {
     sm: 'max-w-screen-sm',
     md: 'max-w-screen-md',
@@ -78,10 +78,10 @@ export const containerVariants = {
 } as const;
 
 export const textVariants = {
-  // Base styles
+
   base: 'text-gray-900',
   
-  // Size variants
+
   size: {
     xs: 'text-xs',
     sm: 'text-sm',
@@ -93,7 +93,7 @@ export const textVariants = {
     '4xl': 'text-4xl',
   },
   
-  // Weight variants
+
   weight: {
     normal: 'font-normal',
     medium: 'font-medium',
@@ -101,7 +101,7 @@ export const textVariants = {
     bold: 'font-bold',
   },
   
-  // Color variants
+
   color: {
     primary: 'text-blue-600',
     secondary: 'text-purple-600',

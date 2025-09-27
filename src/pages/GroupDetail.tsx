@@ -19,7 +19,6 @@ export default function GroupDetail() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  // Function to get character image from character ID
   const getCharacterImage = (characterId: string) => {
     const characterMap: { [key: string]: string } = {
       'mario': '/images/characters/SMP_Icon_Mario.webp',
@@ -50,11 +49,9 @@ export default function GroupDetail() {
   };
 
 
-  // Calculate leaderboard from approved games
   const calculateLeaderboard = (members: GroupMember[], games: Game[]): LeaderboardEntry[] => {
     const playerStats: { [playerId: string]: LeaderboardEntry } = {};
 
-    // Initialize stats for all members
     members.forEach(member => {
       playerStats[member.id] = {
         player_id: member.id,
@@ -83,25 +80,20 @@ export default function GroupDetail() {
       };
     });
 
-    // Process each approved game
     games.forEach(game => {
       if (game.results) {
         game.results.forEach(result => {
           const stats = playerStats[result.player_id];
           if (stats) {
-            // Add league points based on position (4-3-2-1)
-            const points = 5 - result.position; // 1st=4pts, 2nd=3pts, 3rd=2pts, 4th=1pt
+            const points = 5 - result.position;
             stats.total_league_points += points;
 
-            // Count wins (1st place)
             if (result.position === 1) {
               stats.games_won += 1;
             }
 
-            // Count games played
             stats.games_played += 1;
 
-            // Add individual stats
             stats.total_stars += result.stars;
             stats.total_coins += result.coins;
             stats.total_minigames_won += result.minigames_won;
@@ -123,34 +115,27 @@ export default function GroupDetail() {
       }
     });
 
-    // Convert to array and sort by league points (with tiebreakers)
     const leaderboard = Object.values(playerStats)
-      .filter(stats => stats.games_played > 0) // Only include players who have played
+      .filter(stats => stats.games_played > 0)
       .sort((a, b) => {
-        // Primary: League points
         if (a.total_league_points !== b.total_league_points) {
           return b.total_league_points - a.total_league_points;
         }
-        // Tiebreaker 1: Total stars
         if (a.total_stars !== b.total_stars) {
           return b.total_stars - a.total_stars;
         }
-        // Tiebreaker 2: Total coins
         if (a.total_coins !== b.total_coins) {
           return b.total_coins - a.total_coins;
         }
-        // Tiebreaker 3: Minigames won
         if (a.total_minigames_won !== b.total_minigames_won) {
           return b.total_minigames_won - a.total_minigames_won;
         }
-        // Tiebreaker 4: Showdown wins
         return b.total_showdown_wins - a.total_showdown_wins;
       });
 
     return leaderboard;
   };
 
-  // Helper function to check if game was auto-approved (only 1 human player)
   const isAutoApproved = (game: Game): boolean => {
     if (!group || game.status !== 'approved') return false;
     const humanMembers = group.members.filter(m => !m.is_cpu && m.status === 'active');
@@ -171,7 +156,6 @@ export default function GroupDetail() {
       const groupData = await supabaseAPI.getGroup(id);
       setGroup(groupData);
 
-      // Calculate leaderboard from approved games
       const approvedGames = await supabaseAPI.getGroupGames(id, 'approved');
       const leaderboardData = calculateLeaderboard(groupData.members, approvedGames);
       setLeaderboard(leaderboardData);
@@ -197,7 +181,7 @@ export default function GroupDetail() {
 
       toast.success(`CPU "${cpuName}" agregado exitosamente`);
       setShowAddCPUModal(false);
-      loadGroup(); // Reload group data
+      loadGroup();
     } catch (error: any) {
       console.error('Error al agregar CPU:', error);
       toast.error('Error al agregar CPU: ' + (error.message || 'Error desconocido'));
@@ -224,7 +208,6 @@ export default function GroupDetail() {
   const handleGameClick = async (game: Game) => {
     if (game.status !== 'pending') return;
 
-    // Load full game data with results and approvals
     try {
       const fullGame = await supabaseAPI.getGameDetails(game.id);
       setSelectedGame(fullGame);
@@ -241,8 +224,6 @@ export default function GroupDetail() {
   };
 
   const handleVoteSubmitted = () => {
-    // Reload group data to get updated game statuses
-    // Add small delay to ensure database has been updated
     setTimeout(() => {
       loadGroup();
     }, 500);
@@ -287,19 +268,15 @@ export default function GroupDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Members & Invitations */}
           <div className="lg:col-span-1 space-y-6 flex flex-col">
-            {/* Members */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
                 Miembros ({group.members?.length || 0}/{group.max_members})
               </h2>
 
               <div className="space-y-3">
-                {/* Human Members */}
                 {humanMembers.map((member, index) => (
                   <div key={member.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
@@ -324,7 +301,6 @@ export default function GroupDetail() {
                   </div>
                 ))}
 
-                {/* CPU Members */}
                 {cpuMembers.map((member) => (
                   <div key={member.id} className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-purple-500 flex items-center justify-center">
@@ -345,7 +321,6 @@ export default function GroupDetail() {
                   </div>
                 ))}
 
-                {/* Empty slots */}
                 {Array.from({ length: group.max_members - (group.members?.length || 0) }).map((_, index) => (
                   <div key={`empty-${index}`} className="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
                     <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-500">
@@ -358,7 +333,6 @@ export default function GroupDetail() {
                 ))}
               </div>
 
-              {/* Add CPU Button */}
               {!isGroupFull && (
                 <div className="mt-4">
                   <Button
@@ -373,7 +347,6 @@ export default function GroupDetail() {
               )}
             </div>
 
-            {/* Invitation */}
             {!isGroupFull && (
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -418,9 +391,7 @@ export default function GroupDetail() {
             )}
           </div>
 
-          {/* Right Column - Games & Leaderboard */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Recent Games */}
             <div className="bg-white rounded-lg shadow-md p-6 min-h-[400px] flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-gray-800">
@@ -499,7 +470,6 @@ export default function GroupDetail() {
           </div>
         </div>
 
-        {/* Leaderboard Section */}
         {leaderboard.length > 0 && (
           <div className="mt-8">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -621,7 +591,6 @@ export default function GroupDetail() {
                 </table>
               </div>
 
-              {/* Quick Stats */}
               <div className="px-6 py-4 bg-gray-50 border-t">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
@@ -649,7 +618,6 @@ export default function GroupDetail() {
         )}
       </div>
 
-      {/* Game Approval Modal */}
       <GameApprovalModal
         game={selectedGame}
         isOpen={showApprovalModal}
@@ -657,7 +625,6 @@ export default function GroupDetail() {
         onVoteSubmitted={handleVoteSubmitted}
       />
 
-      {/* Add CPU Modal */}
       <AddCPUModal
         isOpen={showAddCPUModal}
         onClose={() => setShowAddCPUModal(false)}

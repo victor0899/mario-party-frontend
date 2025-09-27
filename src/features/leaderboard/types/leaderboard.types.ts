@@ -1,16 +1,16 @@
-// Leaderboard and statistics types
+
 export interface LeaderboardEntry {
   player_id: string;
   player_name: string;
   is_cpu: boolean;
   profile_picture?: string;
 
-  // League stats
+
   total_league_points: number;
   games_won: number;
   games_played: number;
 
-  // Tiebreaker metrics (in order of priority)
+
   total_stars: number;
   total_coins: number;
   total_minigames_won: number;
@@ -29,7 +29,7 @@ export interface LeaderboardEntry {
   total_vs_spaces: number;
 }
 
-// Leaderboard request/response types
+
 export interface LeaderboardRequest {
   group_id?: string;
   limit?: number;

@@ -17,18 +17,15 @@ import Leaderboard from './pages/Leaderboard';
 import CompleteProfile from './pages/CompleteProfile';
 import EditProfile from './pages/EditProfile';
 
-// Minimal component - let Supabase handle everything automatically
 function AuthRedirectHandler() {
   return null;
 }
 
-// ProtectedRoute now redirects to '/login' and checks profile completion
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuthStore();
   const location = useLocation();
 
 
-  // If we're on a page with OAuth hash, give it extra time to process
   const hasOAuthHash = location.hash.includes('access_token');
 
   if (loading) {
@@ -76,7 +73,6 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
 
-        {/* Redirect old routes to new auth page */}
         <Route path="/login" element={<Navigate to="/auth" replace />} />
         <Route path="/register" element={<Navigate to="/auth" replace />} />
 
@@ -191,7 +187,6 @@ function App() {
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
 
-      {/* Toast notifications */}
       <Toaster
         position="top-right"
         toastOptions={{

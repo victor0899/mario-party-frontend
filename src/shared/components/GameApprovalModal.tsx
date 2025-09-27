@@ -4,7 +4,6 @@ import { Button } from './ui/Button';
 import { supabaseAPI } from '../services/supabase';
 import type { Game } from '../types/api';
 
-// Function to get character image from character ID
 const getCharacterImage = (characterId: string) => {
   const characterMap: { [key: string]: string } = {
     'mario': '/images/characters/SMP_Icon_Mario.webp',
@@ -69,11 +68,9 @@ export default function GameApprovalModal({
     }
   };
 
-  // Sort results by position
   const sortedResults = game.results ?
     [...game.results].sort((a, b) => a.position - b.position) : [];
 
-  // Count votes
   const approveVotes = game.approvals?.filter(a => a.vote === 'approve').length || 0;
   const rejectVotes = game.approvals?.filter(a => a.vote === 'reject').length || 0;
   const totalVotes = approveVotes + rejectVotes;
@@ -81,7 +78,6 @@ export default function GameApprovalModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="sticky top-0 bg-white border-b p-6 rounded-t-lg">
           <div className="flex justify-between items-center">
             <div>
@@ -99,7 +95,6 @@ export default function GameApprovalModal({
             </button>
           </div>
 
-          {/* Voting Status */}
           <div className="mt-4 p-3 bg-gray-50 rounded-md">
             <div className="text-sm text-gray-600 mb-2">Estado de Votación:</div>
             <div className="flex space-x-4">
@@ -110,7 +105,6 @@ export default function GameApprovalModal({
           </div>
         </div>
 
-        {/* Game Results */}
         <div className="p-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Resultados de la Partida</h3>
 
@@ -119,7 +113,6 @@ export default function GameApprovalModal({
               <div key={result.player_id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    {/* Profile Picture with Medal Border */}
                     <div className="relative">
                       <div className={`w-12 h-12 rounded-full p-0.5 ${
                         result.position === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
@@ -150,7 +143,6 @@ export default function GameApprovalModal({
                         </div>
                       </div>
 
-                      {/* Position Number Badge */}
                       <div className={`absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white ${
                         result.position === 1 ? 'bg-yellow-600' :
                         result.position === 2 ? 'bg-gray-500' :
@@ -177,7 +169,6 @@ export default function GameApprovalModal({
                     </div>
                   </div>
 
-                  {/* Basic Stats */}
                   <div className="grid grid-cols-4 gap-4 text-center">
                     <div>
                       <div className="text-sm text-gray-500">⭐ Estrellas</div>
@@ -202,7 +193,6 @@ export default function GameApprovalModal({
           </div>
         </div>
 
-        {/* Voting Actions */}
         <div className="sticky bottom-0 bg-white border-t p-6 rounded-b-lg">
           <div className="flex justify-end space-x-4">
             <Button

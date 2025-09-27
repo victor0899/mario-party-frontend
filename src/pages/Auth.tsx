@@ -20,13 +20,10 @@ export default function Auth() {
   };
 
   const handleSuccess = () => {
-    // Success is handled within the components
-    // They will navigate appropriately
   };
 
   return (
     <div className="h-screen flex w-full overflow-hidden">
-      {/* Left side - Image Carousel (hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 h-full items-center justify-center bg-gray-100 p-4">
         <div className="w-full max-w-lg h-3/4">
           <ImageCarousel
@@ -37,10 +34,8 @@ export default function Auth() {
         </div>
       </div>
 
-      {/* Right side - Auth Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-white h-full p-4 overflow-y-auto">
         <div className="w-full max-w-md my-auto">
-          {/* Auth Form Card */}
           <div className="bg-white rounded-xl p-6 shadow-2xl border border-gray-200">
             <div className="text-center mb-6">
               <h1 className="text-3xl font-mario text-gray-900 mb-2">
@@ -80,7 +75,6 @@ export default function Auth() {
             </div>
           </div>
 
-          {/* Mobile Image Preview (only on mobile) */}
           <div className="lg:hidden mt-8">
             <div className="bg-gray-100 rounded-lg p-4 text-center">
               <div className="text-4xl mb-2">🎮</div>

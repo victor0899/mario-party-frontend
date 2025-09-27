@@ -12,7 +12,7 @@ export default function AddCPUModal({ isOpen, onClose, onAdd, isLoading = false 
   const [cpuName, setCpuName] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('mario');
 
-  // Function to get character image from character ID
+
   const getCharacterImage = (characterId: string) => {
     const characterMap: { [key: string]: string } = {
       'mario': '/images/characters/SMP_Icon_Mario.webp',
@@ -42,7 +42,7 @@ export default function AddCPUModal({ isOpen, onClose, onAdd, isLoading = false 
     return characterMap[characterId] || '/images/characters/SMP_Icon_Mario.webp';
   };
 
-  // Get available characters for CPU selection
+
   const getAvailableCharacters = () => {
     return [
       { id: 'mario', name: 'Mario' },
@@ -89,38 +89,7 @@ export default function AddCPUModal({ isOpen, onClose, onAdd, isLoading = false 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Agregar CPU</h2>
-            <button
-              onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
         <div className="p-6 space-y-6">
-          {/* CPU Name Input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Nombre del CPU
-            </label>
-            <input
-              type="text"
-              value={cpuName}
-              onChange={(e) => setCpuName(e.target.value)}
-              placeholder="Ej: Mario CPU, Luigi Bot, etc."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              maxLength={20}
-              autoFocus
-            />
-          </div>
-
-          {/* Character Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Seleccionar Personaje
@@ -154,28 +123,21 @@ export default function AddCPUModal({ isOpen, onClose, onAdd, isLoading = false 
             </div>
           </div>
 
-          {/* Selected Character Preview */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="text-sm text-gray-600 mb-2">Vista previa:</div>
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-purple-500 flex items-center justify-center">
-                <img
-                  src={getCharacterImage(selectedAvatar)}
-                  alt="Avatar seleccionado"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <div className="font-medium text-gray-800">
-                  {cpuName || 'Nombre del CPU'}
-                </div>
-                <div className="text-sm text-purple-600">CPU Player</div>
-              </div>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Nombre del CPU
+            </label>
+            <input
+              type="text"
+              value={cpuName}
+              onChange={(e) => setCpuName(e.target.value)}
+              placeholder="Ingresa el nombre del CPU"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={isLoading}
+            />
           </div>
         </div>
 
-        {/* Footer */}
         <div className="p-6 border-t border-gray-200">
           <div className="flex space-x-3">
             <Button
