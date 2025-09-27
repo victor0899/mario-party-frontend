@@ -72,9 +72,6 @@ export default function GameApprovalModal({
   const sortedResults = game.results ?
     [...game.results].sort((a, b) => a.position - b.position) : [];
 
-  const approveVotes = game.approvals?.filter(a => a.vote === 'approve').length || 0;
-  const rejectVotes = game.approvals?.filter(a => a.vote === 'reject').length || 0;
-  const totalVotes = approveVotes + rejectVotes;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

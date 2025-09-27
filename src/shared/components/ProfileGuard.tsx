@@ -7,7 +7,7 @@ interface ProfileGuardProps {
 }
 
 export default function ProfileGuard({ children }: ProfileGuardProps) {
-  const { user, profile, isAuthenticated } = useAuthStore();
+  const { user, profile, isAuthenticated, loading } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -17,10 +17,24 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
       hasUser: !!user,
       hasProfile: !!profile,
       profileCompleted: profile?.profile_completed,
-      currentPath: location.pathname
+      currentPath: location.pathname,
+      loading,
+      fullProfile: profile
     });
 
+    // Don't do anything while still loading
+    if (loading) {
+      console.log('Still loading, waiting...');
+      return;
+    }
+
     if (isAuthenticated && user) {
+      // If we have a user but no profile, wait for profile to load
+      if (!profile) {
+        console.log('User authenticated but profile not loaded yet, waiting...');
+        return;
+      }
+
       const profileCompleted = profile?.profile_completed;
 
       if (!profileCompleted) {
@@ -35,10 +49,23 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
         }
       }
     }
-  }, [user, profile, isAuthenticated, navigate, location.pathname]);
+  }, [user, profile, isAuthenticated, loading, navigate, location.pathname]);
 
 
-  if (isAuthenticated && user && !profile?.profile_completed && location.pathname !== '/complete-profile') {
+  // Show loading while authentication is initializing
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="text-2xl mb-4">⏳</div>
+          <div className="text-gray-600">Cargando...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show redirect message if profile is incomplete
+  if (isAuthenticated && user && profile && !profile.profile_completed && location.pathname !== '/complete-profile') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

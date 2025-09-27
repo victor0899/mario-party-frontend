@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from './app/store/useAuthStore';
+import { useStoreInitialization } from './shared/hooks/useStoreInitialization';
 import AppLayout from './shared/components/layout/AppLayout';
 import { ProfileGuard } from './shared/components';
 import { LoadingSpinner } from './shared/components/ui';
@@ -60,11 +61,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-  const { initialize } = useAuthStore();
-
-  useEffect(() => {
-    initialize();
-  }, [initialize]);
+  // Initialize all stores
+  useStoreInitialization();
 
   return (
     <Router>

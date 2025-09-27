@@ -32,6 +32,7 @@ interface AuthState {
   fetchProfile: () => Promise<void>;
   initialize: () => Promise<void>;
   cleanup: () => void;
+  clearAllStores: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -90,25 +91,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signOut: async () => {
     try {
-      set({
-        user: null,
-        profile: null,
-        isAuthenticated: false,
-        loading: false
-      });
+      console.log('Starting logout...');
+      set({ loading: true });
 
       const { error } = await supabase.auth.signOut();
+
       if (error) {
-        console.warn('Supabase logout error:', error);
+        console.error('Supabase logout error:', error);
+        set({ loading: false });
+        return;
       }
+
+      console.log('Logout successful');
+      // Auth listener will handle clearing state
     } catch (error) {
-      console.warn('Logout error:', error);
-      set({
-        user: null,
-        profile: null,
-        isAuthenticated: false,
-        loading: false
-      });
+      console.error('Logout error:', error);
+      // Force clear on any error
+      get().clearAllStores();
     }
   },
 
@@ -150,7 +149,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.log('Profile fetch error:', error);
       if (error.code === 'PGRST116') {
         console.log('No profile found - user needs to complete profile');
-        get().setProfile(null);
+        // Set a minimal profile object to indicate profile is not completed
+        get().setProfile({
+          id: user.id,
+          nickname: '',
+          profile_picture: '',
+          birth_date: '',
+          nationality: '',
+          favorite_minigame: '',
+          bio: '',
+          profile_completed: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
       }
       return;
     }
@@ -163,21 +174,49 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const currentState = get();
 
     if (currentState._initialized) {
+      console.log('Auth store already initialized');
       return;
     }
 
+    console.log('Initializing auth store...');
     set({ loading: true, _initialized: true });
 
     try {
+      // Setup auth listener
+      const authListener = supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log('Auth state change:', event, !!session?.user);
+
+        if (event === 'SIGNED_OUT' || !session?.user) {
+          console.log('User signed out, clearing state');
+          set({
+            user: null,
+            profile: null,
+            isAuthenticated: false,
+            loading: false
+          });
+          return;
+        }
+
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('User signed in');
+          get().setUser(session.user);
+          try {
+            await get().fetchProfile();
+          } catch (profileError) {
+            console.warn('Profile fetch error during auth change:', profileError);
+          }
+        }
+      });
+
+      set({ _authListener: authListener });
+
+      // Check current session
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current session:', !!session?.user);
 
       if (session?.user) {
         get().setUser(session.user);
-        try {
-          await get().fetchProfile();
-        } catch (profileError) {
-          console.warn('Profile fetch error during init:', profileError);
-        }
+        await get().fetchProfile();
       } else {
         set({
           loading: false,
@@ -185,33 +224,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         });
       }
     } catch (error) {
-      console.warn('Initialize error:', error);
+      console.error('Initialize error:', error);
       set({
         loading: false,
         isAuthenticated: false
       });
-    } finally {
-      set(state => ({ ...state, loading: false }));
     }
-
-    const authListener = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT' || !session?.user) {
-        set({
-          user: null,
-          profile: null,
-          isAuthenticated: false,
-          loading: false
-        });
-        return;
-      }
-
-      if (session?.user) {
-        get().setUser(session.user);
-        await get().fetchProfile();
-      }
-    });
-
-    set({ _authListener: authListener });
   },
 
   cleanup: () => {
@@ -220,5 +238,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       _authListener.data.subscription?.unsubscribe();
       set({ _authListener: undefined, _initialized: false });
     }
+  },
+
+  clearAllStores: () => {
+    console.log('Clearing all stores...');
+    set({
+      user: null,
+      profile: null,
+      isAuthenticated: false,
+      loading: false
+    });
   },
 }));
