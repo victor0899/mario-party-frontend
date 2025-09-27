@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { Button, Input, Spinner } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
+import { useGroupsStore } from '../app/store/useGroupsStore';
 
 export default function CreateGroup() {
   const [name, setName] = useState('');
@@ -12,6 +13,7 @@ export default function CreateGroup() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { addGroup } = useGroupsStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +29,8 @@ export default function CreateGroup() {
         max_members: 4,
       });
 
+      // Add the new group to the store so it appears immediately
+      addGroup(group);
 
       navigate('/dashboard', { replace: true });
 
