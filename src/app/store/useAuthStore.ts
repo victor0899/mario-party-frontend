@@ -173,7 +173,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       if (session?.user) {
         get().setUser(session.user);
-        await get().fetchProfile();
+        try {
+          await get().fetchProfile();
+        } catch (profileError) {
+          console.warn('Profile fetch error during init:', profileError);
+        }
       } else {
         set({
           loading: false,
@@ -186,6 +190,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         loading: false,
         isAuthenticated: false
       });
+    } finally {
+      set(state => ({ ...state, loading: false }));
     }
 
     const authListener = supabase.auth.onAuthStateChange(async (event, session) => {
