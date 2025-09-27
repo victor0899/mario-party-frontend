@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { Button, Input } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
+import { withTimeout, TIMEOUTS } from '../shared/utils/timeout';
 import type { Group, Map, CreateGameResultRequest } from '../shared/types/api';
 
 interface PlayerResult extends CreateGameResultRequest {
@@ -16,7 +17,7 @@ export default function CreateGame() {
   const [searchParams] = useSearchParams();
   const groupId = searchParams.get('group');
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
 
   // Function to get character image from character ID
   const getCharacterImage = (characterId: string) => {
@@ -101,12 +102,23 @@ export default function CreateGame() {
       return;
     }
 
+    if (!isAuthenticated) {
+      toast.error('Debes estar autenticado');
+      navigate('/auth');
+      return;
+    }
+
     setIsLoading(true);
+
     try {
-      const [groupData, mapsData] = await Promise.all([
-        supabaseAPI.getGroup(groupId),
-        supabaseAPI.getMaps()
-      ]);
+      const [groupData, mapsData] = await withTimeout(
+        Promise.all([
+          supabaseAPI.getGroup(groupId),
+          supabaseAPI.getMaps()
+        ]),
+        TIMEOUTS.DATA_LOAD,
+        'Carga de datos demorada'
+      );
 
       setGroup(groupData);
 
@@ -140,7 +152,18 @@ export default function CreateGame() {
       }
     } catch (error: any) {
       console.error('Error al cargar datos:', error);
-      toast.error('Error al cargar los datos');
+
+      let errorMessage = 'Error al cargar los datos';
+
+      if (error.message?.includes('Timeout')) {
+        errorMessage = 'Carga de datos demorada. Int\u00e9ntalo de nuevo.';
+      } else if (error.message?.includes('auth')) {
+        errorMessage = 'Sesi\u00f3n expirada. Redirigiendo...';
+        navigate('/auth');
+        return;
+      }
+
+      toast.error(errorMessage);
       navigate('/groups');
     } finally {
       setIsLoading(false);
@@ -335,20 +358,23 @@ export default function CreateGame() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-
     if (!validateForm()) {
       return;
     }
 
     if (!group) {
+      toast.error('Grupo no encontrado');
       return;
     }
 
-    if (!user) {
+    if (!user || !isAuthenticated) {
+      toast.error('Debes estar autenticado para crear una partida');
+      navigate('/auth');
       return;
     }
 
     setIsSubmitting(true);
+
     try {
       // Prepare game results data
       const gameResults = playerResults.map(player => ({
@@ -372,20 +398,37 @@ export default function CreateGame() {
         vs_spaces: player.vs_spaces,
       }));
 
-
-      await supabaseAPI.createGame({
-        group_id: group.id,
-        map_id: selectedMapId,
-        played_at: new Date(playedAt).toISOString(),
-        results: gameResults,
-      });
+      // Create game with timeout
+      await withTimeout(
+        supabaseAPI.createGame({
+          group_id: group.id,
+          map_id: selectedMapId,
+          played_at: new Date(playedAt).toISOString(),
+          results: gameResults,
+        }),
+        TIMEOUTS.SUBMIT,
+        'La operación tomó demasiado tiempo'
+      );
 
       toast.success('¡Partida registrada exitosamente! Ahora está pendiente de aprobación por otros miembros.');
       navigate(`/groups/${group.id}`);
     } catch (error: any) {
       console.error('❌ Error al registrar partida:', error);
-      console.error('Detalles completos del error:', error);
-      toast.error('Error al registrar la partida: ' + (error.message || 'Error desconocido'));
+
+      let errorMessage = 'Error desconocido';
+
+      if (error.message?.includes('Timeout')) {
+        errorMessage = 'La operación tomó demasiado tiempo. Inténtalo de nuevo.';
+      } else if (error.message?.includes('auth')) {
+        errorMessage = 'Sesión expirada. Por favor, inicia sesión nuevamente.';
+        setTimeout(() => navigate('/auth'), 2000);
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Error de conexión. Verifica tu internet e inténtalo de nuevo.';
+      } else {
+        errorMessage = error.message || 'Error al registrar la partida';
+      }
+
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

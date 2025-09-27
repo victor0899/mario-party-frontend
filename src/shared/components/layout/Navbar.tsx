@@ -12,17 +12,12 @@ export default function Navbar() {
     try {
       setIsDropdownOpen(false);
       await signOut();
-      // Force navigation after a brief delay to ensure state is cleared
-      setTimeout(() => {
-        navigate('/auth');
-        // Force a page reload to ensure clean state
-        window.location.reload();
-      }, 100);
+      // Navigate immediately - no need for delays or reloads with the improved state management
+      navigate('/auth');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
-      // Even if logout fails, clear local state and redirect
+      // Even if logout fails, the signOut function handles state clearing
       navigate('/auth');
-      window.location.reload();
     }
   };
 

@@ -1,7 +1,27 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Container, VideoBackground, Button } from '../shared/components';
+import { useAuthStore } from '../app/store/useAuthStore';
 
 export default function Home() {
+  const { isAuthenticated, loading } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If user is authenticated, redirect to dashboard
+    if (isAuthenticated && !loading) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, loading, navigate]);
+
+  // Show loading while checking authentication status
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-600 to-purple-700">
+        <div className="text-white text-xl">Cargando...</div>
+      </div>
+    );
+  }
   return (
     <div className="relative min-h-screen flex items-center justify-center">
       {/* Video Background */}
