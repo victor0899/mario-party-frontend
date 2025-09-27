@@ -5,6 +5,7 @@ import { Button, GameApprovalModal, AddCPUModal } from '../shared/components';
 import { LoadingSpinner } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
+import { formatGameDate } from '../shared/utils/dateFormat';
 import type { Group, Game, LeaderboardEntry, GroupMember } from '../shared/types/api';
 
 export default function GroupDetail() {
@@ -141,6 +142,7 @@ export default function GroupDetail() {
     const humanMembers = group.members.filter(m => !m.is_cpu && m.status === 'active');
     return humanMembers.length === 1;
   };
+
 
   useEffect(() => {
     if (id) {
@@ -439,7 +441,7 @@ export default function GroupDetail() {
                           Partida {game.id?.slice(0, 8)}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {new Date(game.played_at).toLocaleDateString()}
+                          {formatGameDate(game.played_at)}
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
