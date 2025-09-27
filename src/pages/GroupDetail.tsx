@@ -274,7 +274,7 @@ export default function GroupDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6 flex flex-col">
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              <h2 className="text-xl font-mario text-gray-800 mb-4">
                 Miembros ({group.members?.length || 0}/{group.max_members})
               </h2>
 
@@ -351,7 +351,7 @@ export default function GroupDetail() {
 
             {!isGroupFull && (
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                <h2 className="text-xl font-mario text-gray-800 mb-4">
                   Invitar Jugadores
                 </h2>
 
@@ -396,7 +396,7 @@ export default function GroupDetail() {
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-lg shadow-md p-6 min-h-[400px] flex flex-col">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
+                <h2 className="text-xl font-mario text-gray-800">
                   Partidas Recientes
                 </h2>
                 <Button
@@ -414,7 +414,13 @@ export default function GroupDetail() {
               {!group.games || group.games.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-4xl mb-4">🎮</div>
+                    <div className="mb-4 flex justify-center">
+                      <img
+                        src="/images/others/wawa1.webp"
+                        alt="Wawa"
+                        className="w-64 h-64 object-contain"
+                      />
+                    </div>
                     <h3 className="text-lg font-medium text-gray-800 mb-2">
                       No hay partidas registradas
                     </h3>

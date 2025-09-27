@@ -56,12 +56,9 @@ export default function CreateGroup() {
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                Mario Party League
+              <h2 className="text-2xl font-mario text-gray-900">
+                Crea tu grupo
               </h2>
-              <p className="text-gray-600">
-                Crea una liga para competir con tus amigos en Mario Party.
-              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -76,7 +73,7 @@ export default function CreateGroup() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
                   Descripción (opcional)
                 </label>
                 <textarea
@@ -102,27 +99,6 @@ export default function CreateGroup() {
                 </label>
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-md">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-blue-800">
-                      Información importante
-                    </h3>
-                    <div className="mt-2 text-sm text-blue-700">
-                      <ul className="list-disc list-inside space-y-1 text-left">
-                        <li>Las ligas están limitadas a 4 jugadores máximo</li>
-                        <li>Se generará un código de invitación único</li>
-                        <li>Podrás agregar un jugador CPU si son menos de 4</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               <div className="flex space-x-4">
                 <Button
