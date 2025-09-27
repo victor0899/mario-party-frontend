@@ -19,9 +19,9 @@ interface AuthState {
   user: AuthUser | null;
   profile: Profile | null;
   loading: boolean;
+  isAuthenticated: boolean;
   _authListener?: { data: { subscription: { unsubscribe: () => void } } };
   _initialized: boolean;
-  isAuthenticated: boolean;
   setUser: (user: AuthUser | null) => void;
   setProfile: (profile: Profile | null) => void;
   signUp: (email: string, password: string, name: string) => Promise<void>;
@@ -38,15 +38,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   profile: null,
   loading: true,
+  isAuthenticated: false,
   _authListener: undefined,
   _initialized: false,
 
-  get isAuthenticated() {
-    return !!get().user;
-  },
-
   setUser: (user) => set({
     user,
+    isAuthenticated: !!user,
     loading: false
   }),
 
@@ -91,8 +89,27 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    try {
+      set({
+        user: null,
+        profile: null,
+        isAuthenticated: false,
+        loading: false
+      });
+
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.warn('Supabase logout error:', error);
+      }
+    } catch (error) {
+      console.warn('Logout error:', error);
+      set({
+        user: null,
+        profile: null,
+        isAuthenticated: false,
+        loading: false
+      });
+    }
   },
 
   updateProfile: async (profileData: Partial<Profile>) => {
@@ -121,16 +138,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { user } = get();
     if (!user) return;
 
+    console.log('Fetching profile for user:', user.id);
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
 
-    if (error && error.code !== 'PGRST116') {
+    if (error) {
+      console.log('Profile fetch error:', error);
+      if (error.code === 'PGRST116') {
+        console.log('No profile found - user needs to complete profile');
+        get().setProfile(null);
+      }
       return;
     }
 
+    console.log('Profile fetched:', data);
     get().setProfile(data);
   },
 
@@ -150,11 +175,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         get().setUser(session.user);
         await get().fetchProfile();
       } else {
-        set({ loading: false });
+        set({
+          loading: false,
+          isAuthenticated: false
+        });
       }
     } catch (error) {
       console.warn('Initialize error:', error);
-      set({ loading: false });
+      set({
+        loading: false,
+        isAuthenticated: false
+      });
     }
 
     const authListener = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -162,6 +193,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({
           user: null,
           profile: null,
+          isAuthenticated: false,
           loading: false
         });
         return;

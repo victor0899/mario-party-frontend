@@ -1,30 +1,24 @@
 import toast from 'react-hot-toast';
 import { Button } from '../../../shared/components';
-import { useAuth } from '../hooks/useAuth';
+import { useAuthStore } from '../../../app/store/useAuthStore';
 
 interface SocialAuthProps {
   onSuccess?: () => void;
 }
 
 export const SocialAuth = ({ onSuccess }: SocialAuthProps) => {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle } = useAuthStore();
 
   const handleGoogleSignIn = async () => {
     try {
       const loadingToast = toast.loading('Conectando con Google...');
-
-      const result = await signInWithGoogle();
-
+      await signInWithGoogle();
       toast.dismiss(loadingToast);
-
-      if (result.success) {
-        toast.success('¡Bienvenido!');
-        onSuccess?.();
-      } else {
-        toast.error(result.error?.message || 'Error al iniciar sesión con Google');
-      }
+      toast.success('¡Bienvenido!');
+      onSuccess?.();
     } catch (error) {
-      toast.error('Ha ocurrido un error inesperado');
+      const errorMessage = error instanceof Error ? error.message : 'Error inesperado';
+      toast.error(errorMessage);
     }
   };
 

@@ -12,18 +12,27 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
   const location = useLocation();
 
   useEffect(() => {
+    console.log('ProfileGuard check:', {
+      isAuthenticated,
+      hasUser: !!user,
+      hasProfile: !!profile,
+      profileCompleted: profile?.profile_completed,
+      currentPath: location.pathname
+    });
 
     if (isAuthenticated && user) {
-
-      if (location.pathname === '/complete-profile') {
-        return;
-      }
-
-
       const profileCompleted = profile?.profile_completed;
 
       if (!profileCompleted) {
-        navigate('/complete-profile');
+        if (location.pathname !== '/complete-profile') {
+          console.log('Profile not completed, navigating to complete-profile');
+          navigate('/complete-profile');
+        }
+      } else {
+        if (location.pathname === '/complete-profile') {
+          console.log('Profile is completed, navigating to dashboard');
+          navigate('/dashboard');
+        }
       }
     }
   }, [user, profile, isAuthenticated, navigate, location.pathname]);

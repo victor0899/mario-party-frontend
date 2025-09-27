@@ -14,6 +14,5 @@ export * from './context';
 
 export { useAuthStore } from './store';
 
-export * from './hooks/useAuth';
 export * from './hooks/useAuthForm';
 export * from './services/authService';

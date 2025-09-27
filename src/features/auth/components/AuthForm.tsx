@@ -1,7 +1,7 @@
-import { type FormEvent } from 'react';
+import { type FormEvent, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Button, Input } from '../../../shared/components';
-import { useAuth } from '../hooks/useAuth';
+import { useAuthStore } from '../../../app/store/useAuthStore';
 import { useAuthForm } from '../hooks/useAuthForm';
 import { PasswordRequirements } from './PasswordRequirements';
 
@@ -12,7 +12,8 @@ interface AuthFormProps {
 }
 
 export const AuthForm = ({ isLogin, onToggleMode, onSuccess }: AuthFormProps) => {
-  const { signUp, signIn, isLoading } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { signUp, signIn } = useAuthStore();
   const {
     email,
     password,
@@ -32,34 +33,29 @@ export const AuthForm = ({ isLogin, onToggleMode, onSuccess }: AuthFormProps) =>
 
     if (!validateForm()) return;
 
+    setIsLoading(true);
+
     try {
       if (isLogin) {
         const loadingToast = toast.loading('Iniciando sesión...');
-        const result = await signIn({ email, password });
+        await signIn(email, password);
         toast.dismiss(loadingToast);
-
-        if (result.success) {
-          toast.success('¡Bienvenido de vuelta!');
-          onSuccess?.();
-        } else {
-          toast.error(result.error?.message || 'Error al iniciar sesión');
-        }
+        toast.success('¡Bienvenido de vuelta!');
+        onSuccess?.();
       } else {
         const loadingToast = toast.loading('Creando cuenta...');
-        const result = await signUp({ email, password, name });
+        await signUp(email, password, name);
         toast.dismiss(loadingToast);
-
-        if (result.success) {
-          toast.success('¡Registro exitoso! Revisa tu email para confirmar tu cuenta.');
-          resetForm();
-          onToggleMode();
-          onSuccess?.();
-        } else {
-          toast.error(result.error?.message || 'Error al crear la cuenta');
-        }
+        toast.success('¡Registro exitoso! Revisa tu email para confirmar tu cuenta.');
+        resetForm();
+        onToggleMode();
+        onSuccess?.();
       }
     } catch (error) {
-      toast.error('Ha ocurrido un error inesperado');
+      const errorMessage = error instanceof Error ? error.message : 'Error inesperado';
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
