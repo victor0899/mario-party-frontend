@@ -2,6 +2,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Button } from './ui/Button';
 import { supabaseAPI } from '../services/supabase';
+import { formatGameDate } from '../utils/dateFormat';
 import type { Game } from '../types/api';
 
 const getCharacterImage = (characterId: string) => {
@@ -83,7 +84,7 @@ export default function GameApprovalModal({
             <div>
               <h2 className="text-2xl font-bold text-gray-800">Aprobar Partida</h2>
               <p className="text-gray-600">
-                {game.map?.name} - {new Date(game.played_at).toLocaleDateString()}
+                {game.map?.name} - {formatGameDate(game.played_at)}
               </p>
             </div>
             <button
@@ -95,18 +96,10 @@ export default function GameApprovalModal({
             </button>
           </div>
 
-          <div className="mt-4 p-3 bg-gray-50 rounded-md">
-            <div className="text-sm text-gray-600 mb-2">Estado de Votación:</div>
-            <div className="flex space-x-4">
-              <span className="text-green-600">✓ A favor: {approveVotes}</span>
-              <span className="text-red-600">✗ En contra: {rejectVotes}</span>
-              <span className="text-gray-500">Total: {totalVotes}</span>
-            </div>
-          </div>
         </div>
 
         <div className="p-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Resultados de la Partida</h3>
+          <h3 className="text-xl font-mario text-gray-800 mb-4">Resultados de la Partida</h3>
 
           <div className="space-y-4">
             {sortedResults.map((result) => (
@@ -143,7 +136,8 @@ export default function GameApprovalModal({
                         </div>
                       </div>
 
-                      <div className={`absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white ${
+                      {/* Position indicator */}
+                      <div className={`absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white ${
                         result.position === 1 ? 'bg-yellow-600' :
                         result.position === 2 ? 'bg-gray-500' :
                         result.position === 3 ? 'bg-orange-700' :
@@ -151,25 +145,45 @@ export default function GameApprovalModal({
                       }`}>
                         {result.position}
                       </div>
+
+                      {/* Vote status indicator */}
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white ${
+                        result.player?.is_cpu
+                          ? 'bg-purple-500'
+                          : (() => {
+                              const userVote = game.approvals?.find(approval => approval.voter_id === result.player_id);
+                              if (!userVote) return 'bg-gray-400';
+                              return userVote.vote === 'approve' ? 'bg-green-500' : 'bg-red-500';
+                            })()
+                      }`}>
+                        {result.player?.is_cpu
+                          ? '🤖'
+                          : (() => {
+                              const userVote = game.approvals?.find(approval => approval.voter_id === result.player_id);
+                              if (!userVote) return '−';
+                              return userVote.vote === 'approve' ? '✓' : '✗';
+                            })()
+                        }
+                      </div>
                     </div>
 
-                    <div>
-                      <p className="font-semibold">
+                    <div className="pr-16 ml-4">
+                      <p className="font-semibold mb-2 text-left">
                         {result.player?.is_cpu
                           ? result.player.cpu_name
                           : (result.player?.profile?.nickname || 'Usuario sin nombre')
                         }
                       </p>
-                      <p className="text-sm text-gray-500">
-                        {result.position === 1 ? '🥇 1er Lugar (4 puntos)' :
-                         result.position === 2 ? '🥈 2do Lugar (3 puntos)' :
-                         result.position === 3 ? '🥉 3er Lugar (2 puntos)' :
-                         '4to Lugar (1 punto)'}
+                      <p className="text-sm text-gray-500 text-left">
+                        {result.position === 1 ? '4 puntos' :
+                         result.position === 2 ? '3 puntos' :
+                         result.position === 3 ? '2 puntos' :
+                         '1 punto'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-4 text-center">
+                  <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
                       <div className="text-sm text-gray-500">⭐ Estrellas</div>
                       <div className="font-bold">{result.stars}</div>
@@ -177,14 +191,6 @@ export default function GameApprovalModal({
                     <div>
                       <div className="text-sm text-gray-500">🪙 Monedas</div>
                       <div className="font-bold">{result.coins}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-500">🎮 Minijuegos</div>
-                      <div className="font-bold">{result.minigames_won}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-500">⚔️ Showdown</div>
-                      <div className="font-bold">{result.showdown_wins}</div>
                     </div>
                   </div>
                 </div>

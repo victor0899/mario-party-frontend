@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 - `pnpm dev` - Start development server with hot reloading
-- `pnpm build` - Build for production (runs TypeScript compilation then Vite build)  
+- `pnpm build` - Build for production (runs TypeScript compilation then Vite build)
 - `pnpm lint` - Run ESLint on the codebase
 - `pnpm preview` - Preview production build locally
 
@@ -13,40 +13,56 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a React + TypeScript + Vite frontend application for a Mario Party-style game tracking system. The app manages users, groups, games, and scores with the following key architectural patterns:
 
+### Feature-Based Architecture
+- **Feature modules** organized by domain in `src/features/`: `auth`, `games`, `groups`, `leaderboard`
+- Each feature contains: `components`, `hooks`, `services`, `types`, `schemas` directories
+- **Shared resources** in `src/shared/`: common components, utilities, services, and types
+- **App-level** configuration in `src/app/`: global stores and application setup
+
+### Backend Integration
+- **Supabase** as the backend service (not REST API)
+- Supabase client configured in `src/shared/lib/supabase.ts`
+- Environment variables: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+- Authentication, database operations, and real-time updates handled through Supabase
+- Legacy API client in `src/shared/services/client.ts` may still exist but Supabase is primary
+
 ### State Management
-- **Zustand** for global state management with persistence
-- Authentication state is managed in `src/store/useAuthStore.ts` with localStorage persistence
-- Uses Zustand's persist middleware to maintain login state across sessions
+- **Zustand** for global state management
+- Authentication state in `src/app/store/useAuthStore.ts` with Supabase integration
+- Groups state in `src/app/store/useGroupsStore.ts`
+- Each feature module may have additional hooks for local state management
 
-### API Layer
-- Centralized API client in `src/api/client.ts` with REST methods
-- Environment-based API URL configuration (`VITE_API_URL` env var, defaults to `http://localhost:3000/api`)
-- Separate API modules for different domains: `users.ts`, `groups.ts`, `games.ts`
-- TypeScript interfaces for all API requests/responses in `src/types/api.ts`
+### Authentication System
+- **Supabase Auth** for user authentication
+- Google OAuth integration supported
+- Profile completion flow for new users
+- `ProfileGuard` component ensures users complete their profiles
+- Routes protected with `ProtectedRoute` wrapper component
 
-### Routing & Authentication
-- React Router for client-side routing
-- Protected routes using a `ProtectedRoute` wrapper component
-- Routes: Home (`/`), Login (`/login`), Register (`/register`), Dashboard (`/dashboard`)
-- Authentication redirects handled automatically
+### Routing Structure
+- Routes: Home (`/`), Auth (`/auth`), Dashboard (`/dashboard`), Groups management, Game creation, Leaderboards
+- Legacy login/register routes redirect to `/auth`
+- All authenticated routes require profile completion
 
-### Data Models
+### Styling & Design System
+- **TailwindCSS v3** for styling with Mario Party themed color palette
+- Custom design tokens in `src/design-system/`
+- Mario-themed colors, fonts (Fredoka One), and animations
+- Shared UI components in `src/shared/components/ui/`
+- Layout components in `src/shared/components/layout/`
+
+## Data Models
 Core entities managed by the application:
-- **User**: Basic user profile and authentication
-- **Group**: Collections of users who play games together  
+- **User/Profile**: User authentication and profile information via Supabase
+- **Group**: Collections of users who play games together
 - **Game**: Individual game sessions within a group
 - **Score**: Points and winner status for each user in a game
 - **LeaderboardEntry**: Aggregated statistics for ranking users
-
-### Styling
-- **TailwindCSS v4** for styling
-- **PostCSS** for CSS processing
-- Utility-first CSS approach with Tailwind classes
-- Custom utility function `cn()` in `src/utils/cn.ts` for conditional class names
 
 ## Development Notes
 
 - No test framework is currently configured
 - Uses pnpm as package manager
 - TypeScript configuration split between `tsconfig.app.json` (app code) and `tsconfig.node.json` (build tools)
-- Components directory exists but is currently empty - components are in pages for now
+- Toast notifications using `react-hot-toast`
+- Form validation using `yup` schemas
