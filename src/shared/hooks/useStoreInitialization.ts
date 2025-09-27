@@ -6,16 +6,12 @@ import { useAuthStore } from '../../app/store/useAuthStore';
  * Should be called once at the app level
  */
 export const useStoreInitialization = () => {
-  const initializeAuth = useAuthStore(state => state.initialize);
-  const cleanupAuth = useAuthStore(state => state.cleanup);
+  const { initialize, initialized } = useAuthStore();
 
   useEffect(() => {
-    console.log('Initializing stores...');
-    initializeAuth();
-
-    return () => {
-      console.log('Cleaning up stores...');
-      cleanupAuth();
-    };
-  }, [initializeAuth, cleanupAuth]);
+    if (!initialized) {
+      console.log('Initializing auth store...');
+      initialize();
+    }
+  }, [initialize, initialized]);
 };

@@ -6,9 +6,11 @@ import { useGroupsStore } from '../app/store/useGroupsStore';
 import { LoadingSpinner, MemberAvatars } from '../shared/components/ui';
 
 export default function Dashboard() {
-  const { user, isAuthenticated } = useAuthStore();
-  const { groups, isLoading, error, loadGroups, clearGroups } = useGroupsStore();
+  const { session, user } = useAuthStore();
+  const { groups, isLoading, error, loadGroups } = useGroupsStore();
   const navigate = useNavigate();
+
+  const isAuthenticated = !!session && !!user;
 
   const getLastGameDate = (games: any[]) => {
     if (!games || games.length === 0) return null;
@@ -36,15 +38,10 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    if (!isAuthenticated || !user) {
-      console.log('❌ Not authenticated, redirecting to auth');
-      clearGroups();
-      navigate('/auth');
-      return;
+    if (isAuthenticated && user) {
+      loadGroups();
     }
-
-    loadGroups();
-  }, []);
+  }, [isAuthenticated, user, loadGroups]);
 
   useEffect(() => {
     if (error && error.includes('auth') || error?.includes('JWT') || error?.includes('session')) {

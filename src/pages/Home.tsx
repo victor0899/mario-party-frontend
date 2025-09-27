@@ -4,8 +4,10 @@ import { Container, VideoBackground, Button } from '../shared/components';
 import { useAuthStore } from '../app/store/useAuthStore';
 
 export default function Home() {
-  const { isAuthenticated, loading } = useAuthStore();
+  const { session, user, loading } = useAuthStore();
   const navigate = useNavigate();
+
+  const isAuthenticated = !!session && !!user;
 
   useEffect(() => {
     if (isAuthenticated && !loading) {

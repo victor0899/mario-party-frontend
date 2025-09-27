@@ -23,10 +23,10 @@ function AuthRedirectHandler() {
 }
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, loading } = useAuthStore();
+  const { session, user, loading } = useAuthStore();
   const location = useLocation();
 
-
+  const isAuthenticated = !!session && !!user;
   const hasOAuthHash = location.hash.includes('access_token');
 
   if (loading) {

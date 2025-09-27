@@ -7,19 +7,21 @@ interface ProfileGuardProps {
 }
 
 export default function ProfileGuard({ children }: ProfileGuardProps) {
-  const { user, profile, isAuthenticated, loading } = useAuthStore();
+  const { session, user, profile, loading } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isAuthenticated = !!session && !!user;
 
   useEffect(() => {
     console.log('ProfileGuard check:', {
       isAuthenticated,
+      hasSession: !!session,
       hasUser: !!user,
       hasProfile: !!profile,
       profileCompleted: profile?.profile_completed,
       currentPath: location.pathname,
-      loading,
-      fullProfile: profile
+      loading
     });
 
     // Don't do anything while still loading
@@ -28,14 +30,14 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
       return;
     }
 
-    if (isAuthenticated && user) {
+    if (isAuthenticated) {
       // If we have a user but no profile, wait for profile to load
       if (!profile) {
         console.log('User authenticated but profile not loaded yet, waiting...');
         return;
       }
 
-      const profileCompleted = profile?.profile_completed;
+      const profileCompleted = profile.profile_completed;
 
       if (!profileCompleted) {
         if (location.pathname !== '/complete-profile') {
@@ -49,7 +51,7 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
         }
       }
     }
-  }, [user, profile, isAuthenticated, loading, navigate, location.pathname]);
+  }, [session, user, profile, loading, navigate, location.pathname, isAuthenticated]);
 
 
   // Show loading while authentication is initializing
@@ -65,7 +67,7 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
   }
 
   // Show redirect message if profile is incomplete
-  if (isAuthenticated && user && profile && !profile.profile_completed && location.pathname !== '/complete-profile') {
+  if (isAuthenticated && profile && !profile.profile_completed && location.pathname !== '/complete-profile') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

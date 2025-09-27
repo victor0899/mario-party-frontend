@@ -17,7 +17,8 @@ export default function CreateGame() {
   const [searchParams] = useSearchParams();
   const groupId = searchParams.get('group');
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthStore();
+  const { session, user } = useAuthStore();
+  const isAuthenticated = !!session && !!user;
 
   const getCharacterImage = (characterId: string) => {
     const characterMap: { [key: string]: string } = {

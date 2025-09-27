@@ -7,7 +7,9 @@ import { AuthContainer } from '../features/auth/components/AuthContainer';
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuthStore();
+  const { session, user } = useAuthStore();
+
+  const isAuthenticated = !!session && !!user;
 
   useEffect(() => {
     if (isAuthenticated) {
