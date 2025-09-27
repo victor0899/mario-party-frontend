@@ -82,19 +82,19 @@ export default function Dashboard() {
           </div>
         ) : groups.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <div className="text-6xl mb-4">🎮</div>
+            <div className="mb-4 flex justify-center">
+              <img
+                src="/images/others/boo.webp"
+                alt="Boo"
+                className="w-24 h-24 object-contain"
+              />
+            </div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
               No tienes grupos todavía
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600">
               Crea tu primera Mario Party League para empezar a competir
             </p>
-            <Link
-              to="/groups/new"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-block"
-            >
-              Crear Mi Primera Liga
-            </Link>
           </div>
         ) : (
           <div>
