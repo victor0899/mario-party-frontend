@@ -242,10 +242,6 @@ export default function CreateGame() {
 
       if (a.coins !== b.coins) return b.coins - a.coins;
 
-      if (a.minigames_won !== b.minigames_won) return b.minigames_won - a.minigames_won;
-
-      if (a.showdown_wins !== b.showdown_wins) return b.showdown_wins - a.showdown_wins;
-
       return 0;
     });
 
@@ -639,116 +635,86 @@ export default function CreateGame() {
               </div>
             </div>
 
-            <div className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {playerResults.map((player) => (
-                <div key={player.playerId} className="border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-4">
-                        <div className="relative">
-                        <div className={`w-16 h-16 rounded-full p-1 ${
-                          player.calculatedPosition === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
-                          player.calculatedPosition === 2 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
-                          player.calculatedPosition === 3 ? 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700' :
-                          'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600'
-                        }`}>
-                          <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-white">
-                            {(() => {
-                              const member = group?.members?.find(m => m.id === player.player_id);
-                              if (member?.is_cpu) {
-                                if (member.cpu_avatar) {
-                                  return (
-                                    <img
-                                      src={getCharacterImage(member.cpu_avatar)}
-                                      alt={player.playerName}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  );
-                                } else {
-                                  return <span className="text-2xl">🤖</span>;
-                                }
-                              } else if (member?.profile?.profile_picture) {
+                <div key={player.playerId} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <div className={`w-16 h-16 rounded-full p-1 ${
+                        player.calculatedPosition === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
+                        player.calculatedPosition === 2 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
+                        player.calculatedPosition === 3 ? 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700' :
+                        'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600'
+                      }`}>
+                        <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-white">
+                          {(() => {
+                            const member = group?.members?.find(m => m.id === player.player_id);
+                            if (member?.is_cpu) {
+                              if (member.cpu_avatar) {
                                 return (
                                   <img
-                                    src={getCharacterImage(member.profile.profile_picture)}
+                                    src={getCharacterImage(member.cpu_avatar)}
                                     alt={player.playerName}
                                     className="w-full h-full object-cover"
                                   />
                                 );
                               } else {
-                                return <span className="text-gray-500 text-xl">👤</span>;
+                                return <span className="text-2xl">🤖</span>;
                               }
-                            })()}
-                          </div>
-                        </div>
-
-                        <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white ${
-                          player.calculatedPosition === 1 ? 'bg-yellow-600' :
-                          player.calculatedPosition === 2 ? 'bg-gray-500' :
-                          player.calculatedPosition === 3 ? 'bg-orange-700' :
-                          'bg-gray-600'
-                        }`}>
-                          {player.calculatedPosition}
+                            } else if (member?.profile?.profile_picture) {
+                              return (
+                                <img
+                                  src={getCharacterImage(member.profile.profile_picture)}
+                                  alt={player.playerName}
+                                  className="w-full h-full object-cover"
+                                />
+                              );
+                            } else {
+                              return <span className="text-gray-500 text-xl">👤</span>;
+                            }
+                          })()}
                         </div>
                       </div>
 
-                      <div>
-                        <h3 className="font-semibold text-lg">{player.playerName}</h3>
+                      <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white ${
+                        player.calculatedPosition === 1 ? 'bg-yellow-600' :
+                        player.calculatedPosition === 2 ? 'bg-gray-500' :
+                        player.calculatedPosition === 3 ? 'bg-orange-700' :
+                        'bg-gray-600'
+                      }`}>
+                        {player.calculatedPosition}
                       </div>
                     </div>
 
-                  </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-2 text-left">{player.playerName}</h3>
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
+                          <label className="text-xs font-medium text-gray-500">⭐</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="99"
+                            value={player.stars === 0 ? '' : player.stars}
+                            placeholder="0"
+                            onChange={(e) => updatePlayerResult(player.playerId, 'stars', e.target.value)}
+                            className="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">⭐ Estrellas</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="99"
-                        value={player.stars === 0 ? '' : player.stars}
-                        placeholder="0"
-                        onChange={(e) => updatePlayerResult(player.playerId, 'stars', e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">🪙 Monedas</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="999"
-                        value={player.coins === 0 ? '' : player.coins}
-                        placeholder="0"
-                        onChange={(e) => updatePlayerResult(player.playerId, 'coins', e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">🎮 Minijuegos</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="50"
-                        value={player.minigames_won === 0 ? '' : player.minigames_won}
-                        placeholder="0"
-                        onChange={(e) => updatePlayerResult(player.playerId, 'minigames_won', e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">⚔️ Showdown</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="10"
-                        value={player.showdown_wins === 0 ? '' : player.showdown_wins}
-                        placeholder="0"
-                        onChange={(e) => updatePlayerResult(player.playerId, 'showdown_wins', e.target.value)}
-                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
+                        <div className="flex items-center space-x-2">
+                          <label className="text-xs font-medium text-gray-500">🪙</label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="999"
+                            value={player.coins === 0 ? '' : player.coins}
+                            placeholder="0"
+                            onChange={(e) => updatePlayerResult(player.playerId, 'coins', e.target.value)}
+                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
