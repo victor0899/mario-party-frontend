@@ -109,25 +109,36 @@ export default function Dashboard() {
 
                 return (
                   <div key={group.id} className="bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div className="p-6">
-                      {/* Header with badges */}
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-mario text-gray-900 mb-1">
-                            {group.name}
-                          </h3>
-                          {group.description && (
-                            <p className="text-gray-500 text-sm line-clamp-2">
-                              {group.description}
-                            </p>
-                          )}
-                        </div>
+                    <div className="p-6 text-center">
+                      {/* Header with title and badge */}
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-mario text-gray-900 flex-1">
+                          {group.name}
+                        </h3>
                         {isGroupFull && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2">
                             {group.members?.length}/{group.max_members}
                           </span>
                         )}
                       </div>
+
+                      {/* Logo centrado */}
+                      <div className="flex justify-center mb-4">
+                        <img
+                          src="/images/others/mpj.webp"
+                          alt="Mario Party"
+                          className="w-36 h-36 object-contain"
+                        />
+                      </div>
+
+                      {/* Descripción centrada */}
+                      {group.description && (
+                        <div className="mb-4">
+                          <p className="text-gray-500 text-sm">
+                            {group.description}
+                          </p>
+                        </div>
+                      )}
 
                       {/* Activity indicator */}
                       {lastGameDate && (
