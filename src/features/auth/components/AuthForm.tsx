@@ -58,7 +58,6 @@ export const AuthForm = ({ isLogin, onToggleMode, onSuccess }: AuthFormProps) =>
         }
       }
     } catch (error) {
-      console.error('Auth error:', error);
       toast.error('Ha ocurrido un error inesperado');
     }
   };

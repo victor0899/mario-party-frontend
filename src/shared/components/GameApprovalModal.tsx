@@ -129,7 +129,15 @@ export default function GameApprovalModal({
                       }`}>
                         <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-white">
                           {result.player?.is_cpu ? (
-                            <span className="text-lg">🤖</span>
+                            result.player.cpu_avatar ? (
+                              <img
+                                src={getCharacterImage(result.player.cpu_avatar)}
+                                alt={result.player.cpu_name || 'CPU'}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-lg">🤖</span>
+                            )
                           ) : result.player?.profile?.profile_picture ? (
                             <img
                               src={getCharacterImage(result.player.profile.profile_picture)}

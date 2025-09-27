@@ -48,28 +48,21 @@ export const useAuth = () => {
   };
 
   const signInWithGoogle = async () => {
-    console.log('🟡 useAuth.signInWithGoogle called');
     setIsLoading(true);
     try {
-      console.log('🟡 Calling authService.signInWithGoogle...');
       const result = await authService.signInWithGoogle();
 
-      console.log('🟡 authService result:', result);
 
       if (result.error) {
-        console.error('🔴 useAuth error:', result.error);
         throw result.error;
       }
 
       // Google OAuth will redirect, so we don't handle user state here
-      console.log('🟢 useAuth returning success');
       return { success: true };
     } catch (error) {
-      console.error('🔴 useAuth catch error:', error);
       return { success: false, error: error as Error };
     } finally {
       setIsLoading(false);
-      console.log('🟡 useAuth setIsLoading(false)');
     }
   };
 

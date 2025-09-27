@@ -27,13 +27,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuthStore();
   const location = useLocation();
 
-  console.log('🟦 ProtectedRoute:', { isAuthenticated, loading, pathname: location.pathname, hash: !!location.hash });
 
   // If we're on a page with OAuth hash, give it extra time to process
   const hasOAuthHash = location.hash.includes('access_token');
 
   if (loading) {
-    console.log('🟦 ProtectedRoute: Loading state');
     return <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-600 to-purple-700">
       <LoadingSpinner
         text="Cargando..."
@@ -44,7 +42,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (hasOAuthHash && !isAuthenticated) {
-    console.log('🟦 ProtectedRoute: OAuth hash detected, waiting for auth');
     return <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-600 to-purple-700">
       <LoadingSpinner
         text="Procesando autenticación..."
@@ -55,11 +52,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    console.log('🟦 ProtectedRoute: Not authenticated, redirecting to auth');
     return <Navigate to="/auth" />;
   }
 
-  console.log('🟦 ProtectedRoute: Authenticated, rendering children');
   return (
     <ProfileGuard>
       {children}
@@ -71,27 +66,8 @@ function App() {
   const { initialize } = useAuthStore();
 
   useEffect(() => {
-    console.log('🟢 App component mounted, initializing auth...');
     initialize();
   }, [initialize]);
-
-  useEffect(() => {
-    // Log every URL change
-    const logUrlChange = () => {
-      console.log('🟢 URL changed:', window.location.href);
-      console.log('🟢 Hash:', window.location.hash);
-    };
-
-    // Log initial load
-    logUrlChange();
-
-    // Listen for hash changes
-    window.addEventListener('hashchange', logUrlChange);
-
-    return () => {
-      window.removeEventListener('hashchange', logUrlChange);
-    };
-  }, []);
 
   return (
     <Router>

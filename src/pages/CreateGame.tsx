@@ -335,32 +335,19 @@ export default function CreateGame() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('🚀 Iniciando submit...');
-    console.log('📊 Estado actual:', {
-      selectedMapId,
-      mapSelected,
-      playedAt,
-      playerResultsCount: playerResults.length,
-      groupId: group?.id,
-      userId: user?.id
-    });
 
     if (!validateForm()) {
-      console.log('❌ Validación fallida');
       return;
     }
 
     if (!group) {
-      console.log('❌ No hay grupo');
       return;
     }
 
     if (!user) {
-      console.log('❌ No hay usuario');
       return;
     }
 
-    console.log('✅ Validaciones pasadas, enviando datos...');
     setIsSubmitting(true);
     try {
       // Prepare game results data
@@ -385,12 +372,6 @@ export default function CreateGame() {
         vs_spaces: player.vs_spaces,
       }));
 
-      console.log('📤 Enviando datos al API:', {
-        group_id: group.id,
-        map_id: selectedMapId,
-        played_at: new Date(playedAt).toISOString(),
-        results: gameResults,
-      });
 
       await supabaseAPI.createGame({
         group_id: group.id,
@@ -399,7 +380,6 @@ export default function CreateGame() {
         results: gameResults,
       });
 
-      console.log('✅ Partida creada exitosamente');
       toast.success('¡Partida registrada exitosamente! Ahora está pendiente de aprobación por otros miembros.');
       navigate(`/groups/${group.id}`);
     } catch (error: any) {
@@ -407,7 +387,6 @@ export default function CreateGame() {
       console.error('Detalles completos del error:', error);
       toast.error('Error al registrar la partida: ' + (error.message || 'Error desconocido'));
     } finally {
-      console.log('🏁 Terminando submit, isSubmitting -> false');
       setIsSubmitting(false);
     }
   };

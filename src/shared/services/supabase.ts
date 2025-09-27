@@ -45,7 +45,6 @@ export class SupabaseAPI {
       });
 
     if (memberError) {
-      console.warn('Warning: Could not add creator as member:', memberError);
     }
 
     return group;
@@ -353,7 +352,6 @@ export class SupabaseAPI {
     // Check if we need to update game status based on votes
     await this.checkAndUpdateGameStatus(data.game_id);
 
-    console.log('Vote submitted, checking game status for game:', data.game_id);
 
     return approval;
   }
@@ -392,34 +390,26 @@ export class SupabaseAPI {
       // Use exact vote logic:
       // Approved: exactly 2 approve votes
       // Rejected: 3+ reject votes
-      console.log(`Game ${gameId}: approveVotes=${approveVotes}, rejectVotes=${rejectVotes}, currentStatus=${game.status}`);
 
       if (approveVotes === 2) {
         newStatus = 'approved';
-        console.log('Setting status to approved');
       } else if (rejectVotes >= 3) {
         newStatus = 'rejected';
-        console.log('Setting status to rejected');
       }
     }
 
     // Update game status if needed
     if (newStatus && game.status !== newStatus) {
-      console.log(`Updating game ${gameId} from ${game.status} to ${newStatus}`);
-      const { data: updateResult, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('games')
         .update({ status: newStatus })
         .eq('id', gameId)
         .select();
 
       if (updateError) {
-        console.error('Error updating game status:', updateError);
         throw updateError;
       }
-      console.log(`Update result:`, updateResult);
-      console.log(`Successfully updated game ${gameId} to ${newStatus}`);
     } else {
-      console.log(`No status update needed. Current: ${game.status}, Calculated: ${newStatus}`);
     }
   }
 
@@ -442,6 +432,67 @@ export class SupabaseAPI {
       .single();
 
     if (error) throw error;
+
+    // Get user profiles for human members in game results
+    if (game.results && game.results.length > 0) {
+      const humanPlayerIds = game.results
+        .filter((result: any) => result.player && !result.player.is_cpu && result.player.user_id)
+        .map((result: any) => result.player.user_id);
+
+      if (humanPlayerIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, nickname, profile_picture')
+          .in('id', humanPlayerIds);
+
+        if (!profilesError && profiles) {
+          // Add profile data to results
+          game.results = game.results.map((result: any) => {
+            if (result.player && !result.player.is_cpu && result.player.user_id) {
+              const profile = profiles.find((p: any) => p.id === result.player.user_id);
+              if (profile) {
+                result.player.profile = {
+                  nickname: profile.nickname,
+                  profile_picture: profile.profile_picture
+                };
+              }
+            }
+            return result;
+          });
+        }
+      }
+    }
+
+    // Get user profiles for human members in game approvals
+    if (game.approvals && game.approvals.length > 0) {
+      const humanVoterIds = game.approvals
+        .filter((approval: any) => approval.voter && !approval.voter.is_cpu && approval.voter.user_id)
+        .map((approval: any) => approval.voter.user_id);
+
+      if (humanVoterIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, nickname, profile_picture')
+          .in('id', humanVoterIds);
+
+        if (!profilesError && profiles) {
+          // Add profile data to approvals
+          game.approvals = game.approvals.map((approval: any) => {
+            if (approval.voter && !approval.voter.is_cpu && approval.voter.user_id) {
+              const profile = profiles.find((p: any) => p.id === approval.voter.user_id);
+              if (profile) {
+                approval.voter.profile = {
+                  nickname: profile.nickname,
+                  profile_picture: profile.profile_picture
+                };
+              }
+            }
+            return approval;
+          });
+        }
+      }
+    }
+
     return game;
   }
 
@@ -465,17 +516,78 @@ export class SupabaseAPI {
 
     if (status) {
       query = query.eq('status', status);
-      console.log(`Filtering games by status: ${status}`);
     }
 
     const { data: games, error } = await query;
-    console.log(`getGroupGames result for group ${groupId}:`, games?.length || 0, 'games found');
-    console.log('Games data:', games);
 
     if (error) {
-      console.error('Error getting group games:', error);
       throw error;
     }
+
+    // Get user profiles for human members in all games
+    if (games && games.length > 0) {
+      // Collect all unique human player IDs across all games
+      const allHumanPlayerIds = new Set<string>();
+
+      games.forEach(game => {
+        if (game.results) {
+          game.results.forEach((result: any) => {
+            if (result.player && !result.player.is_cpu && result.player.user_id) {
+              allHumanPlayerIds.add(result.player.user_id);
+            }
+          });
+        }
+        if (game.approvals) {
+          game.approvals.forEach((approval: any) => {
+            if (approval.voter && !approval.voter.is_cpu && approval.voter.user_id) {
+              allHumanPlayerIds.add(approval.voter.user_id);
+            }
+          });
+        }
+      });
+
+      if (allHumanPlayerIds.size > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, nickname, profile_picture')
+          .in('id', Array.from(allHumanPlayerIds));
+
+        if (!profilesError && profiles) {
+          // Add profile data to all games
+          games.forEach(game => {
+            if (game.results) {
+              game.results = game.results.map((result: any) => {
+                if (result.player && !result.player.is_cpu && result.player.user_id) {
+                  const profile = profiles.find((p: any) => p.id === result.player.user_id);
+                  if (profile) {
+                    result.player.profile = {
+                      nickname: profile.nickname,
+                      profile_picture: profile.profile_picture
+                    };
+                  }
+                }
+                return result;
+              });
+            }
+            if (game.approvals) {
+              game.approvals = game.approvals.map((approval: any) => {
+                if (approval.voter && !approval.voter.is_cpu && approval.voter.user_id) {
+                  const profile = profiles.find((p: any) => p.id === approval.voter.user_id);
+                  if (profile) {
+                    approval.voter.profile = {
+                      nickname: profile.nickname,
+                      profile_picture: profile.profile_picture
+                    };
+                  }
+                }
+                return approval;
+              });
+            }
+          });
+        }
+      }
+    }
+
     return games;
   }
 

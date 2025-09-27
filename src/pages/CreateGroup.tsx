@@ -27,7 +27,6 @@ export default function CreateGroup() {
         max_members: 4, // Fixed for Mario Party (4 players)
       });
 
-      console.log('Grupo creado:', group);
 
       // Navigate to the group detail page or back to dashboard
       navigate('/dashboard', { replace: true });

@@ -63,14 +63,12 @@ export default function CompleteProfile() {
           .eq('nickname', formData.nickname)
           .maybeSingle();
 
-        console.log('Nickname check response:', { data, error });
 
         if (error) {
           console.error('Supabase error details:', error);
           // If it's an RLS permission error, we'll assume the nickname is available
           // since we can't check it due to security restrictions
           if (error.code === 'PGRST116' || error.message.includes('RLS')) {
-            console.log('RLS restriction detected, allowing nickname');
             setNicknameStatus('available');
             setNicknameError('');
             return;

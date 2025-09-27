@@ -172,13 +172,8 @@ export default function GroupDetail() {
       setGroup(groupData);
 
       // Calculate leaderboard from approved games
-      const allGames = await supabaseAPI.getGroupGames(id);
-      console.log('All games found:', allGames.length, allGames);
-
       const approvedGames = await supabaseAPI.getGroupGames(id, 'approved');
-      console.log('Approved games found:', approvedGames.length, approvedGames);
       const leaderboardData = calculateLeaderboard(groupData.members, approvedGames);
-      console.log('Leaderboard data:', leaderboardData);
       setLeaderboard(leaderboardData);
     } catch (error: any) {
       console.error('Error al cargar grupo:', error);
