@@ -114,7 +114,7 @@ export default function CreateGroup() {
                       Información importante
                     </h3>
                     <div className="mt-2 text-sm text-blue-700">
-                      <ul className="list-disc list-inside space-y-1">
+                      <ul className="list-disc list-inside space-y-1 text-left">
                         <li>Las ligas están limitadas a 4 jugadores máximo</li>
                         <li>Se generará un código de invitación único</li>
                         <li>Podrás agregar un jugador CPU si son menos de 4</li>

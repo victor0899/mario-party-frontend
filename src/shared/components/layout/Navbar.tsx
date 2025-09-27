@@ -1,21 +1,41 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../../../app/store/useAuthStore';
 
 export default function Navbar() {
   const { user, profile, signOut } = useAuthStore();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
     try {
       setIsDropdownOpen(false);
+      setIsLoggingOut(true);
+
+      // Toast inicial con delay para simular procesamiento
+      toast.loading('Cerrando sesión...', { id: 'logout' });
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      // Logout real
       await signOut();
+
+      // Toast de éxito inmediatamente después del logout
+      toast.success('Sesión cerrada exitosamente', { id: 'logout' });
+
+      // Pequeño delay antes de redirigir para mostrar el éxito
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
       navigate('/auth');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
+      toast.error('Error al cerrar sesión', { id: 'logout' });
+      await new Promise(resolve => setTimeout(resolve, 500));
       navigate('/auth');
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -64,7 +84,7 @@ export default function Navbar() {
   const selectedCharacter = getCharacterImage(profile?.profile_picture || 'mario');
 
   return (
-    <nav className="bg-white shadow-md border-b border-gray-200">
+    <nav className={`bg-white shadow-md border-b border-gray-200 transition-opacity duration-500 ${isLoggingOut ? 'opacity-50' : 'opacity-100'}`}>
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <Link to="/dashboard" className="flex items-center space-x-2">
@@ -137,12 +157,17 @@ export default function Navbar() {
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  disabled={isLoggingOut}
+                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <svg className="w-4 h-4 mr-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  Cerrar Sesión
+                  {isLoggingOut ? (
+                    <div className="w-4 h-4 mr-3 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>
+                  ) : (
+                    <svg className="w-4 h-4 mr-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                  )}
+                  {isLoggingOut ? 'Cerrando sesión...' : 'Cerrar Sesión'}
                 </button>
               </div>
             )}
