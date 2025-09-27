@@ -12,7 +12,7 @@ export const AuthContainer = () => {
           {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
         </h1>
         <p className="text-gray-600">
-          {isLogin ? 'Bienvenido de vuelta' : 'Únete a Mario Party League'}
+          {isLogin ? 'Bienvenido de vuelta' : ''}
         </p>
       </div>
 

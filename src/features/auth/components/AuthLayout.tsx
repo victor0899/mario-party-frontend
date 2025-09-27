@@ -34,11 +34,6 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
           <div className="w-full max-w-sm">
             {children}
 
-            <div className="mt-6 text-center">
-              <Link to="/" className="text-gray-500 hover:text-gray-700 text-sm transition-colors">
-                ← Volver al inicio
-              </Link>
-            </div>
           </div>
         </div>
       </div>
