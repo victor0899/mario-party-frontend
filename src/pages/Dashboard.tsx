@@ -1,50 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
-import type { Group } from '../shared/types/api';
+import { useGroupsStore } from '../app/store/useGroupsStore';
 import { LoadingSpinner } from '../shared/components/ui';
 
 export default function Dashboard() {
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated } = useAuthStore();
+  const { groups, isLoading, error, loadGroups, clearGroups } = useGroupsStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadGroups();
-  }, []);
-
-  const loadGroups = async () => {
     if (!isAuthenticated || !user) {
       console.log('❌ Not authenticated, redirecting to auth');
+      clearGroups();
       navigate('/auth');
       return;
     }
 
-    setIsLoading(true);
-    try {
-      console.log('🔄 Loading groups for user:', user.email);
-      const userGroups = await supabaseAPI.getUserGroups();
-      console.log('✅ Groups loaded:', userGroups);
-      setGroups(userGroups);
-    } catch (error: any) {
-      console.error('❌ Error al cargar grupos:', error);
+    loadGroups();
+  }, []);
 
-      if (error.message?.includes('auth') || error.message?.includes('JWT') || error.message?.includes('session')) {
-        console.log('🔄 Auth error detected, redirecting to login');
-        toast.error('Sesión expirada. Redirigiendo...');
-        navigate('/auth');
-        return;
-      }
-
-      toast.error('Error al cargar los grupos: ' + (error.message || 'Error desconocido'));
-    } finally {
-      console.log('🏁 Loading groups finished');
-      setIsLoading(false);
+  useEffect(() => {
+    if (error && error.includes('auth') || error?.includes('JWT') || error?.includes('session')) {
+      console.log('🔄 Auth error detected, redirecting to login');
+      toast.error('Sesión expirada. Redirigiendo...');
+      navigate('/auth');
+      return;
     }
-  };
+
+    if (error) {
+      toast.error('Error al cargar los grupos: ' + error);
+    }
+  }, [error, navigate]);
+
 
   return (
     <div className="container mx-auto px-4 py-8">
