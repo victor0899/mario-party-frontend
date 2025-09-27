@@ -223,8 +223,8 @@ export default function CompleteProfile() {
                     </button>
                   ))}
                 </div>
-                <p className="mt-2 text-sm text-gray-500">
-                  Personaje seleccionado: <span className="font-medium">{MARIO_CHARACTERS.find(c => c.id === formData.profilePicture)?.name}</span>
+                <p className="mt-2 text-lg font-mario text-gray-700">
+                  {MARIO_CHARACTERS.find(c => c.id === formData.profilePicture)?.name}
                 </p>
               </div>
 

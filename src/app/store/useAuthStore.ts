@@ -24,6 +24,7 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   initialized: boolean;
+  _authSubscription: any;
 
   // Actions
   signUp: (email: string, password: string, name: string) => Promise<void>;
@@ -37,8 +38,9 @@ interface AuthState {
   setProfile: (profile: Profile | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  fetchProfile: (userId: string) => Promise<void>;
+  fetchProfile: (userId: string, showLoading?: boolean) => Promise<void>;
   initialize: () => Promise<void>;
+  cleanup: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -51,6 +53,9 @@ export const useAuthStore = create<AuthState>()(
       loading: false,
       error: null,
       initialized: false,
+
+      // Store auth listener subscription for cleanup
+      _authSubscription: null as any,
 
       // Internal setters
       setSession: (session) => {
@@ -168,8 +173,13 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      fetchProfile: async (userId: string) => {
-        set({ loading: true, error: null });
+      fetchProfile: async (userId: string, showLoading: boolean = true) => {
+        if (showLoading) {
+          set({ loading: true, error: null });
+        } else {
+          set({ error: null });
+        }
+
         try {
           const { data, error } = await supabase
             .from('profiles')
@@ -203,7 +213,9 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'Profile fetch failed' });
         } finally {
-          set({ loading: false });
+          if (showLoading) {
+            set({ loading: false });
+          }
         }
       },
 
@@ -223,8 +235,8 @@ export const useAuthStore = create<AuthState>()(
             await get().fetchProfile(session.user.id);
           }
 
-          // Set up auth listener
-          supabase.auth.onAuthStateChange(async (event, session) => {
+          // Set up auth listener and store subscription for cleanup
+          const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             console.log('Auth event:', event);
 
             if (event === 'SIGNED_OUT' || !session) {
@@ -235,15 +247,30 @@ export const useAuthStore = create<AuthState>()(
               });
             } else if (event === 'SIGNED_IN' && session) {
               get().setSession(session);
-              await get().fetchProfile(session.user.id);
+              // Use setTimeout to avoid deadlock with Supabase async operations
+              setTimeout(async () => {
+                // Don't show loading for automatic session verification
+                await get().fetchProfile(session.user.id, false);
+              }, 0);
             }
           });
+
+          // Store subscription for cleanup
+          set({ _authSubscription: subscription });
 
         } catch (error) {
           console.error('Auth initialization error:', error);
           set({ error: error instanceof Error ? error.message : 'Initialization failed' });
         } finally {
           set({ loading: false });
+        }
+      },
+
+      cleanup: () => {
+        const { _authSubscription } = get();
+        if (_authSubscription) {
+          _authSubscription.unsubscribe();
+          set({ _authSubscription: null });
         }
       }
     }),
