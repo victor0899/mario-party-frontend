@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Calendar } from 'lucide-react';
+import { Calendar, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button, GameApprovalModal, AddCPUModal } from '../shared/components';
 import { WarioLoader } from '../shared/components/ui';
@@ -268,6 +268,17 @@ export default function GroupDetail() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="w-full py-8 px-4">
+        {/* Back to Dashboard Button */}
+        <div className="mb-6">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Dashboard</span>
+          </button>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6 flex flex-col">
             <div className="bg-white rounded-lg shadow-md p-6 flex-1 flex flex-col">

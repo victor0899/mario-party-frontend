@@ -3,6 +3,7 @@ import { Clock, Minus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from './ui/Button';
 import { supabaseAPI } from '../services/supabase';
+import { useAuthStore } from '../../app/store/useAuthStore';
 import { formatGameDate } from '../utils/dateFormat';
 import type { Game } from '../types/api';
 
@@ -49,8 +50,13 @@ export default function GameApprovalModal({
   onVoteSubmitted
 }: GameApprovalModalProps) {
   const [isVoting, setIsVoting] = useState(false);
+  const { user } = useAuthStore();
 
   if (!isOpen || !game) return null;
+
+  // Verificar si el usuario actual ya votó
+  const currentUserVote = game.approvals?.find(approval => approval.voter?.user_id === user?.id);
+  const hasUserVoted = !!currentUserVote;
 
   const handleVote = async (vote: 'approve' | 'reject') => {
     setIsVoting(true);
@@ -218,8 +224,8 @@ export default function GameApprovalModal({
               type="button"
               variant="secondary"
               onClick={() => handleVote('reject')}
-              disabled={isVoting}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={isVoting || hasUserVoted}
+              className="bg-red-600 hover:bg-red-700 text-white disabled:bg-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed"
             >
               {isVoting ? 'Votando...' : '✗ Rechazar'}
             </Button>
@@ -228,15 +234,15 @@ export default function GameApprovalModal({
               type="button"
               variant="primary"
               onClick={() => handleVote('approve')}
-              disabled={isVoting}
-              className="bg-green-600 hover:bg-green-700"
+              disabled={isVoting || hasUserVoted}
+              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed"
             >
               {isVoting ? 'Votando...' : '✓ Aprobar'}
             </Button>
           </div>
 
           <div className="mt-3 text-center text-sm text-gray-500">
-            Se necesita mayoría de votos para aprobar o rechazar la partida
+            Se necesitan 2 votos para aprobar o rechazar una partida
           </div>
         </div>
       </div>
