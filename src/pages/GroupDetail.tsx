@@ -7,6 +7,7 @@ import { WarioLoader, CountryFlag } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { formatGameDate } from '../shared/utils/dateFormat';
+import { getCharacterImage } from '../shared/utils/characters';
 import { DEFAULT_COUNTRY } from '../shared/utils/countries';
 import type { Group, Game, LeaderboardEntry, GroupMember } from '../shared/types/api';
 
@@ -22,34 +23,6 @@ export default function GroupDetail() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  const getCharacterImage = (characterId: string) => {
-    const characterMap: { [key: string]: string } = {
-      'mario': '/images/characters/SMP_Icon_Mario.webp',
-      'luigi': '/images/characters/SMP_Icon_Luigi.webp',
-      'peach': '/images/characters/SMP_Icon_Peach.webp',
-      'bowser': '/images/characters/SMP_Icon_Bowser.webp',
-      'yoshi': '/images/characters/SMPJ_Icon_Yoshi.webp',
-      'toad': '/images/characters/SMPJ_Icon_Toad.webp',
-      'wario': '/images/characters/SMP_Icon_Wario.webp',
-      'waluigi': '/images/characters/SMP_Icon_Waluigi.webp',
-      'rosalina': '/images/characters/SMP_Icon_Rosalina.webp',
-      'bowser-jr': '/images/characters/SMP_Icon_Jr.webp',
-      'toadette': '/images/characters/SMPJ_Icon_Toadette.webp',
-      'daisy': '/images/characters/MPS_Daisy_icon.webp',
-      'shy-guy': '/images/characters/SMP_Icon_Shy_Guy.webp',
-      'koopa': '/images/characters/SMP_Icon_Koopa.webp',
-      'goomba': '/images/characters/SMP_Icon_Goomba.webp',
-      'boo': '/images/characters/SMP_Icon_Boo.webp',
-      'dk': '/images/characters/SMP_Icon_DK.webp',
-      'birdo': '/images/characters/MPS_Birdo_icon.webp',
-      'pauline': '/images/characters/SMPJ_Icon_Pauline.webp',
-      'ninji': '/images/characters/SMPJ_Icon_Ninji.webp',
-      'spike': '/images/characters/SMPJ_Icon_Spike.webp',
-      'monty-mole': '/images/characters/SMP_Icon_Monty_Mole.webp'
-    };
-
-    return characterMap[characterId] || '/images/characters/SMP_Icon_Mario.webp';
-  };
 
 
   const calculateLeaderboard = (members: GroupMember[], games: Game[]): LeaderboardEntry[] => {
@@ -210,8 +183,6 @@ export default function GroupDetail() {
   };
 
   const handleGameClick = async (game: Game) => {
-    if (game.status !== 'pending') return;
-
     try {
       const fullGame = await supabaseAPI.getGameDetails(game.id);
       setSelectedGame(fullGame);
@@ -459,10 +430,8 @@ export default function GroupDetail() {
                   {group.games.map((game) => (
                     <div
                       key={game.id}
-                      className={`flex items-center justify-between p-3 bg-gray-50 rounded-lg ${
-                        game.status === 'pending' ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''
-                      }`}
-                      onClick={() => game.status === 'pending' && handleGameClick(game)}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleGameClick(game)}
                     >
                       <div>
                         <div className="font-medium text-gray-800">
@@ -486,11 +455,9 @@ export default function GroupDetail() {
                            game.status === 'rejected' ? '❌ Rechazada' :
                            <><Calendar className="w-3 h-3 inline mr-1" /> Pendiente</>}
                         </span>
-                        {game.status === 'pending' && (
-                          <span className="text-xs text-gray-400">
-                            Haz clic para votar
-                          </span>
-                        )}
+                        <span className="text-xs text-gray-400">
+                          {game.status === 'pending' ? 'Haz clic para votar' : 'Haz clic para ver detalles'}
+                        </span>
                       </div>
                     </div>
                   ))}
