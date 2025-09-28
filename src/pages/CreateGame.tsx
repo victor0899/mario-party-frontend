@@ -376,7 +376,7 @@ export default function CreateGame() {
         supabaseAPI.createGame({
           group_id: group.id,
           map_id: selectedMapId,
-          played_at: new Date(playedAt).toISOString(),
+          played_at: playedAt + "T00:00:00Z",
           results: gameResults,
         }),
         TIMEOUTS.SUBMIT,
