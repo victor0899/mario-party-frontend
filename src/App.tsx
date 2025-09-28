@@ -5,7 +5,7 @@ import { useAuthStore } from './app/store/useAuthStore';
 import { useStoreInitialization } from './shared/hooks/useStoreInitialization';
 import AppLayout from './shared/components/layout/AppLayout';
 import { ProfileGuard } from './shared/components';
-import { LoadingSpinner } from './shared/components/ui';
+import { WarioLoader } from './shared/components/ui';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
@@ -30,23 +30,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const hasOAuthHash = location.hash.includes('access_token');
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-600 to-purple-700">
-      <LoadingSpinner
-        text="Cargando..."
-        size="lg"
-        textClassName="text-white text-lg"
-      />
-    </div>;
+    return <WarioLoader text="Cargando..." size="lg" fullScreen />;
   }
 
   if (hasOAuthHash && !isAuthenticated) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-600 to-purple-700">
-      <LoadingSpinner
-        text="Procesando autenticación..."
-        size="lg"
-        textClassName="text-white text-lg"
-      />
-    </div>;
+    return <WarioLoader text="Procesando autenticación..." size="lg" fullScreen />;
   }
 
   if (!isAuthenticated) {

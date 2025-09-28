@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { useGroupsStore } from '../app/store/useGroupsStore';
-import { LoadingSpinner, MemberAvatars } from '../shared/components/ui';
+import { WarioLoader, MemberAvatars } from '../shared/components/ui';
 
 export default function Dashboard() {
   const { session, user } = useAuthStore();
@@ -77,9 +77,7 @@ export default function Dashboard() {
       <div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <LoadingSpinner text="Cargando grupos..." size="md" />
-          </div>
+          <WarioLoader text="Cargando grupos..." size="md" />
         ) : groups.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <div className="mb-4 flex justify-center">

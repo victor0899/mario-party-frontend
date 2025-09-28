@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Button } from '../shared/components';
-import { LoadingSpinner } from '../shared/components/ui';
+import { WarioLoader } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import type { Group, LeaderboardEntry, GroupMember, Game } from '../shared/types/api';
@@ -145,18 +145,14 @@ export default function Leaderboard() {
   };
 
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center">
-      <LoadingSpinner text="Cargando..." size="md" />
-    </div>;
+    return <WarioLoader text="Cargando..." size="md" fullScreen />;
   }
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center py-12">
-            <LoadingSpinner text="Cargando tabla de posiciones..." size="md" />
-          </div>
+          <WarioLoader text="Cargando tabla de posiciones..." size="md" />
         </div>
       </div>
     );
