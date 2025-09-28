@@ -238,7 +238,7 @@ export default function GroupDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto py-8">
           <WarioLoader text="Cargando grupo..." size="md" />
         </div>
       </div>
@@ -248,7 +248,7 @@ export default function GroupDetail() {
   if (!group) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto py-8">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Grupo no encontrado</h2>
             <Link to="/groups">
@@ -266,10 +266,10 @@ export default function GroupDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+      <div className="w-full py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6 flex flex-col">
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-lg shadow-md p-6 flex-1 flex flex-col">
               <h2 className="text-xl font-mario text-gray-800 mb-4">
                 Miembros ({group.members?.length || 0}/{group.max_members})
               </h2>
@@ -288,12 +288,12 @@ export default function GroupDetail() {
                         index + 1
                       )}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 text-left">
                       <div className="font-medium text-gray-800">
-                        {member.user_id === user.id ? 'Tú' : (member.profile?.nickname || 'Usuario sin nombre')}
+                        {member.profile?.nickname || 'Usuario sin nombre'}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {member.user_id === group.creator_id && '👑 Creador'}
+                        {member.user_id === group.creator_id && 'Creador'}
                       </div>
                     </div>
                   </div>
@@ -312,7 +312,7 @@ export default function GroupDetail() {
                         <span className="text-white">🤖</span>
                       )}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 text-left">
                       <div className="font-medium text-gray-800">{member.cpu_name}</div>
                       <div className="text-sm text-purple-600">CPU Player</div>
                     </div>
@@ -324,7 +324,7 @@ export default function GroupDetail() {
                     <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-500">
                       ?
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 text-left">
                       <div className="text-gray-500">Slot disponible</div>
                     </div>
                   </div>
@@ -503,10 +503,16 @@ export default function GroupDetail() {
                         Partidas
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        ⭐ Estrellas
+                        <div className="flex items-center justify-center space-x-1">
+                          <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
+                          <span>Estrellas</span>
+                        </div>
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        🪙 Monedas
+                        <div className="flex items-center justify-center space-x-1">
+                          <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
+                          <span>Monedas</span>
+                        </div>
                       </th>
                     </tr>
                   </thead>

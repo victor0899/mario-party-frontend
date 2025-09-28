@@ -182,11 +182,17 @@ export default function GameApprovalModal({
 
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
-                      <div className="text-sm text-gray-500">⭐ Estrellas</div>
+                      <div className="text-sm text-gray-500 flex items-center justify-center space-x-1">
+                        <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
+                        <span>Estrellas</span>
+                      </div>
                       <div className="font-bold">{result.stars}</div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-500">🪙 Monedas</div>
+                      <div className="text-sm text-gray-500 flex items-center justify-center space-x-1">
+                        <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
+                        <span>Monedas</span>
+                      </div>
                       <div className="font-bold">{result.coins}</div>
                     </div>
                   </div>

@@ -414,7 +414,7 @@ export default function CreateGame() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto py-8">
           <WarioLoader text="Cargando..." size="md" />
         </div>
       </div>
@@ -424,7 +424,7 @@ export default function CreateGame() {
   if (!group) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto py-8">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Grupo no encontrado</h2>
             <Button variant="primary" onClick={() => navigate('/groups')}>
@@ -438,10 +438,10 @@ export default function CreateGame() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-8">
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Información de la Partida</h2>
+            <h2 className="text-xl font-mario text-gray-800 mb-6">Información de la Partida</h2>
 
             <div className="mb-6">
               <Input
@@ -474,7 +474,7 @@ export default function CreateGame() {
                             <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600">
                               {isLoading && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-gray-200 z-10">
-                                  <div className="animate-spin text-2xl">⭐</div>
+                                  <img src="/images/others/MPS_Star.webp" alt="Loading" className="w-8 h-8 animate-spin" />
                                 </div>
                               )}
                               <img
@@ -688,7 +688,9 @@ export default function CreateGame() {
                       <h3 className="font-semibold text-lg mb-2 text-left">{player.playerName}</h3>
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center space-x-2">
-                          <label className="text-xs font-medium text-gray-500">⭐</label>
+                          <label className="text-xs font-medium text-gray-500">
+                            <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
+                          </label>
                           <input
                             type="number"
                             min="0"
@@ -701,7 +703,9 @@ export default function CreateGame() {
                         </div>
 
                         <div className="flex items-center space-x-2">
-                          <label className="text-xs font-medium text-gray-500">🪙</label>
+                          <label className="text-xs font-medium text-gray-500">
+                            <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
+                          </label>
                           <input
                             type="number"
                             min="0"

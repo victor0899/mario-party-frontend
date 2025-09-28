@@ -151,7 +151,7 @@ export default function Leaderboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto py-8">
           <WarioLoader text="Cargando tabla de posiciones..." size="md" />
         </div>
       </div>
@@ -161,7 +161,7 @@ export default function Leaderboard() {
   if (!group) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto py-8">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Grupo no encontrado</h2>
             <Link to="/groups">
@@ -177,7 +177,7 @@ export default function Leaderboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-8">
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold text-gray-800">
@@ -302,10 +302,16 @@ export default function Leaderboard() {
                         Partidas
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        ⭐ Estrellas
+                        <div className="flex items-center justify-center space-x-1">
+                          <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
+                          <span>Estrellas</span>
+                        </div>
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        🪙 Monedas
+                        <div className="flex items-center justify-center space-x-1">
+                          <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
+                          <span>Monedas</span>
+                        </div>
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         🎮 Minijuegos
