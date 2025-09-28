@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Clock, Minus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from './ui/Button';
 import { supabaseAPI } from '../services/supabase';
@@ -154,10 +155,10 @@ export default function GameApprovalModal({
                             })()
                       }`}>
                         {result.player?.is_cpu
-                          ? '🤖'
+                          ? <Minus className="w-3 h-3" />
                           : (() => {
                               const userVote = game.approvals?.find(approval => approval.voter_id === result.player_id);
-                              if (!userVote) return '−';
+                              if (!userVote) return <Clock className="w-3 h-3" />;
                               return userVote.vote === 'approve' ? '✓' : '✗';
                             })()
                         }

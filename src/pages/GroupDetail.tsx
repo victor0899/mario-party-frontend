@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button, GameApprovalModal, AddCPUModal } from '../shared/components';
 import { WarioLoader } from '../shared/components/ui';
@@ -458,7 +459,7 @@ export default function GroupDetail() {
                           {game.status === 'approved' ?
                             (isAutoApproved(game) ? '🤖 Auto-aprobada' : '✅ Aprobada') :
                            game.status === 'rejected' ? '❌ Rechazada' :
-                           '🏆 Pendiente'}
+                           <><Calendar className="w-3 h-3 inline mr-1" /> Pendiente</>}
                         </span>
                         {game.status === 'pending' && (
                           <span className="text-xs text-gray-400">
@@ -479,7 +480,7 @@ export default function GroupDetail() {
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="px-6 py-4 bg-gray-50 border-b">
                 <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                  🏆 Tabla de Posiciones
+                  <Calendar className="w-5 h-5 mr-2" /> Tabla de Posiciones
                 </h2>
               </div>
 
