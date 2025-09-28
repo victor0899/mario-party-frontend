@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Button, Input } from '../shared/components';
+import { WarioLoader } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { withTimeout, TIMEOUTS } from '../shared/utils/timeout';
@@ -407,18 +408,14 @@ export default function CreateGame() {
   };
 
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center">
-      <div>Cargando...</div>
-    </div>;
+    return <WarioLoader text="Cargando..." size="md" fullScreen />;
   }
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-gray-500">Cargando...</div>
-          </div>
+          <WarioLoader text="Cargando..." size="md" />
         </div>
       </div>
     );
