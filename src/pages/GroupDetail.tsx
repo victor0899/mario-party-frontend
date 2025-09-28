@@ -520,6 +520,9 @@ export default function GroupDetail() {
                         Jugador
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Puntos
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Victorias
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -581,6 +584,11 @@ export default function GroupDetail() {
                                 {entry.is_cpu ? 'CPU Player' : 'Jugador'}
                               </div>
                             </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="text-lg font-bold text-gray-900">
+                            {entry.total_league_points}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
