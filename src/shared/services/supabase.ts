@@ -80,9 +80,12 @@ export class SupabaseAPI {
       .eq('id', id)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error in getGroup query:', error);
+      throw error;
+    }
 
-
+    // Get profile data for human members (including nationality)
     if (group.members && group.members.length > 0) {
       const humanMemberUserIds = group.members
         .filter((member: any) => !member.is_cpu && member.user_id)
@@ -91,18 +94,18 @@ export class SupabaseAPI {
       if (humanMemberUserIds.length > 0) {
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, nickname, profile_picture')
+          .select('id, nickname, profile_picture, nationality')
           .in('id', humanMemberUserIds);
 
         if (!profilesError && profiles) {
-
           group.members = group.members.map((member: any) => {
             if (!member.is_cpu && member.user_id) {
               const profile = profiles.find((p: any) => p.id === member.user_id);
               if (profile) {
                 member.profile = {
                   nickname: profile.nickname,
-                  profile_picture: profile.profile_picture
+                  profile_picture: profile.profile_picture,
+                  nationality: profile.nationality
                 };
               }
             }

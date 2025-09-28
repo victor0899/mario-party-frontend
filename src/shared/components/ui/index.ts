@@ -4,5 +4,6 @@ export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 export { VideoBackground } from './VideoBackground';
 export { Spinner, LoadingSpinner } from './Spinner';
 export { WarioLoader } from './WarioLoader';
+export { CountryFlag } from './CountryFlag';
 export { default as MemberAvatars } from './MemberAvatars';
 export { default as LucideIcon } from './LucideIcon';

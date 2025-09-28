@@ -10,7 +10,6 @@ import Home from './pages/Home';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import CreateGroup from './pages/CreateGroup';
-import Groups from './pages/Groups';
 import GroupDetail from './pages/GroupDetail';
 import JoinGroup from './pages/JoinGroup';
 import CreateGame from './pages/CreateGame';
@@ -93,16 +92,7 @@ function App() {
           }
         />
 
-        <Route
-          path="/groups"
-          element={
-            <ProtectedRoute>
-              <AppLayout>
-                <Groups />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/groups" element={<Navigate to="/dashboard" replace />} />
 
         <Route
           path="/groups/new"

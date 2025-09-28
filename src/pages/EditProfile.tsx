@@ -3,6 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Button, Spinner } from '../shared/components';
 import { useAuthStore } from '../app/store/useAuthStore';
+import { COUNTRIES } from '../shared/utils/countries';
+
+// Component for rendering flags
+const CountryFlag = ({ countryCode, className }: { countryCode: string; className?: string }) => {
+  try {
+    // Using a simple approach with country-flag-icons
+    return (
+      <img
+        src={`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png`}
+        alt={`${countryCode} flag`}
+        className={className}
+        style={{ width: '24px', height: '16px' }}
+      />
+    );
+  } catch (error) {
+    return <div className={`${className} bg-gray-200`} style={{ width: '24px', height: '16px' }} />;
+  }
+};
 
 const MARIO_CHARACTERS = [
   { id: 'mario', name: 'Mario', image: '/images/characters/SMP_Icon_Mario.webp' },
@@ -36,7 +54,8 @@ export default function EditProfile() {
 
   const [formData, setFormData] = useState({
     nickname: '',
-    profilePicture: MARIO_CHARACTERS[0].id
+    profilePicture: MARIO_CHARACTERS[0].id,
+    nationality: 'MX'
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,7 +65,8 @@ export default function EditProfile() {
     if (profile) {
       setFormData({
         nickname: profile.nickname || '',
-        profilePicture: profile.profile_picture || MARIO_CHARACTERS[0].id
+        profilePicture: profile.profile_picture || MARIO_CHARACTERS[0].id,
+        nationality: profile.nationality || 'MX'
       });
     }
   }, [profile]);
@@ -63,7 +83,8 @@ export default function EditProfile() {
     try {
       const profileData = {
         nickname: formData.nickname,
-        profile_picture: formData.profilePicture
+        profile_picture: formData.profilePicture,
+        nationality: formData.nationality
       };
 
       await updateProfile(profileData);
@@ -131,6 +152,44 @@ export default function EditProfile() {
                       )}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Nacionalidad
+                </label>
+                <div className="max-h-48 overflow-y-auto p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="grid grid-cols-2 gap-2">
+                    {COUNTRIES.map((country) => (
+                      <button
+                        key={country.code}
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, nationality: country.code }))}
+                        className={`group relative p-2 rounded-lg transition-all duration-200 text-left ${
+                          formData.nationality === country.code
+                            ? 'bg-blue-50 ring-2 ring-blue-400 shadow-lg'
+                            : 'bg-white hover:bg-gray-50 border border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <CountryFlag countryCode={country.code} />
+                          <span className={`text-sm font-medium truncate ${
+                            formData.nationality === country.code
+                              ? 'text-blue-600'
+                              : 'text-gray-600'
+                          }`}>
+                            {country.name}
+                          </span>
+                        </div>
+                        {formData.nationality === country.code && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                            <span className="text-xs text-white">✓</span>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 

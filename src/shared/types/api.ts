@@ -52,6 +52,7 @@ export interface GroupMember {
   profile?: {
     nickname?: string;
     profile_picture?: string;
+    nationality?: string;
   };
 }
 

@@ -97,7 +97,7 @@ export default function CreateGame() {
   const loadInitialData = async () => {
     if (!groupId) {
       toast.error('ID de grupo requerido');
-      navigate('/groups');
+      navigate('/dashboard');
       return;
     }
 
@@ -161,7 +161,7 @@ export default function CreateGame() {
       }
 
       toast.error(errorMessage);
-      navigate('/groups');
+      navigate('/dashboard');
     } finally {
       setIsLoading(false);
     }
@@ -427,7 +427,7 @@ export default function CreateGame() {
         <div className="container mx-auto py-8">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Grupo no encontrado</h2>
-            <Button variant="primary" onClick={() => navigate('/groups')}>
+            <Button variant="primary" onClick={() => navigate('/dashboard')}>
               Volver a Mis Grupos
             </Button>
           </div>

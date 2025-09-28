@@ -3,10 +3,11 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Calendar, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button, GameApprovalModal, AddCPUModal } from '../shared/components';
-import { WarioLoader } from '../shared/components/ui';
+import { WarioLoader, CountryFlag } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { formatGameDate } from '../shared/utils/dateFormat';
+import { DEFAULT_COUNTRY } from '../shared/utils/countries';
 import type { Group, Game, LeaderboardEntry, GroupMember } from '../shared/types/api';
 
 export default function GroupDetail() {
@@ -165,7 +166,7 @@ export default function GroupDetail() {
     } catch (error: any) {
       console.error('Error al cargar grupo:', error);
       toast.error('Error al cargar el grupo');
-      navigate('/groups');
+      navigate('/dashboard');
     } finally {
       setIsLoading(false);
     }
@@ -301,11 +302,16 @@ export default function GroupDetail() {
                       )}
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="font-medium text-gray-800">
-                        {member.profile?.nickname || 'Usuario sin nombre'}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {member.user_id === group.creator_id && 'Creador'}
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-gray-800">
+                          {member.profile?.nickname || 'Usuario sin nombre'}
+                        </span>
+                        <div className="flex items-center">
+                          <CountryFlag
+                            countryCode={member.profile?.nationality || DEFAULT_COUNTRY.code}
+                            size="profile"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -325,7 +331,15 @@ export default function GroupDetail() {
                       )}
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="font-medium text-gray-800">{member.cpu_name}</div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-gray-800">{member.cpu_name}</span>
+                        <div className="flex items-center">
+                          <CountryFlag
+                            countryCode={DEFAULT_COUNTRY.code}
+                            size="profile"
+                          />
+                        </div>
+                      </div>
                       <div className="text-sm text-purple-600">CPU Player</div>
                     </div>
                   </div>

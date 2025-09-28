@@ -138,7 +138,7 @@ export default function Leaderboard() {
     } catch (error: any) {
       console.error('Error al cargar datos:', error);
       toast.error('Error al cargar los datos');
-      navigate('/groups');
+      navigate('/dashboard');
     } finally {
       setIsLoading(false);
     }
