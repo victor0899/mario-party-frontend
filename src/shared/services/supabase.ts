@@ -78,6 +78,7 @@ export class SupabaseAPI {
         )
       `)
       .eq('id', id)
+      .order('played_at', { ascending: false, referencedTable: 'games' })
       .single();
 
     if (error) {
