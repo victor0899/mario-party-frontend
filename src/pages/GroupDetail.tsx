@@ -240,7 +240,7 @@ export default function GroupDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto py-8 px-4">
           <WarioLoader text="Cargando grupo..." size="md" />
         </div>
       </div>
@@ -250,7 +250,7 @@ export default function GroupDetail() {
   if (!group) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto py-8 px-4">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Grupo no encontrado</h2>
             <Link to="/groups">

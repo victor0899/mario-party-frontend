@@ -151,7 +151,7 @@ export default function Leaderboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto py-8 px-4">
           <WarioLoader text="Cargando tabla de posiciones..." size="md" />
         </div>
       </div>
@@ -161,7 +161,7 @@ export default function Leaderboard() {
   if (!group) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto py-8 px-4">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Grupo no encontrado</h2>
             <Link to="/groups">
@@ -177,7 +177,7 @@ export default function Leaderboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 px-4">
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold text-gray-800">

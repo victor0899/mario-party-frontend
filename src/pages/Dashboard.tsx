@@ -58,7 +58,7 @@ export default function Dashboard() {
 
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0">
         <div>
           <h1 className="text-3xl font-mario text-gray-900">

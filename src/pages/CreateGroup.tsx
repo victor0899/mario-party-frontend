@@ -56,7 +56,7 @@ export default function CreateGroup() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 px-4">
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="mb-6">
