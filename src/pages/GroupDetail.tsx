@@ -520,13 +520,7 @@ export default function GroupDetail() {
                         Jugador
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Puntos
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Victorias
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Partidas
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <div className="flex items-center justify-center space-x-1">
@@ -540,6 +534,9 @@ export default function GroupDetail() {
                           <span>Monedas</span>
                         </div>
                       </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Partidas
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -551,20 +548,10 @@ export default function GroupDetail() {
                         hover:bg-blue-50 transition-colors
                       `}>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                              index === 0 ? 'bg-yellow-500' :
-                              index === 1 ? 'bg-gray-400' :
-                              index === 2 ? 'bg-orange-600' :
-                              'bg-blue-500'
-                            }`}>
+                          <div className="flex items-center justify-center">
+                            <span className="text-4xl font-mario text-gray-800">
                               {index + 1}
-                            </div>
-                            {index < 3 && (
-                              <span className="ml-2">
-                                {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
-                              </span>
-                            )}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -597,18 +584,8 @@ export default function GroupDetail() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-lg font-bold text-gray-900">
-                            {entry.total_league_points}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
                           <div className="text-sm text-gray-900">
                             {entry.games_won}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm text-gray-900">
-                            {entry.games_played}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -619,6 +596,11 @@ export default function GroupDetail() {
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           <div className="text-sm text-gray-900">
                             {entry.total_coins}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="text-sm text-gray-900">
+                            {entry.games_played}
                           </div>
                         </td>
                       </tr>
