@@ -6,7 +6,6 @@ import { WarioLoader } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { withTimeout, TIMEOUTS } from '../shared/utils/timeout';
-import { getCharacterImage } from '../shared/utils/characters';
 import { getMapImageUrl } from '../shared/utils/maps';
 import type { Group, Map, CreateGameResultRequest } from '../shared/types/api';
 
