@@ -7,6 +7,7 @@ import { WarioLoader, CountryFlag } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { formatGameDate } from '../shared/utils/dateFormat';
+import { getCharacterImage } from '../shared/utils/characters';
 import { DEFAULT_COUNTRY } from '../shared/utils/countries';
 import type { Group, Game, LeaderboardEntry, GroupMember } from '../shared/types/api';
 
@@ -19,37 +20,10 @@ export default function GroupDetail() {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [activeTab, setActiveTab] = useState<'leaderboard' | 'statistics'>('leaderboard');
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
-  const getCharacterImage = (characterId: string) => {
-    const characterMap: { [key: string]: string } = {
-      'mario': '/images/characters/SMP_Icon_Mario.webp',
-      'luigi': '/images/characters/SMP_Icon_Luigi.webp',
-      'peach': '/images/characters/SMP_Icon_Peach.webp',
-      'bowser': '/images/characters/SMP_Icon_Bowser.webp',
-      'yoshi': '/images/characters/SMPJ_Icon_Yoshi.webp',
-      'toad': '/images/characters/SMPJ_Icon_Toad.webp',
-      'wario': '/images/characters/SMP_Icon_Wario.webp',
-      'waluigi': '/images/characters/SMP_Icon_Waluigi.webp',
-      'rosalina': '/images/characters/SMP_Icon_Rosalina.webp',
-      'bowser-jr': '/images/characters/SMP_Icon_Jr.webp',
-      'toadette': '/images/characters/SMPJ_Icon_Toadette.webp',
-      'daisy': '/images/characters/MPS_Daisy_icon.webp',
-      'shy-guy': '/images/characters/SMP_Icon_Shy_Guy.webp',
-      'koopa': '/images/characters/SMP_Icon_Koopa.webp',
-      'goomba': '/images/characters/SMP_Icon_Goomba.webp',
-      'boo': '/images/characters/SMP_Icon_Boo.webp',
-      'dk': '/images/characters/SMP_Icon_DK.webp',
-      'birdo': '/images/characters/MPS_Birdo_icon.webp',
-      'pauline': '/images/characters/SMPJ_Icon_Pauline.webp',
-      'ninji': '/images/characters/SMPJ_Icon_Ninji.webp',
-      'spike': '/images/characters/SMPJ_Icon_Spike.webp',
-      'monty-mole': '/images/characters/SMP_Icon_Monty_Mole.webp'
-    };
-
-    return characterMap[characterId] || '/images/characters/SMP_Icon_Mario.webp';
-  };
 
 
   const calculateLeaderboard = (members: GroupMember[], games: Game[]): LeaderboardEntry[] => {
@@ -210,8 +184,6 @@ export default function GroupDetail() {
   };
 
   const handleGameClick = async (game: Game) => {
-    if (game.status !== 'pending') return;
-
     try {
       const fullGame = await supabaseAPI.getGameDetails(game.id);
       setSelectedGame(fullGame);
@@ -459,10 +431,8 @@ export default function GroupDetail() {
                   {group.games.map((game) => (
                     <div
                       key={game.id}
-                      className={`flex items-center justify-between p-3 bg-gray-50 rounded-lg ${
-                        game.status === 'pending' ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''
-                      }`}
-                      onClick={() => game.status === 'pending' && handleGameClick(game)}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleGameClick(game)}
                     >
                       <div>
                         <div className="font-medium text-gray-800">
@@ -486,11 +456,9 @@ export default function GroupDetail() {
                            game.status === 'rejected' ? '❌ Rechazada' :
                            <><Calendar className="w-3 h-3 inline mr-1" /> Pendiente</>}
                         </span>
-                        {game.status === 'pending' && (
-                          <span className="text-xs text-gray-400">
-                            Haz clic para votar
-                          </span>
-                        )}
+                        <span className="text-xs text-gray-400">
+                          {game.status === 'pending' ? 'Haz clic para votar' : 'Haz clic para ver detalles'}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -503,13 +471,42 @@ export default function GroupDetail() {
         {leaderboard.length > 0 && (
           <div className="mt-8">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="px-6 py-4 bg-gray-50 border-b">
-                <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                  <Calendar className="w-5 h-5 mr-2" /> Tabla de Posiciones
-                </h2>
+              {/* Tab Navigation */}
+              <div className="border-b border-gray-200">
+                <nav className="flex space-x-8 px-6" aria-label="Tabs">
+                  <button
+                    onClick={() => setActiveTab('leaderboard')}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === 'leaderboard'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>Tabla de Posiciones</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('statistics')}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeTab === 'statistics'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span>📊</span>
+                      <span>Estadísticas</span>
+                    </div>
+                  </button>
+                </nav>
               </div>
 
-              <div className="overflow-x-auto">
+              {/* Tab Content */}
+              {activeTab === 'leaderboard' && (
+                <>
+                  <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b">
                     <tr>
@@ -526,9 +523,6 @@ export default function GroupDetail() {
                         Victorias
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Partidas
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         <div className="flex items-center justify-center space-x-1">
                           <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
                           <span>Estrellas</span>
@@ -539,6 +533,9 @@ export default function GroupDetail() {
                           <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
                           <span>Monedas</span>
                         </div>
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Partidas
                       </th>
                     </tr>
                   </thead>
@@ -551,20 +548,10 @@ export default function GroupDetail() {
                         hover:bg-blue-50 transition-colors
                       `}>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                              index === 0 ? 'bg-yellow-500' :
-                              index === 1 ? 'bg-gray-400' :
-                              index === 2 ? 'bg-orange-600' :
-                              'bg-blue-500'
-                            }`}>
+                          <div className="flex items-center justify-center">
+                            <span className="text-4xl font-mario text-gray-800">
                               {index + 1}
-                            </div>
-                            {index < 3 && (
-                              <span className="ml-2">
-                                {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
-                              </span>
-                            )}
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -608,11 +595,6 @@ export default function GroupDetail() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           <div className="text-sm text-gray-900">
-                            {entry.games_played}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm text-gray-900">
                             {entry.total_stars}
                           </div>
                         </td>
@@ -621,34 +603,211 @@ export default function GroupDetail() {
                             {entry.total_coins}
                           </div>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="text-sm text-gray-900">
+                            {entry.games_played}
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
 
-              <div className="px-6 py-4 bg-gray-50 border-t">
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <div className="text-lg font-semibold text-blue-600">
-                      {leaderboard.length}
+                  <div className="px-6 py-4 bg-gray-50 border-t">
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="text-lg font-semibold text-blue-600">
+                          {leaderboard.length}
+                        </div>
+                        <div className="text-xs text-gray-600">Jugadores Activos</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-semibold text-green-600">
+                          {group?.games?.filter(g => g.status === 'approved').length || 0}
+                        </div>
+                        <div className="text-xs text-gray-600">Partidas Aprobadas</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-semibold text-yellow-600">
+                          {leaderboard.reduce((sum, entry) => sum + entry.total_stars, 0)}
+                        </div>
+                        <div className="text-xs text-gray-600">Estrellas Totales</div>
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-600">Jugadores Activos</div>
                   </div>
-                  <div>
-                    <div className="text-lg font-semibold text-green-600">
-                      {group?.games?.filter(g => g.status === 'approved').length || 0}
+                </>
+              )}
+
+              {/* Statistics Tab */}
+              {activeTab === 'statistics' && (
+                <div className="p-6">
+                  <div className="grid grid-cols-3 gap-6">
+                    {/* Row 1 - Victory Statistics */}
+                    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                      <div className="flex items-center mb-4">
+                        <span className="text-2xl mr-2">🏆</span>
+                        <h4 className="text-lg font-semibold text-gray-800">
+                          Victorias
+                        </h4>
+                      </div>
+
+                      {/* Vertical Bar Chart */}
+                      <div className="h-64">
+                        {leaderboard.length > 0 ? (
+                          <div className="h-full flex items-end justify-between gap-2 px-2">
+                            {leaderboard.slice(0, 6).map((entry, index) => {
+                              const totalGames = group?.games?.filter(g => g.status === 'approved').length || 0;
+                              const winPercentage = totalGames > 0 ? (entry.games_won / totalGames) * 100 : 0;
+                              const maxWins = Math.max(...leaderboard.slice(0, 6).map(e => e.games_won));
+                              const barHeight = maxWins > 0 ? (entry.games_won / maxWins) * 180 : 0;
+
+                              return (
+                                <div key={entry.player_id} className="flex-1 flex flex-col items-center">
+                                  {/* Value and Percentage */}
+                                  <div className="mb-2 text-center">
+                                    <div className="text-lg font-bold text-gray-900">
+                                      {entry.games_won}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      {winPercentage.toFixed(1)}%
+                                    </div>
+                                  </div>
+
+                                  {/* Vertical Bar */}
+                                  <div className="w-full max-w-12 bg-gray-200 rounded-t-lg relative flex flex-col justify-end" style={{ height: '180px' }}>
+                                    <div
+                                      className={`w-full rounded-t-lg transition-all duration-500 ease-out flex items-center justify-center ${
+                                        index === 0 ? 'bg-yellow-500' :
+                                        index === 1 ? 'bg-gray-400' :
+                                        index === 2 ? 'bg-orange-600' :
+                                        'bg-blue-500'
+                                      }`}
+                                      style={{ height: `${Math.max(barHeight, 20)}px` }}
+                                    >
+                                      {/* Position Badge */}
+                                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold ${
+                                        index === 0 ? 'bg-yellow-600' :
+                                        index === 1 ? 'bg-gray-500' :
+                                        index === 2 ? 'bg-orange-700' :
+                                        'bg-blue-600'
+                                      }`}>
+                                        {index + 1}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Player Avatar */}
+                                  <div className="mt-2 flex justify-center">
+                                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center" title={entry.player_name}>
+                                      {entry.is_cpu ? (
+                                        entry.profile_picture ? (
+                                          <img
+                                            src={getCharacterImage(entry.profile_picture)}
+                                            alt={entry.player_name}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        ) : (
+                                          <span className="text-white text-xs">🤖</span>
+                                        )
+                                      ) : (
+                                        // Find the corresponding member to get profile picture
+                                        (() => {
+                                          const member = group?.members?.find(m =>
+                                            !m.is_cpu && (m.profile?.nickname === entry.player_name || m.id === entry.player_id)
+                                          );
+                                          return member?.profile?.profile_picture ? (
+                                            <img
+                                              src={getCharacterImage(member.profile.profile_picture)}
+                                              alt={entry.player_name}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          ) : (
+                                            <span className="text-gray-500 text-xs">👤</span>
+                                          );
+                                        })()
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="h-full flex items-center justify-center">
+                            <div className="text-center text-gray-500">
+                              <span className="text-4xl block mb-2">📊</span>
+                              <p className="text-sm">No hay datos disponibles</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                     </div>
-                    <div className="text-xs text-gray-600">Partidas Aprobadas</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-semibold text-yellow-600">
-                      {leaderboard.reduce((sum, entry) => sum + entry.total_stars, 0)}
+
+                    <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
+                      <div className="mb-3">
+                        <span className="text-3xl">🎯</span>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                        Estadística 2
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Placeholder para estadística
+                      </p>
                     </div>
-                    <div className="text-xs text-gray-600">Estrellas Totales</div>
+
+                    <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
+                      <div className="mb-3">
+                        <span className="text-3xl">🏆</span>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                        Estadística 3
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Placeholder para estadística
+                      </p>
+                    </div>
+
+                    {/* Row 2 */}
+                    <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
+                      <div className="mb-3">
+                        <span className="text-3xl">⭐</span>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                        Estadística 4
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Placeholder para estadística
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
+                      <div className="mb-3">
+                        <span className="text-3xl">🎮</span>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                        Estadística 5
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Placeholder para estadística
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
+                      <div className="mb-3">
+                        <span className="text-3xl">🏅</span>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                        Estadística 6
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Placeholder para estadística
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}

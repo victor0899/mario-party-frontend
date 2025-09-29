@@ -6,6 +6,8 @@ import { WarioLoader } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { withTimeout, TIMEOUTS } from '../shared/utils/timeout';
+import { getCharacterImage } from '../shared/utils/characters';
+import { getMapImageUrl } from '../shared/utils/maps';
 import type { Group, Map, CreateGameResultRequest } from '../shared/types/api';
 
 interface PlayerResult extends CreateGameResultRequest {
@@ -167,20 +169,6 @@ export default function CreateGame() {
     }
   };
 
-  const getMapImageUrl = (mapName: string) => {
-    const availableImages: { [key: string]: string } = {
-      'Goomba Lagoon': 'GoombaLagoon.webp',
-      'King Bowser\'s Keep': 'SMPJ_King_Bowser\'s_Keep.webp',
-      'Mario\'s Rainbow Castle': 'SMPJ_Mario\'s_Rainbow_Castle.webp',
-      'Mega Wiggler\'s Tree Party': 'SMPJ_Mega_Wiggler\'s_Tree_Party.webp',
-      'Rainbow Galleria': 'SMPJ_Rainbow_Galleria.webp',
-      'Roll \'em Raceway': 'SMPJ_Roll_\'em_Raceway.webp',
-      'Western Land': 'SMPJ_Western_Land.webp'
-    };
-
-    const filename = availableImages[mapName];
-    return filename ? `/images/maps/${filename}` : null;
-  };
 
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());

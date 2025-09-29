@@ -74,7 +74,10 @@ export class SupabaseAPI {
           id,
           status,
           played_at,
-          map_id
+          map_id,
+          approvals:game_approvals(
+            vote
+          )
         )
       `)
       .eq('id', id)
@@ -112,6 +115,43 @@ export class SupabaseAPI {
             }
             return member;
           });
+        }
+      }
+    }
+
+    // Update game statuses based on approvals
+    if (group.games && group.games.length > 0) {
+      const humanMembers = group.members.filter((m: any) => !m.is_cpu && m.status === 'active');
+      const totalHumanMembers = humanMembers.length;
+
+      for (const game of group.games) {
+        if (game.status === 'pending' && game.approvals) {
+          let newStatus: string | null = null;
+
+          if (totalHumanMembers === 1) {
+            newStatus = 'approved';
+          } else {
+            const approveVotes = game.approvals.filter((a: any) => a.vote === 'approve').length;
+            const rejectVotes = game.approvals.filter((a: any) => a.vote === 'reject').length;
+
+            if (approveVotes === 2) {
+              newStatus = 'approved';
+            } else if (rejectVotes === 2) {
+              newStatus = 'rejected';
+            }
+          }
+
+          // Update the game status in the database if needed
+          if (newStatus && game.status !== newStatus) {
+            const { error: updateError } = await supabase
+              .from('games')
+              .update({ status: newStatus })
+              .eq('id', game.id);
+
+            if (!updateError) {
+              game.status = newStatus; // Update the local object too
+            }
+          }
         }
       }
     }
@@ -397,7 +437,7 @@ export class SupabaseAPI {
 
       if (approveVotes === 2) {
         newStatus = 'approved';
-      } else if (rejectVotes >= 3) {
+      } else if (rejectVotes === 2) {
         newStatus = 'rejected';
       }
     }
