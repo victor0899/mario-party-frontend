@@ -62,8 +62,8 @@ export default function GroupDetail() {
         game.results.forEach(result => {
           const stats = playerStats[result.player_id];
           if (stats) {
-            const points = 5 - result.position;
-            stats.total_league_points += points;
+            // Use league_points calculated by backend
+            stats.total_league_points += result.league_points;
 
             if (result.position === 1) {
               stats.games_won += 1;
@@ -250,6 +250,29 @@ export default function GroupDetail() {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Dashboard</span>
           </button>
+        </div>
+
+        {/* Group Header */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-mario text-gray-900">{group.name}</h1>
+              {group.description && (
+                <p className="text-gray-600 mt-1">{group.description}</p>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {group.rule_set === 'pro_bonus' ? (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                  🏆 ProBonus
+                </span>
+              ) : (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  ⭐ Clásico
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

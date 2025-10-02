@@ -46,8 +46,8 @@ function calculateLeaderboard(members: GroupMember[], games: Game[]): Leaderboar
         const stats = playerStats[result.player_id];
         if (stats) {
 
-          const points = 5 - result.position;
-          stats.total_league_points += points;
+          // Use league_points calculated by backend
+          stats.total_league_points += result.league_points;
 
 
           if (result.position === 1) {

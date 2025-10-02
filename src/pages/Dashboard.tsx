@@ -129,11 +129,18 @@ export default function Dashboard() {
                         <h3 className="text-lg font-mario text-gray-900 flex-1">
                           {group.name}
                         </h3>
-                        {isGroupFull && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2">
-                            {group.members?.length}/{group.max_members}
-                          </span>
-                        )}
+                        <div className="flex items-center space-x-2">
+                          {group.rule_set === 'pro_bonus' && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                              ProBonus
+                            </span>
+                          )}
+                          {isGroupFull && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              {group.members?.length}/{group.max_members}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       {/* Logo centrado */}

@@ -272,6 +272,10 @@ export default function CreateGame() {
       minigames_won: 0,
       showdown_wins: 0,
 
+      total_stars_earned: 0,
+      total_coins_earned: 0,
+      minigame_bonus: 0,
+
       items_bought: 0,
       items_used: 0,
       spaces_traveled: 0,
@@ -338,7 +342,8 @@ export default function CreateGame() {
     setIsSubmitting(true);
 
     try {
-      const gameResults = playerResults.map(player => ({
+      // Calculate minigame king bonus for ProBonus groups
+      let gameResults = playerResults.map(player => ({
         player_id: player.player_id,
         position: player.position,
         stars: player.stars,
@@ -349,6 +354,8 @@ export default function CreateGame() {
         items_used: player.items_used,
         spaces_traveled: player.spaces_traveled,
         reactions_used: player.reactions_used,
+        total_stars_earned: player.total_stars_earned || 0,
+        total_coins_earned: player.total_coins_earned || 0,
         blue_spaces: player.blue_spaces,
         red_spaces: player.red_spaces,
         lucky_spaces: player.lucky_spaces,
@@ -357,7 +364,19 @@ export default function CreateGame() {
         bowser_spaces: player.bowser_spaces,
         event_spaces: player.event_spaces,
         vs_spaces: player.vs_spaces,
+        minigame_bonus: 0, // Track bonus separately
       }));
+
+      // Apply minigame king bonus for ProBonus groups
+      if (group?.rule_set === 'pro_bonus') {
+        const maxMinigames = Math.max(...gameResults.map(r => r.minigames_won));
+        if (maxMinigames > 0) {
+          gameResults = gameResults.map(result => ({
+            ...result,
+            minigame_bonus: result.minigames_won === maxMinigames ? 1 : 0
+          }));
+        }
+      }
 
       await withTimeout(
         supabaseAPI.createGame({
@@ -673,36 +692,89 @@ export default function CreateGame() {
 
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg mb-2 text-left">{player.playerName}</h3>
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-2">
-                          <label className="text-xs font-medium text-gray-500">
-                            <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="99"
-                            value={player.stars === 0 ? '' : player.stars}
-                            placeholder="0"
-                            onChange={(e) => updatePlayerResult(player.playerId, 'stars', e.target.value)}
-                            className="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <label className="text-xs font-medium text-gray-500">
+                              <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="99"
+                              value={player.stars === 0 ? '' : player.stars}
+                              placeholder="0"
+                              onChange={(e) => updatePlayerResult(player.playerId, 'stars', e.target.value)}
+                              className="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <label className="text-xs font-medium text-gray-500">
+                              <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="999"
+                              value={player.coins === 0 ? '' : player.coins}
+                              placeholder="0"
+                              onChange={(e) => updatePlayerResult(player.playerId, 'coins', e.target.value)}
+                              className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                          <label className="text-xs font-medium text-gray-500">
-                            <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            max="999"
-                            value={player.coins === 0 ? '' : player.coins}
-                            placeholder="0"
-                            onChange={(e) => updatePlayerResult(player.playerId, 'coins', e.target.value)}
-                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
+                        <div className="flex items-center space-x-4 pl-1">
+                          <div className="flex items-center space-x-2">
+                            <label className="text-xs font-medium text-gray-600">
+                              🎮 Minijuegos
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="99"
+                              value={player.minigames_won === 0 ? '' : player.minigames_won}
+                              placeholder="0"
+                              onChange={(e) => updatePlayerResult(player.playerId, 'minigames_won', e.target.value)}
+                              className="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
                         </div>
+
+                        {group?.rule_set === 'pro_bonus' && (
+                          <div className="flex items-center space-x-4 pl-1">
+                            <div className="flex items-center space-x-2">
+                              <label className="text-xs font-medium text-purple-600">
+                                ⭐ Ganadas
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="99"
+                                value={player.total_stars_earned === 0 ? '' : player.total_stars_earned}
+                                placeholder="0"
+                                onChange={(e) => updatePlayerResult(player.playerId, 'total_stars_earned', e.target.value)}
+                                className="w-16 px-2 py-1 border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              />
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                              <label className="text-xs font-medium text-purple-600">
+                                🪙 Ganadas
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="999"
+                                value={player.total_coins_earned === 0 ? '' : player.total_coins_earned}
+                                placeholder="0"
+                                onChange={(e) => updatePlayerResult(player.playerId, 'total_coins_earned', e.target.value)}
+                                className="w-20 px-2 py-1 border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

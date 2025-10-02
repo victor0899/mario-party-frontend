@@ -27,6 +27,7 @@ export class SupabaseAPI {
         description: data.description,
         is_public: data.is_public ?? false,
         max_members: data.max_members ?? 4,
+        rule_set: data.rule_set ?? 'classic',
         creator_id: user.id,
       })
       .select('*')
