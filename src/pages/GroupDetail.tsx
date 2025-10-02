@@ -21,6 +21,7 @@ export default function GroupDetail() {
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'statistics'>('leaderboard');
+  const [isFinalizing, setIsFinalizing] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
@@ -135,7 +136,31 @@ export default function GroupDetail() {
       setGroup(groupData);
 
       const approvedGames = await supabaseAPI.getGroupGames(id, 'approved');
+      const bonuses = await supabaseAPI.getLeagueBonuses(id);
+
       const leaderboardData = calculateLeaderboard(groupData.members, approvedGames);
+
+      // Add bonuses to leaderboard if league is finalized
+      if (groupData.league_status === 'finalized' && bonuses.length > 0) {
+        bonuses.forEach((bonus: any) => {
+          const playerStats = leaderboardData.find(p => p.player_id === bonus.player_id);
+          if (playerStats) {
+            playerStats.total_league_points += bonus.bonus_points;
+          }
+        });
+
+        // Re-sort after adding bonuses
+        leaderboardData.sort((a, b) => {
+          if (a.total_league_points !== b.total_league_points) {
+            return b.total_league_points - a.total_league_points;
+          }
+          if (a.total_stars !== b.total_stars) {
+            return b.total_stars - a.total_stars;
+          }
+          return b.total_coins - a.total_coins;
+        });
+      }
+
       setLeaderboard(leaderboardData);
     } catch (error: any) {
       console.error('Error al cargar grupo:', error);
@@ -203,6 +228,34 @@ export default function GroupDetail() {
     setTimeout(() => {
       loadGroup();
     }, 500);
+  };
+
+  const handleFinalizeLeague = async () => {
+    if (!group || !id) return;
+
+    const confirmMessage = `¿Estás seguro de que quieres finalizar la liga "${group.name}"?\n\nSe calcularán los bonos finales:\n- Rey de Victorias: +3 pts\n- Rey de Estrellas: +1 pt\n- Rey de Monedas: +1 pt\n\nEsta acción no se puede deshacer.`;
+
+    if (!confirm(confirmMessage)) return;
+
+    setIsFinalizing(true);
+    try {
+      const bonusResults = await supabaseAPI.finalizeLeague(id);
+
+      let message = '¡Liga finalizada! Bonos otorgados:\n';
+      bonusResults.forEach((bonus: any) => {
+        const bonusName = bonus.b_type === 'king_of_victories' ? 'Rey de Victorias' :
+                         bonus.b_type === 'king_of_stars' ? 'Rey de Estrellas' : 'Rey de Monedas';
+        message += `\n${bonusName}: ${bonus.p_name} (+${bonus.b_points} pts)`;
+      });
+
+      toast.success(message);
+      await loadGroup(); // Recargar para ver el nuevo estado
+    } catch (error: any) {
+      console.error('Error al finalizar liga:', error);
+      toast.error(error.message || 'Error al finalizar la liga');
+    } finally {
+      setIsFinalizing(false);
+    }
   };
 
   if (!user) {
@@ -416,16 +469,30 @@ export default function GroupDetail() {
                 <h2 className="text-xl font-mario text-gray-800">
                   Partidas Recientes
                 </h2>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => navigate(`/games/new?group=${group.id}`)}
-                  disabled={!isGroupFull}
-                  className="flex items-center space-x-2"
-                >
-                  <span>+</span>
-                  <span>Nueva Partida</span>
-                </Button>
+                <div className="flex items-center space-x-2">
+                  {group.rule_set === 'pro_bonus' && group.league_status === 'active' && user?.id === group.creator_id && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={handleFinalizeLeague}
+                      isLoading={isFinalizing}
+                      className="flex items-center space-x-2"
+                    >
+                      <span>🏆</span>
+                      <span>Finalizar Liga</span>
+                    </Button>
+                  )}
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => navigate(`/games/new?group=${group.id}`)}
+                    disabled={!isGroupFull || group.league_status === 'finalized'}
+                    className="flex items-center space-x-2"
+                  >
+                    <span>+</span>
+                    <span>Nueva Partida</span>
+                  </Button>
+                </div>
               </div>
 
               {!group.games || group.games.length === 0 ? (

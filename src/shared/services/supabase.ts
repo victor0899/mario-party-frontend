@@ -659,6 +659,24 @@ export class SupabaseAPI {
     if (error) throw error;
     return groups;
   }
+
+  async finalizeLeague(groupId: string): Promise<any> {
+    const { data, error } = await supabase
+      .rpc('finalize_league', { p_group_id: groupId });
+
+    if (error) throw error;
+    return data;
+  }
+
+  async getLeagueBonuses(groupId: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('league_bonuses')
+      .select('*')
+      .eq('group_id', groupId);
+
+    if (error) throw error;
+    return data || [];
+  }
 }
 
 export const supabaseAPI = new SupabaseAPI();

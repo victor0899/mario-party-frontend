@@ -25,6 +25,7 @@ export interface Map {
 }
 
 export type RuleSet = 'classic' | 'pro_bonus';
+export type LeagueStatus = 'active' | 'finalized';
 
 export interface Group {
   id: string;
@@ -35,11 +36,21 @@ export interface Group {
   is_public: boolean;
   max_members: number;
   rule_set?: RuleSet;
+  league_status?: LeagueStatus;
   created_at: string;
   updated_at: string;
   creator?: User;
   members: GroupMember[];
   games: Game[];
+}
+
+export interface LeagueBonus {
+  id: string;
+  group_id: string;
+  player_id: string;
+  bonus_type: 'king_of_victories' | 'king_of_stars' | 'king_of_coins';
+  bonus_points: number;
+  created_at: string;
 }
 
 export interface GroupMember {
