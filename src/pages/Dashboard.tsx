@@ -4,10 +4,11 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { useGroupsStore } from '../app/store/useGroupsStore';
 import { WarioLoader, MemberAvatars } from '../shared/components/ui';
+import { supabaseAPI } from '../shared/services/supabase';
 
 export default function Dashboard() {
   const { session, user } = useAuthStore();
-  const { groups, isLoading, error, loadGroups } = useGroupsStore();
+  const { groups, isLoading, error, loadGroups, removeGroup } = useGroupsStore();
   const navigate = useNavigate();
 
   const isAuthenticated = !!session && !!user;
@@ -34,6 +35,21 @@ export default function Dashboard() {
       if (diffInDays < 7) return `hace ${diffInDays} días`;
       if (diffInDays < 30) return `hace ${Math.floor(diffInDays / 7)} sem`;
       return `hace ${Math.floor(diffInDays / 30)} mes`;
+    }
+  };
+
+  const deleteGroup = async (groupId: string, groupName: string) => {
+    if (!confirm(`¿Estás seguro de que quieres eliminar el grupo "${groupName}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    try {
+      await supabaseAPI.deleteGroup(groupId);
+      removeGroup(groupId);
+      toast.success('Grupo eliminado exitosamente');
+    } catch (error: any) {
+      console.error('Error al eliminar grupo:', error);
+      toast.error('Error al eliminar el grupo: ' + (error.message || 'Error desconocido'));
     }
   };
 
@@ -113,11 +129,18 @@ export default function Dashboard() {
                         <h3 className="text-lg font-mario text-gray-900 flex-1">
                           {group.name}
                         </h3>
-                        {isGroupFull && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-2">
-                            {group.members?.length}/{group.max_members}
-                          </span>
-                        )}
+                        <div className="flex items-center space-x-2">
+                          {group.rule_set === 'pro_bonus' && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                              ProBonus
+                            </span>
+                          )}
+                          {isGroupFull && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              {group.members?.length}/{group.max_members}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       {/* Logo centrado */}
@@ -168,12 +191,23 @@ export default function Dashboard() {
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => navigate(`/groups/${group.id}`)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-medium transition-colors"
-                      >
-                        Ver Grupo
-                      </button>
+                      <div className="space-y-2">
+                        <button
+                          onClick={() => navigate(`/groups/${group.id}`)}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-4 rounded-lg font-medium transition-colors"
+                        >
+                          Ver Grupo
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteGroup(group.id, group.name);
+                          }}
+                          className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors text-sm"
+                        >
+                          🗑️ Eliminar
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );

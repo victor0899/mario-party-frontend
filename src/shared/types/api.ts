@@ -24,6 +24,9 @@ export interface Map {
   created_at: string;
 }
 
+export type RuleSet = 'classic' | 'pro_bonus';
+export type LeagueStatus = 'active' | 'finalized';
+
 export interface Group {
   id: string;
   name: string;
@@ -32,11 +35,22 @@ export interface Group {
   invite_code: string;
   is_public: boolean;
   max_members: number;
+  rule_set?: RuleSet;
+  league_status?: LeagueStatus;
   created_at: string;
   updated_at: string;
   creator?: User;
   members: GroupMember[];
   games: Game[];
+}
+
+export interface LeagueBonus {
+  id: string;
+  group_id: string;
+  player_id: string;
+  bonus_type: 'king_of_victories' | 'king_of_stars' | 'king_of_coins';
+  bonus_points: number;
+  created_at: string;
 }
 
 export interface GroupMember {
@@ -87,6 +101,9 @@ export interface GameResult {
   spaces_traveled: number;
   reactions_used: number;
 
+  // ProBonus tracking - total earned during game
+  total_stars_earned: number;
+  total_coins_earned: number;
 
   blue_spaces: number;
   red_spaces: number;
@@ -157,6 +174,7 @@ export interface CreateGroupRequest {
   description?: string;
   is_public?: boolean;
   max_members?: number;
+  rule_set?: RuleSet;
 }
 
 export interface JoinGroupRequest {
@@ -187,6 +205,9 @@ export interface CreateGameResultRequest {
   items_used: number;
   spaces_traveled: number;
   reactions_used: number;
+  total_stars_earned: number;
+  total_coins_earned: number;
+  minigame_bonus: number;
   blue_spaces: number;
   red_spaces: number;
   lucky_spaces: number;

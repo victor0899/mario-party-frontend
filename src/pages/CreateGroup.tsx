@@ -5,11 +5,13 @@ import { Button, Input, Spinner } from '../shared/components';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { useGroupsStore } from '../app/store/useGroupsStore';
+import type { RuleSet } from '../shared/types/api';
 
 export default function CreateGroup() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(false);
+  const [ruleSet, setRuleSet] = useState<RuleSet>('classic');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -27,6 +29,7 @@ export default function CreateGroup() {
         description: description.trim() || undefined,
         is_public: isPublic,
         max_members: 4,
+        rule_set: ruleSet,
       });
 
       // Add the new group to the store so it appears immediately
@@ -103,6 +106,51 @@ export default function CreateGroup() {
                 </label>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3 text-left">
+                  Sistema de Puntuación
+                </label>
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <input
+                      type="radio"
+                      id="classic"
+                      name="ruleSet"
+                      value="classic"
+                      checked={ruleSet === 'classic'}
+                      onChange={(e) => setRuleSet(e.target.value as RuleSet)}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 mt-1"
+                    />
+                    <label htmlFor="classic" className="ml-3 text-left">
+                      <div className="text-sm font-medium text-gray-900">Clásico</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        1º: +4pts | 2º: +3pts | 3º: +2pts | 4º: +1pt
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-start">
+                    <input
+                      type="radio"
+                      id="pro_bonus"
+                      name="ruleSet"
+                      value="pro_bonus"
+                      checked={ruleSet === 'pro_bonus'}
+                      onChange={(e) => setRuleSet(e.target.value as RuleSet)}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 mt-1"
+                    />
+                    <label htmlFor="pro_bonus" className="ml-3 text-left">
+                      <div className="text-sm font-medium text-gray-900">ProBonus</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        1º: +3pts | 2º: +2pts | 3º: +1pt | 4º: 0pts
+                      </div>
+                      <div className="text-xs text-blue-600 mt-1">
+                        + Bonos: Rey Minijuegos, Estrellas, Monedas, Victorias
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
 
               <div className="flex space-x-4">
                 <Button

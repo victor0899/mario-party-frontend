@@ -27,6 +27,7 @@ export class SupabaseAPI {
         description: data.description,
         is_public: data.is_public ?? false,
         max_members: data.max_members ?? 4,
+        rule_set: data.rule_set ?? 'classic',
         creator_id: user.id,
       })
       .select('*')
@@ -657,6 +658,24 @@ export class SupabaseAPI {
 
     if (error) throw error;
     return groups;
+  }
+
+  async finalizeLeague(groupId: string): Promise<any> {
+    const { data, error } = await supabase
+      .rpc('finalize_league', { p_group_id: groupId });
+
+    if (error) throw error;
+    return data;
+  }
+
+  async getLeagueBonuses(groupId: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('league_bonuses')
+      .select('*')
+      .eq('group_id', groupId);
+
+    if (error) throw error;
+    return data || [];
   }
 }
 
