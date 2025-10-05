@@ -160,6 +160,21 @@ export class SupabaseAPI {
     return group;
   }
 
+  async getGroupByInviteCode(inviteCode: string): Promise<Group> {
+    const { data: group, error } = await supabase
+      .from('groups')
+      .select(`
+        *,
+        members:group_members(*)
+      `)
+      .eq('invite_code', inviteCode)
+      .single();
+
+    if (error) throw error;
+    if (!group) throw new Error('Grupo no encontrado');
+    return group;
+  }
+
   async joinGroup(data: JoinGroupRequest): Promise<GroupMember> {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) throw new Error('Not authenticated');
