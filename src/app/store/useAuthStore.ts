@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User as AuthUser, Session } from '@supabase/supabase-js';
 import { supabase } from '../../shared/lib/supabase';
+import { useGroupsStore } from './useGroupsStore';
 
 interface Profile {
   id: string;
@@ -245,6 +246,8 @@ export const useAuthStore = create<AuthState>()(
                 user: null,
                 profile: null
               });
+              // Clear groups store when user signs out
+              useGroupsStore.getState().clearGroups();
             } else if (event === 'SIGNED_IN' && session) {
               get().setSession(session);
               // Use setTimeout to avoid deadlock with Supabase async operations
