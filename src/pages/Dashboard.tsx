@@ -62,7 +62,7 @@ export default function Dashboard() {
   }, [isAuthenticated, user, loadGroups]);
 
   useEffect(() => {
-    if (error && error.includes('auth') || error?.includes('JWT') || error?.includes('session')) {
+    if (error && (error.includes('auth') || error.includes('JWT') || error.includes('session'))) {
       console.log('🔄 Auth error detected, redirecting to login');
       toast.error('Sesión expirada. Redirigiendo...');
       navigate('/auth');
