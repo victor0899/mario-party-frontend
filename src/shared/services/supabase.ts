@@ -46,9 +46,23 @@ export class SupabaseAPI {
       });
 
     if (memberError) {
+      throw memberError;
     }
 
-    return group;
+    // Fetch the complete group with members and games
+    const { data: completeGroup, error: fetchError } = await supabase
+      .from('groups')
+      .select(`
+        *,
+        members:group_members(*),
+        games(id, status, played_at)
+      `)
+      .eq('id', group.id)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    return completeGroup;
   }
 
   async deleteGroup(groupId: string): Promise<void> {
