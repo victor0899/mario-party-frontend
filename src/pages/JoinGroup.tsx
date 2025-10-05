@@ -188,7 +188,7 @@ export default function JoinGroup() {
                 >
                   {isJoining ? 'Uniéndose...' : 'Unirse al Grupo'}
                 </Button>
-                <Link to="/dashboard">
+                <Link to="/dashboard" className="block">
                   <Button variant="secondary" size="lg" className="w-full">
                     Cancelar
                   </Button>
