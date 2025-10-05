@@ -668,6 +668,14 @@ export class SupabaseAPI {
     return data;
   }
 
+  async closeLeague(groupId: string): Promise<any> {
+    const { data, error } = await supabase
+      .rpc('close_league', { p_group_id: groupId });
+
+    if (error) throw error;
+    return data;
+  }
+
   async getLeagueBonuses(groupId: string): Promise<any[]> {
     const { data, error } = await supabase
       .from('league_bonuses')

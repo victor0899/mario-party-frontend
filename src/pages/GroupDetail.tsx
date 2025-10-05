@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Calendar, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { Button, GameApprovalModal, AddCPUModal } from '../shared/components';
+import { Button, GameApprovalModal, AddCPUModal, ConfirmModal } from '../shared/components';
 import { WarioLoader, CountryFlag } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
@@ -22,6 +22,7 @@ export default function GroupDetail() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'statistics'>('leaderboard');
   const [isFinalizing, setIsFinalizing] = useState(false);
+  const [showCloseLeagueModal, setShowCloseLeagueModal] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
@@ -230,29 +231,34 @@ export default function GroupDetail() {
     }, 500);
   };
 
-  const handleFinalizeLeague = async () => {
+  const handleCloseLeague = async () => {
     if (!group || !id) return;
 
-    const confirmMessage = `¿Estás seguro de que quieres finalizar la liga "${group.name}"?\n\nSe calcularán los bonos finales:\n- Rey de Victorias: +3 pts\n- Rey de Estrellas: +1 pt\n- Rey de Monedas: +1 pt\n\nEsta acción no se puede deshacer.`;
-
-    if (!confirm(confirmMessage)) return;
+    const isProBonus = group.rule_set === 'pro_bonus';
 
     setIsFinalizing(true);
     try {
-      const bonusResults = await supabaseAPI.finalizeLeague(id);
+      const result = await supabaseAPI.closeLeague(id);
 
-      let message = '¡Liga finalizada! Bonos otorgados:\n';
-      bonusResults.forEach((bonus: any) => {
-        const bonusName = bonus.b_type === 'king_of_victories' ? 'Rey de Victorias' :
-                         bonus.b_type === 'king_of_stars' ? 'Rey de Estrellas' : 'Rey de Monedas';
-        message += `\n${bonusName}: ${bonus.p_name} (+${bonus.b_points} pts)`;
-      });
+      if (isProBonus && Array.isArray(result)) {
+        // Resultado de ProBonus con bonos
+        let message = '¡Liga finalizada! Bonos otorgados:\n';
+        result.forEach((bonus: any) => {
+          const bonusName = bonus.b_type === 'king_of_victories' ? 'Rey de Victorias' :
+                           bonus.b_type === 'king_of_stars' ? 'Rey de Estrellas' : 'Rey de Monedas';
+          message += `\n${bonusName}: ${bonus.p_name} (+${bonus.b_points} pts)`;
+        });
+        toast.success(message);
+      } else {
+        // Resultado de liga clásica
+        toast.success('¡Liga cerrada exitosamente! No se podrán agregar más partidas.');
+      }
 
-      toast.success(message);
       await loadGroup(); // Recargar para ver el nuevo estado
+      setShowCloseLeagueModal(false);
     } catch (error: any) {
-      console.error('Error al finalizar liga:', error);
-      toast.error(error.message || 'Error al finalizar la liga');
+      console.error('Error al cerrar liga:', error);
+      toast.error(error.message || 'Error al cerrar la liga');
     } finally {
       setIsFinalizing(false);
     }
@@ -465,21 +471,37 @@ export default function GroupDetail() {
 
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-lg shadow-md p-6 min-h-[400px] flex flex-col">
+              {group.league_status === 'finalized' && (
+                <div className="mb-4 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-yellow-700">
+                        <strong>Liga {group.rule_set === 'pro_bonus' ? 'finalizada' : 'cerrada'}.</strong> No se pueden agregar más partidas.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-mario text-gray-800">
                   Partidas Recientes
                 </h2>
                 <div className="flex items-center space-x-2">
-                  {group.rule_set === 'pro_bonus' && group.league_status === 'active' && user?.id === group.creator_id && (
+                  {group.league_status === 'active' && user?.id === group.creator_id && (
                     <Button
                       variant="secondary"
                       size="sm"
-                      onClick={handleFinalizeLeague}
-                      isLoading={isFinalizing}
+                      onClick={() => setShowCloseLeagueModal(true)}
                       className="flex items-center space-x-2"
                     >
                       <span>🏆</span>
-                      <span>Finalizar Liga</span>
+                      <span>{group.rule_set === 'pro_bonus' ? 'Finalizar Liga' : 'Cerrar Liga'}</span>
                     </Button>
                   )}
                   <Button
@@ -915,6 +937,22 @@ export default function GroupDetail() {
         onClose={() => setShowAddCPUModal(false)}
         onAdd={addCPUMember}
         isLoading={isAddingCPU}
+      />
+
+      <ConfirmModal
+        isOpen={showCloseLeagueModal}
+        onClose={() => setShowCloseLeagueModal(false)}
+        onConfirm={handleCloseLeague}
+        title={group?.rule_set === 'pro_bonus' ? 'Finalizar Liga' : 'Cerrar Liga'}
+        message={
+          group?.rule_set === 'pro_bonus'
+            ? `¿Estás seguro de que quieres finalizar la liga "${group?.name}"?\n\nSe calcularán los bonos finales:\n- Rey de Victorias: +3 pts\n- Rey de Estrellas: +1 pt\n- Rey de Monedas: +1 pt\n\nEsta acción no se puede deshacer.`
+            : `¿Estás seguro de que quieres cerrar la liga "${group?.name}"?\n\nNo se podrán agregar más partidas después de cerrar la liga.\n\nEsta acción no se puede deshacer.`
+        }
+        confirmText={group?.rule_set === 'pro_bonus' ? 'Finalizar Liga' : 'Cerrar Liga'}
+        cancelText="Cancelar"
+        isLoading={isFinalizing}
+        type="warning"
       />
     </div>
   );

@@ -4,4 +4,5 @@ export * from './layout';
 export { default as GameApprovalModal } from './GameApprovalModal';
 export { default as AddCPUModal } from './AddCPUModal';
 export { default as ProfileGuard } from './ProfileGuard';
+export { default as ConfirmModal } from './ConfirmModal';
 export { ImageCarousel } from './ImageCarousel';
