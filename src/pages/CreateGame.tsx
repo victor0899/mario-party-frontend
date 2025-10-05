@@ -7,6 +7,7 @@ import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { withTimeout, TIMEOUTS } from '../shared/utils/timeout';
 import { getMapImageUrl } from '../shared/utils/maps';
+import { getRuleSetInfo } from '../shared/utils/rules';
 import type { Group, Map, CreateGameResultRequest } from '../shared/types/api';
 
 interface PlayerResult extends CreateGameResultRequest {
@@ -630,14 +631,30 @@ export default function CreateGame() {
 
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-2">Resultados por Jugador</h2>
-            <div className="mb-6 p-3 bg-gray-50 rounded-lg">
-              <div className="flex flex-wrap gap-4 text-xs text-gray-500">
-                <span>🥇 1er Lugar: 4 puntos</span>
-                <span>🥈 2do Lugar: 3 puntos</span>
-                <span>🥉 3er Lugar: 2 puntos</span>
-                <span>4to Lugar: 1 punto</span>
-              </div>
-            </div>
+            {group && group.rule_set && (() => {
+              const ruleInfo = getRuleSetInfo(group.rule_set);
+              return (
+                <div className="mb-6 p-3 bg-gray-50 rounded-lg space-y-2">
+                  <div className="flex flex-wrap gap-4 text-xs text-gray-700">
+                    {ruleInfo.positions.map((pos, idx) => (
+                      <span key={idx}>
+                        {pos.emoji} {pos.label}: {pos.points} punto{pos.points !== 1 ? 's' : ''}
+                      </span>
+                    ))}
+                  </div>
+                  {ruleInfo.bonuses && (
+                    <div className="text-xs text-purple-600 font-medium">
+                      + Bonos: {ruleInfo.bonuses.map((bonus, idx) => (
+                        <span key={idx}>
+                          {bonus.name} (+{bonus.points}pt {bonus.timing === 'per_game' ? 'cada partida' : 'al final'})
+                          {idx < ruleInfo.bonuses!.length - 1 ? ' • ' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {playerResults.map((player) => (
