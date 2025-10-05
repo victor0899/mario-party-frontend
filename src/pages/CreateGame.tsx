@@ -659,136 +659,135 @@ export default function CreateGame() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {playerResults.map((player) => (
                 <div key={player.playerId} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="relative">
-                      <div className={`w-16 h-16 rounded-full p-1 ${
-                        player.calculatedPosition === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
-                        player.calculatedPosition === 2 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
-                        player.calculatedPosition === 3 ? 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700' :
-                        'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600'
-                      }`}>
-                        <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-white">
-                          {(() => {
-                            const member = group?.members?.find(m => m.id === player.player_id);
-                            if (member?.is_cpu) {
-                              if (member.cpu_avatar) {
+                  <div className="flex space-x-4">
+                    <div className="flex flex-col items-center">
+                      <div className="relative">
+                        <div className={`w-16 h-16 rounded-full p-1 ${
+                          player.calculatedPosition === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
+                          player.calculatedPosition === 2 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
+                          player.calculatedPosition === 3 ? 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700' :
+                          'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600'
+                        }`}>
+                          <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-white">
+                            {(() => {
+                              const member = group?.members?.find(m => m.id === player.player_id);
+                              if (member?.is_cpu) {
+                                if (member.cpu_avatar) {
+                                  return (
+                                    <img
+                                      src={getCharacterImage(member.cpu_avatar)}
+                                      alt={player.playerName}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  );
+                                } else {
+                                  return <span className="text-2xl">🤖</span>;
+                                }
+                              } else if (member?.profile?.profile_picture) {
                                 return (
                                   <img
-                                    src={getCharacterImage(member.cpu_avatar)}
+                                    src={getCharacterImage(member.profile.profile_picture)}
                                     alt={player.playerName}
                                     className="w-full h-full object-cover"
                                   />
                                 );
                               } else {
-                                return <span className="text-2xl">🤖</span>;
+                                return <span className="text-gray-500 text-xl">👤</span>;
                               }
-                            } else if (member?.profile?.profile_picture) {
-                              return (
-                                <img
-                                  src={getCharacterImage(member.profile.profile_picture)}
-                                  alt={player.playerName}
-                                  className="w-full h-full object-cover"
-                                />
-                              );
-                            } else {
-                              return <span className="text-gray-500 text-xl">👤</span>;
-                            }
-                          })()}
+                            })()}
+                          </div>
+                        </div>
+
+                        <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white ${
+                          player.calculatedPosition === 1 ? 'bg-yellow-600' :
+                          player.calculatedPosition === 2 ? 'bg-gray-500' :
+                          player.calculatedPosition === 3 ? 'bg-orange-700' :
+                          'bg-gray-600'
+                        }`}>
+                          {player.calculatedPosition}
                         </div>
                       </div>
 
-                      <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs border-2 border-white ${
-                        player.calculatedPosition === 1 ? 'bg-yellow-600' :
-                        player.calculatedPosition === 2 ? 'bg-gray-500' :
-                        player.calculatedPosition === 3 ? 'bg-orange-700' :
-                        'bg-gray-600'
-                      }`}>
-                        {player.calculatedPosition}
-                      </div>
+                      <h3 className="font-semibold text-sm mt-2 text-center">{player.playerName}</h3>
                     </div>
 
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-2 text-left">{player.playerName}</h3>
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center space-x-2">
-                            <label className="text-xs font-medium text-gray-500">
-                              <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              max="99"
-                              value={player.stars === 0 ? '' : player.stars}
-                              placeholder="0"
-                              onChange={(e) => updatePlayerResult(player.playerId, 'stars', e.target.value)}
-                              className="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            <label className="text-xs font-medium text-gray-500">
-                              <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              max="999"
-                              value={player.coins === 0 ? '' : player.coins}
-                              placeholder="0"
-                              onChange={(e) => updatePlayerResult(player.playerId, 'coins', e.target.value)}
-                              className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-4 pl-1">
-                          <div className="flex items-center space-x-2">
-                            <label className="text-xs font-medium text-gray-600">
-                              🎮 Minijuegos
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              max="99"
-                              value={player.minigames_won === 0 ? '' : player.minigames_won}
-                              placeholder="0"
-                              onChange={(e) => updatePlayerResult(player.playerId, 'minigames_won', e.target.value)}
-                              className="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-                        </div>
-
-                        {group?.rule_set === 'pro_bonus' && (
-                          <div className="flex items-center space-x-4 pl-1">
+                      <div className="grid grid-cols-2 gap-4 divide-x divide-gray-200">
+                        {/* Columna 1: Resultados Finales */}
+                        <div className="pr-4">
+                          <div className="text-xs font-semibold text-gray-600 mb-2">Finales</div>
+                          <div className="space-y-2">
                             <div className="flex items-center space-x-2">
-                              <label className="text-xs font-medium text-purple-600">
-                                ⭐ Ganadas
-                              </label>
+                              <img src="/images/others/MPS_Star.webp" alt="Estrellas" className="w-5 h-5" />
                               <input
                                 type="number"
                                 min="0"
                                 max="99"
-                                value={player.total_stars_earned === 0 ? '' : player.total_stars_earned}
+                                value={player.stars === 0 ? '' : player.stars}
                                 placeholder="0"
-                                onChange={(e) => updatePlayerResult(player.playerId, 'total_stars_earned', e.target.value)}
-                                className="w-16 px-2 py-1 border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                onChange={(e) => updatePlayerResult(player.playerId, 'stars', e.target.value)}
+                                className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
                             </div>
 
                             <div className="flex items-center space-x-2">
-                              <label className="text-xs font-medium text-purple-600">
-                                🪙 Ganadas
-                              </label>
+                              <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Monedas" className="w-5 h-5" />
                               <input
                                 type="number"
                                 min="0"
                                 max="999"
-                                value={player.total_coins_earned === 0 ? '' : player.total_coins_earned}
+                                value={player.coins === 0 ? '' : player.coins}
                                 placeholder="0"
-                                onChange={(e) => updatePlayerResult(player.playerId, 'total_coins_earned', e.target.value)}
-                                className="w-20 px-2 py-1 border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                onChange={(e) => updatePlayerResult(player.playerId, 'coins', e.target.value)}
+                                className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                              <span className="text-xl">🎮</span>
+                              <input
+                                type="number"
+                                min="0"
+                                max="99"
+                                value={player.minigames_won === 0 ? '' : player.minigames_won}
+                                placeholder="0"
+                                onChange={(e) => updatePlayerResult(player.playerId, 'minigames_won', e.target.value)}
+                                className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Columna 2: Estadísticas Ganadas (solo ProBonus) */}
+                        {group?.rule_set === 'pro_bonus' && (
+                          <div className="pl-4">
+                            <div className="text-xs font-semibold text-purple-600 mb-2">Obtenidas</div>
+                            <div className="space-y-2">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-lg">⭐</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="99"
+                                  value={player.total_stars_earned === 0 ? '' : player.total_stars_earned}
+                                  placeholder="0"
+                                  onChange={(e) => updatePlayerResult(player.playerId, 'total_stars_earned', e.target.value)}
+                                  className="w-20 px-2 py-1 border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                              </div>
+
+                              <div className="flex items-center space-x-2">
+                                <span className="text-lg">🪙</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="999"
+                                  value={player.total_coins_earned === 0 ? '' : player.total_coins_earned}
+                                  placeholder="0"
+                                  onChange={(e) => updatePlayerResult(player.playerId, 'total_coins_earned', e.target.value)}
+                                  className="w-20 px-2 py-1 border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                              </div>
                             </div>
                           </div>
                         )}

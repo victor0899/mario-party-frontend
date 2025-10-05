@@ -11,6 +11,7 @@ export default function Dashboard() {
   const { groups, isLoading, error, loadGroups, removeGroup } = useGroupsStore();
   const navigate = useNavigate();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'active' | 'finalized'>('active');
 
   const isAuthenticated = !!session && !!user;
 
@@ -113,11 +114,12 @@ export default function Dashboard() {
           </div>
         ) : (
           <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">
-              Mis Grupos ({groups.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {groups.slice(0, 6).map((group) => {
+            {(() => {
+              const activeGroups = groups.filter(g => g.league_status !== 'finalized');
+              const finalizedGroups = groups.filter(g => g.league_status === 'finalized');
+              const displayGroups = activeTab === 'active' ? activeGroups : finalizedGroups;
+
+              const renderGroupCard = (group: typeof groups[0]) => {
                 const lastGameDate = getLastGameDate(group.games || []);
                 const isGroupFull = (group.members?.length || 0) >= group.max_members;
                 const approvedGamesCount = group.games?.filter(g => g.status === 'approved').length || 0;
@@ -134,6 +136,11 @@ export default function Dashboard() {
                           {group.rule_set === 'pro_bonus' && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                               ProBonus
+                            </span>
+                          )}
+                          {group.league_status === 'finalized' && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                              Finalizada
                             </span>
                           )}
                           {isGroupFull && (
@@ -242,8 +249,61 @@ export default function Dashboard() {
                     </div>
                   </div>
                 );
-              })}
-            </div>
+              };
+
+              return (
+                <div>
+                  {/* Tabs */}
+                  <div className="flex border-b border-gray-200 mb-6">
+                    <button
+                      onClick={() => setActiveTab('active')}
+                      className={`px-4 py-2 font-medium text-sm transition-colors border-b-2 ${
+                        activeTab === 'active'
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Activas ({activeGroups.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('finalized')}
+                      className={`px-4 py-2 font-medium text-sm transition-colors border-b-2 ${
+                        activeTab === 'finalized'
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      Finalizadas ({finalizedGroups.length})
+                    </button>
+                  </div>
+
+                  {/* Content */}
+                  {displayGroups.length === 0 ? (
+                    <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                      <div className="mb-4 flex justify-center">
+                        <img
+                          src="/images/others/boo.webp"
+                          alt="Boo"
+                          className="w-24 h-24 object-contain"
+                        />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                        No hay ligas {activeTab === 'active' ? 'activas' : 'finalizadas'}
+                      </h3>
+                      <p className="text-gray-600">
+                        {activeTab === 'active'
+                          ? 'Crea una nueva liga o únete a una existente'
+                          : 'Aún no has finalizado ninguna liga'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {displayGroups.map(renderGroupCard)}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>
