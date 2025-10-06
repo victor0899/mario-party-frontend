@@ -319,6 +319,16 @@ export default function GroupDetail() {
               {group.description && (
                 <p className="text-gray-600 mt-1">{group.description}</p>
               )}
+              <div className="flex items-center space-x-2 mt-2">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                <p className="text-sm text-gray-500">
+                  Inicio: {new Date(group.created_at).toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              </div>
             </div>
             <div className="flex items-center space-x-2">
               {group.rule_set === 'pro_bonus' ? (
