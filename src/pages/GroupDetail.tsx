@@ -924,6 +924,7 @@ export default function GroupDetail() {
         isOpen={showApprovalModal}
         onClose={handleModalClose}
         onVoteSubmitted={handleVoteSubmitted}
+        group={group || undefined}
       />
 
       <AddCPUModal
