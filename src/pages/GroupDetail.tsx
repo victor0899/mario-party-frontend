@@ -476,40 +476,38 @@ export default function GroupDetail() {
                   Partidas Recientes
                 </h2>
 
-                <div className="flex items-center gap-3 flex-1">
-                  {group.league_status === 'finalized' && (
-                    <div className="flex-1 bg-yellow-50 border-l-4 border-yellow-400 px-3 py-2 rounded">
-                      <p className="text-sm text-yellow-700">
-                        <strong>Liga finalizada.</strong> No se pueden agregar más partidas.
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-2 whitespace-nowrap">
-                    {group.league_status === 'active' && user?.id === group.creator_id && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => setShowCloseLeagueModal(true)}
-                        className="flex items-center space-x-2"
-                      >
-                        <span>🏆</span>
-                        <span>{group.rule_set === 'pro_bonus' ? 'Finalizar Liga' : 'Cerrar Liga'}</span>
-                      </Button>
-                    )}
+                <div className="flex items-center gap-2 whitespace-nowrap ml-auto">
+                  {group.league_status === 'active' && user?.id === group.creator_id && (
                     <Button
-                      variant="primary"
+                      variant="secondary"
                       size="sm"
-                      onClick={() => navigate(`/games/new?group=${group.id}`)}
-                      disabled={!isGroupFull || group.league_status === 'finalized'}
+                      onClick={() => setShowCloseLeagueModal(true)}
                       className="flex items-center space-x-2"
                     >
-                      <span>+</span>
-                      <span>Nueva Partida</span>
+                      <span>🏆</span>
+                      <span>{group.rule_set === 'pro_bonus' ? 'Finalizar Liga' : 'Cerrar Liga'}</span>
                     </Button>
-                  </div>
+                  )}
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => navigate(`/games/new?group=${group.id}`)}
+                    disabled={!isGroupFull || group.league_status === 'finalized'}
+                    className="flex items-center space-x-2"
+                  >
+                    <span>+</span>
+                    <span>Nueva Partida</span>
+                  </Button>
                 </div>
               </div>
+
+              {group.league_status === 'finalized' && (
+                <div className="mb-4 bg-yellow-50 border-l-4 border-yellow-400 px-3 py-2 rounded">
+                  <p className="text-sm text-yellow-700">
+                    <strong>Liga finalizada.</strong> No se pueden agregar más partidas.
+                  </p>
+                </div>
+              )}
 
               {!group.games || group.games.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center">
@@ -625,21 +623,25 @@ export default function GroupDetail() {
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Puntos
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Victorias
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <div className="flex items-center justify-center space-x-1">
-                          <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
-                          <span>Estrellas</span>
-                        </div>
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <div className="flex items-center justify-center space-x-1">
-                          <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
-                          <span>Monedas</span>
-                        </div>
-                      </th>
+                      {group?.rule_set !== 'pro_bonus' && (
+                        <>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Victorias
+                          </th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <div className="flex items-center justify-center space-x-1">
+                              <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
+                              <span>Estrellas</span>
+                            </div>
+                          </th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <div className="flex items-center justify-center space-x-1">
+                              <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
+                              <span>Monedas</span>
+                            </div>
+                          </th>
+                        </>
+                      )}
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Partidas
                       </th>
@@ -694,21 +696,25 @@ export default function GroupDetail() {
                             {entry.total_league_points}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm text-gray-900">
-                            {entry.games_won}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm text-gray-900">
-                            {entry.total_stars}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm text-gray-900">
-                            {entry.total_coins}
-                          </div>
-                        </td>
+                        {group?.rule_set !== 'pro_bonus' && (
+                          <>
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <div className="text-sm text-gray-900">
+                                {entry.games_won}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <div className="text-sm text-gray-900">
+                                {entry.total_stars}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <div className="text-sm text-gray-900">
+                                {entry.total_coins}
+                              </div>
+                            </td>
+                          </>
+                        )}
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           <div className="text-sm text-gray-900">
                             {entry.games_played}

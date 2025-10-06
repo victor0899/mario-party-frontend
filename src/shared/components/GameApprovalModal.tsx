@@ -6,7 +6,7 @@ import { supabaseAPI } from '../services/supabase';
 import { useAuthStore } from '../../app/store/useAuthStore';
 import { formatGameDate } from '../utils/dateFormat';
 import { getCharacterImage } from '../utils/characters';
-import { getMapImageUrl } from '../utils/maps';
+import { getMapImageUrl, getMapInfo, renderDifficultyStars } from '../utils/maps';
 import type { Game, Group } from '../types/api';
 
 
@@ -57,6 +57,13 @@ export default function GameApprovalModal({
 
   const isProBonus = group?.rule_set === 'pro_bonus';
 
+  // Find the player(s) with most minigames won (Minigame King)
+  const maxMinigames = Math.max(...(game.results?.map(r => r.minigames_won) || [0]));
+  const hasMinigameKing = maxMinigames > 0;
+
+  // Get map information
+  const mapInfo = game.map?.name ? getMapInfo(game.map.name) : null;
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -101,7 +108,21 @@ export default function GameApprovalModal({
 
                 <div className="mt-4 text-center">
                   <h3 className="text-2xl font-mario text-gray-800 mb-2">{game.map?.name}</h3>
-                  <p className="text-lg text-gray-600 font-medium">{formatGameDate(game.played_at)}</p>
+
+                  {mapInfo && (
+                    <>
+                      <div className="flex items-center justify-center mb-3">
+                        <span className="text-yellow-500 text-xl font-semibold" title={`Dificultad: ${mapInfo.difficulty}/5`}>
+                          {renderDifficultyStars(mapInfo.difficulty)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 italic px-2 mb-3">
+                        {mapInfo.description}
+                      </p>
+                    </>
+                  )}
+
+                  <p className="text-sm text-gray-500 font-medium">{formatGameDate(game.played_at)}</p>
                 </div>
               </div>
             </div>
@@ -223,7 +244,14 @@ export default function GameApprovalModal({
                                   <span className="text-base">🎮</span>
                                   <span className="text-xs text-gray-500">Minijuegos</span>
                                 </div>
-                                <span className="font-bold text-sm">{result.minigames_won}</span>
+                                <div className="flex items-center space-x-2">
+                                  {isProBonus && hasMinigameKing && result.minigames_won === maxMinigames && (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-300">
+                                      +1 pt
+                                    </span>
+                                  )}
+                                  <span className="font-bold text-sm">{result.minigames_won}</span>
+                                </div>
                               </div>
 
                               <div className="flex items-center justify-between">
@@ -243,7 +271,7 @@ export default function GameApprovalModal({
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center space-x-2">
-                                    <span className="text-base">⭐</span>
+                                    <img src="/images/others/MPS_Star.webp" alt="Estrellas" className="w-4 h-4" />
                                     <span className="text-xs text-gray-500">Estrellas</span>
                                   </div>
                                   <span className="font-bold text-sm text-purple-600">{result.total_stars_earned || 0}</span>
@@ -251,7 +279,7 @@ export default function GameApprovalModal({
 
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center space-x-2">
-                                    <span className="text-base">🪙</span>
+                                    <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Monedas" className="w-4 h-4" />
                                     <span className="text-xs text-gray-500">Monedas</span>
                                   </div>
                                   <span className="font-bold text-sm text-purple-600">{result.total_coins_earned || 0}</span>
