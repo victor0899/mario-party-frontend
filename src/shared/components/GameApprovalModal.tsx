@@ -145,8 +145,8 @@ export default function GameApprovalModal({
                   <div key={result.player_id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-center space-x-4">
                       {/* Avatar and Position */}
-                      <div className="flex-shrink-0">
-                        <div className="relative">
+                      <div className="flex-shrink-0 w-12">
+                        <div className="relative w-12 h-12">
                           <div className={`w-12 h-12 rounded-full p-0.5 ${
                             result.position === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
                             result.position === 2 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
