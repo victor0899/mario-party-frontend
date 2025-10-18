@@ -119,7 +119,11 @@ export const useAuthStore = create<AuthState>()(
           const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-              redirectTo: `${baseUrl}/dashboard`
+              redirectTo: `${baseUrl}/dashboard`,
+              queryParams: {
+                access_type: 'offline',
+                prompt: 'consent',
+              },
             }
           });
           if (error) throw error;
